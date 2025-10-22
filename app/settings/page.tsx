@@ -19,6 +19,8 @@ import {
   Avatar,
   Separator,
   Card,
+  Checkbox,
+  Badge,
 } from '@chakra-ui/react'
 import { useState } from 'react'
 import { MdPerson, MdBusiness, MdNotifications, MdSecurity, MdCamera } from 'react-icons/md'
@@ -37,10 +39,10 @@ const SectionTab = ({ icon, label, isActive, onClick }: SectionTabProps) => {
       variant="ghost"
       justifyContent="flex-start"
       w="full"
-      bg={isActive ? 'blue.50' : 'transparent'}
-      color={isActive ? 'blue.600' : 'inherit'}
+      bg={isActive ? 'purple.50' : 'transparent'}
+      color={isActive ? 'purple.600' : 'inherit'}
       fontWeight={isActive ? 'semibold' : 'medium'}
-      _hover={{ bg: isActive ? 'blue.50' : 'gray.100' }}
+      _hover={{ bg: isActive ? 'purple.50' : 'gray.100' }}
       onClick={onClick}
     >
       <Icon as={icon} />
@@ -56,10 +58,10 @@ export default function SettingsPage() {
     <MainLayout>
       <Container maxW="container.xl" py={8}>
         <Box mb={8}>
-          <Heading size="lg" mb={2}>
+          <Heading size="lg" mb={2} color="purple.900">
             Profile Management
           </Heading>
-          <Text color="gray.600">
+          <Text color="purple.800">
             Manage your contact information and organization details
           </Text>
         </Box>
@@ -106,16 +108,16 @@ export default function SettingsPage() {
             <Card.Body p={8}>
               {activeSection === 'personal' && (
                 <Box>
-                  <Heading size="md" mb={2}>
+                  <Heading size="md" mb={2} color="purple.900">
                     Personal Information
                   </Heading>
-                  <Text color="gray.600" mb={6}>
+                  <Text color="purple.800" mb={6}>
                     Update your personal details and contact information
                   </Text>
 
                   {/* Profile Photo */}
                   <Flex align="center" gap={4} mb={8}>
-                    <Avatar.Root size="xl" bg="blue.500">
+                    <Avatar.Root size="xl" bg="purple.500">
                       <Avatar.Fallback>SJ</Avatar.Fallback>
                     </Avatar.Root>
                     <Button variant="outline" size="sm">
@@ -127,83 +129,91 @@ export default function SettingsPage() {
                   <VStack gap={6} align="stretch">
                     <SimpleGrid columns={{ base: 1, md: 2 }} gap={6}>
                       <Field.Root>
-                        <Field.Label>First Name</Field.Label>
+                        <Field.Label color="purple.900" fontWeight="medium">First Name</Field.Label>
                         <Input
                           placeholder="Enter first name"
                           defaultValue="Sarah"
+                          color="purple.900"
                         />
                       </Field.Root>
                       <Field.Root>
-                        <Field.Label>Last Name</Field.Label>
+                        <Field.Label color="purple.900" fontWeight="medium">Last Name</Field.Label>
                         <Input
                           placeholder="Enter last name"
                           defaultValue="Johnson"
+                          color="purple.900"
                         />
                       </Field.Root>
                     </SimpleGrid>
 
                     <Field.Root>
-                      <Field.Label>Email Address</Field.Label>
+                      <Field.Label color="purple.900" fontWeight="medium">Email Address</Field.Label>
                       <Input
                         type="email"
                         placeholder="Enter email address"
                         defaultValue="sarah.johnson@nonprofit6.org"
+                        color="purple.900"
                       />
                     </Field.Root>
 
                     <SimpleGrid columns={{ base: 1, md: 2 }} gap={6}>
                       <Field.Root>
-                        <Field.Label>Phone Number</Field.Label>
+                        <Field.Label color="purple.900" fontWeight="medium">Phone Number</Field.Label>
                         <Input
                           type="tel"
                           placeholder="Enter phone number"
                           defaultValue="+1 (555) 123-4567"
+                          color="purple.900"
                         />
                       </Field.Root>
                       <Field.Root>
-                        <Field.Label>Job Title</Field.Label>
+                        <Field.Label color="purple.900" fontWeight="medium">Job Title</Field.Label>
                         <Input
                           placeholder="Enter job title"
                           defaultValue="Program Director"
+                          color="purple.900"
                         />
                       </Field.Root>
                     </SimpleGrid>
 
                     <Field.Root>
-                      <Field.Label>Bio</Field.Label>
+                      <Field.Label color="purple.900" fontWeight="medium">Bio</Field.Label>
                       <Textarea
                         placeholder="Tell us about yourself and your role..."
                         rows={4}
+                        color="purple.900"
                       />
                     </Field.Root>
 
                     <Separator my={4} />
 
                     {/* Address Information */}
-                    <Heading size="sm" mb={2}>
+                    <Heading size="sm" mb={2} color="purple.900">
                       Address Information
                     </Heading>
 
                     <Field.Root>
-                      <Field.Label>Street Address</Field.Label>
+                      <Field.Label color="purple.900" fontWeight="medium">Street Address</Field.Label>
                       <Input
                         placeholder="Enter street address"
                         defaultValue="123 Main Street"
+                        color="purple.900"
                       />
                     </Field.Root>
 
                     <SimpleGrid columns={{ base: 1, md: 3 }} gap={6}>
                       <Field.Root>
-                        <Field.Label>City</Field.Label>
+                        <Field.Label color="purple.900" fontWeight="medium">City</Field.Label>
                         <Input
                           placeholder="Enter city"
                           defaultValue="Springfield"
+                          color="purple.900"
                         />
                       </Field.Root>
                       <Field.Root>
-                        <Field.Label>State</Field.Label>
+                        <Field.Label color="purple.900" fontWeight="medium">State</Field.Label>
                         <NativeSelectRoot>
-                          <NativeSelectField defaultValue="IL">
+                          <NativeSelectField defaultValue="IL" color="purple.900">
                             <option value="">Select state</option>
                             <option value="AL">Alabama</option>
                             <option value="AK">Alaska</option>
@@ -217,10 +227,11 @@ export default function SettingsPage() {
                         </NativeSelectRoot>
                       </Field.Root>
                       <Field.Root>
-                        <Field.Label>ZIP Code</Field.Label>
+                        <Field.Label color="purple.900" fontWeight="medium">ZIP Code</Field.Label>
                         <Input
                           placeholder="Enter ZIP code"
                           defaultValue="62701"
+                          color="purple.900"
                         />
                       </Field.Root>
                     </SimpleGrid>
@@ -230,7 +241,7 @@ export default function SettingsPage() {
                       <Button variant="outline">
                         Cancel
                       </Button>
-                      <Button colorScheme="blue">
+                      <Button colorScheme="purple">
                         Save Changes
                       </Button>
                     </Flex>
@@ -240,43 +251,341 @@ export default function SettingsPage() {
 
               {activeSection === 'organization' && (
                 <Box>
-                  <Heading size="md" mb={2}>
+                  <Heading size="md" mb={2} color="purple.900">
                     Organization Details
                   </Heading>
-                  <Text color="gray.600" mb={6}>
-                    Manage your organization information
+                  <Text color="purple.800" mb={6}>
+                    Manage your organization information and settings
                   </Text>
-                  <Text color="gray.500">
-                    Organization settings content will be displayed here...
-                  </Text>
+
+                  <VStack gap={6} align="stretch">
+                    <SimpleGrid columns={{ base: 1, md: 2 }} gap={6}>
+                      <Field.Root>
+                        <Field.Label color="purple.900" fontWeight="medium">Organization Name</Field.Label>
+                        <Input
+                          placeholder="Enter organization name"
+                          defaultValue="Nonprofit Organization"
+                          color="purple.900"
+                        />
+                      </Field.Root>
+
+                      <Field.Root>
+                        <Field.Label color="purple.900" fontWeight="medium">Organization Type</Field.Label>
+                        <NativeSelectRoot>
+                          <NativeSelectField defaultValue="nonprofit" color="purple.900">
+                            <option value="nonprofit">Nonprofit</option>
+                            <option value="education">Educational Institution</option>
+                            <option value="government">Government Agency</option>
+                            <option value="foundation">Private Foundation</option>
+                            <option value="other">Other</option>
+                          </NativeSelectField>
+                        </NativeSelectRoot>
+                      </Field.Root>
+                    </SimpleGrid>
+
+                    <SimpleGrid columns={{ base: 1, md: 2 }} gap={6}>
+                      <Field.Root>
+                        <Field.Label color="purple.900" fontWeight="medium">Tax ID / EIN</Field.Label>
+                        <Input
+                          placeholder="XX-XXXXXXX"
+                          defaultValue="12-3456789"
+                          color="purple.900"
+                        />
+                      </Field.Root>
+
+                      <Field.Root>
+                        <Field.Label color="purple.900" fontWeight="medium">Organization Website</Field.Label>
+                        <Input
+                          type="url"
+                          placeholder="https://example.org"
+                          defaultValue="https://nonprofit.org"
+                          color="purple.900"
+                        />
+                      </Field.Root>
+                    </SimpleGrid>
+
+                    <SimpleGrid columns={{ base: 1, md: 2 }} gap={6}>
+                      <Field.Root>
+                        <Field.Label color="purple.900" fontWeight="medium">Primary Contact Phone</Field.Label>
+                        <Input
+                          type="tel"
+                          placeholder="+1 (555) 000-0000"
+                          defaultValue="+1 (555) 987-6543"
+                          color="purple.900"
+                        />
+                      </Field.Root>
+
+                      <Field.Root>
+                        <Field.Label color="purple.900" fontWeight="medium">Primary Contact Email</Field.Label>
+                        <Input
+                          type="email"
+                          placeholder="contact@example.org"
+                          defaultValue="contact@nonprofit.org"
+                          color="purple.900"
+                        />
+                      </Field.Root>
+                    </SimpleGrid>
+
+                    <Field.Root>
+                      <Field.Label color="purple.900" fontWeight="medium">Mission Statement</Field.Label>
+                      <Textarea
+                        placeholder="Enter your organization's mission statement"
+                        rows={4}
+                        defaultValue="Our mission is to create positive change in local communities through education and outreach programs."
+                        color="purple.900"
+                      />
+                    </Field.Root>
+
+                    <Separator my={2} />
+
+                    <Flex justify="flex-end" gap={4} pt={4}>
+                      <Button variant="outline">Cancel</Button>
+                      <Button colorScheme="purple">Save Changes</Button>
+                    </Flex>
+                  </VStack>
                 </Box>
               )}
 
               {activeSection === 'notifications' && (
                 <Box>
-                  <Heading size="md" mb={2}>
+                  <Heading size="md" mb={2} color="purple.900">
                     Notification Preferences
                   </Heading>
-                  <Text color="gray.600" mb={6}>
-                    Control how and when you receive notifications
+                  <Text color="purple.800" mb={6}>
+                    Control how and when you receive notifications about your grants
                   </Text>
-                  <Text color="gray.500">
-                    Notification preferences content will be displayed here...
-                  </Text>
+
+                  <VStack gap={6} align="stretch">
+                    <Box>
+                      <Heading size="sm" mb={4} color="purple.900">Notification Channels</Heading>
+                      <VStack gap={4} align="stretch">
+                        <HStack justify="space-between" p={4} border="1px" borderColor="gray.200" borderRadius="md">
+                          <Box>
+                            <Text fontWeight="medium" color="purple.900">Email Notifications</Text>
+                            <Text fontSize="sm" color="purple.800">Receive updates via email</Text>
+                          </Box>
+                          <Checkbox.Root defaultChecked size="lg">
+                            <Checkbox.HiddenInput />
+                            <Checkbox.Control />
+                          </Checkbox.Root>
+                        </HStack>
+
+                        <HStack justify="space-between" p={4} border="1px" borderColor="gray.200" borderRadius="md">
+                          <Box>
+                            <Text fontWeight="medium" color="purple.900">Push Notifications</Text>
+                            <Text fontSize="sm" color="purple.800">Get browser push notifications</Text>
+                          </Box>
+                          <Checkbox.Root defaultChecked size="lg">
+                            <Checkbox.HiddenInput />
+                            <Checkbox.Control />
+                          </Checkbox.Root>
+                        </HStack>
+
+                        <HStack justify="space-between" p={4} border="1px" borderColor="gray.200" borderRadius="md">
+                          <Box>
+                            <Text fontWeight="medium" color="purple.900">SMS Notifications</Text>
+                            <Text fontSize="sm" color="purple.800">Receive text message alerts</Text>
+                          </Box>
+                          <Checkbox.Root size="lg">
+                            <Checkbox.HiddenInput />
+                            <Checkbox.Control />
+                          </Checkbox.Root>
+                        </HStack>
+                      </VStack>
+                    </Box>
+
+                    <Separator />
+
+                    <Box>
+                      <Heading size="sm" mb={4} color="purple.900">Alert Types</Heading>
+                      <VStack gap={4} align="stretch">
+                        <HStack justify="space-between" p={4} border="1px" borderColor="gray.200" borderRadius="md">
+                          <Box>
+                            <Text fontWeight="medium" color="purple.900">Deadline Reminders</Text>
+                            <Text fontSize="sm" color="purple.800">Get notified about upcoming deadlines</Text>
+                          </Box>
+                          <Checkbox.Root defaultChecked size="lg">
+                            <Checkbox.HiddenInput />
+                            <Checkbox.Control />
+                          </Checkbox.Root>
+                        </HStack>
+
+                        <HStack justify="space-between" p={4} border="1px" borderColor="gray.200" borderRadius="md">
+                          <Box>
+                            <Text fontWeight="medium" color="purple.900">Compliance Alerts</Text>
+                            <Text fontSize="sm" color="purple.800">Alerts for compliance requirements</Text>
+                          </Box>
+                          <Checkbox.Root defaultChecked size="lg">
+                            <Checkbox.HiddenInput />
+                            <Checkbox.Control />
+                          </Checkbox.Root>
+                        </HStack>
+
+                        <HStack justify="space-between" p={4} border="1px" borderColor="gray.200" borderRadius="md">
+                          <Box>
+                            <Text fontWeight="medium" color="purple.900">New Grant Matches</Text>
+                            <Text fontSize="sm" color="purple.800">Alerts when new grants match your profile</Text>
+                          </Box>
+                          <Checkbox.Root defaultChecked size="lg">
+                            <Checkbox.HiddenInput />
+                            <Checkbox.Control />
+                          </Checkbox.Root>
+                        </HStack>
+
+                        <HStack justify="space-between" p={4} border="1px" borderColor="gray.200" borderRadius="md">
+                          <Box>
+                            <Text fontWeight="medium" color="purple.900">Weekly Activity Digest</Text>
+                            <Text fontSize="sm" color="purple.800">Summary of weekly activities</Text>
+                          </Box>
+                          <Checkbox.Root size="lg">
+                            <Checkbox.HiddenInput />
+                            <Checkbox.Control />
+                          </Checkbox.Root>
+                        </HStack>
+                      </VStack>
+                    </Box>
+
+                    <Separator my={2} />
+
+                    <Flex justify="flex-end" gap={4} pt={4}>
+                      <Button variant="outline">Reset to Default</Button>
+                      <Button colorScheme="purple">Save Preferences</Button>
+                    </Flex>
+                  </VStack>
                 </Box>
               )}
 
               {activeSection === 'security' && (
                 <Box>
-                  <Heading size="md" mb={2}>
+                  <Heading size="md" mb={2} color="purple.900">
                     Security Settings
                   </Heading>
-                  <Text color="gray.600" mb={6}>
-                    Manage your password and security preferences
+                  <Text color="purple.800" mb={6}>
+                    Manage your password, authentication, and account security
                   </Text>
-                  <Text color="gray.500">
-                    Security settings content will be displayed here...
-                  </Text>
+
+                  <VStack gap={6} align="stretch">
+                    <Box>
+                      <Heading size="sm" mb={4} color="purple.900">Change Password</Heading>
+                      <VStack gap={4} align="stretch">
+                        <Field.Root>
+                          <Field.Label color="purple.900" fontWeight="medium">Current Password</Field.Label>
+                          <Input
+                            type="password"
+                            placeholder="Enter current password"
+                            color="purple.900"
+                          />
+                        </Field.Root>
+
+                        <Field.Root>
+                          <Field.Label color="purple.900" fontWeight="medium">New Password</Field.Label>
+                          <Input
+                            type="password"
+                            placeholder="Enter new password"
+                            color="purple.900"
+                          />
+                          <Text fontSize="xs" color="purple.700" mt={1}>
+                            Password must be at least 8 characters with uppercase, lowercase, and numbers
+                          </Text>
+                        </Field.Root>
+
+                        <Field.Root>
+                          <Field.Label color="purple.900" fontWeight="medium">Confirm New Password</Field.Label>
+                          <Input
+                            type="password"
+                            placeholder="Confirm new password"
+                            color="purple.900"
+                          />
+                        </Field.Root>
+
+                        <Button colorScheme="purple" alignSelf="flex-start">
+                          Update Password
+                        </Button>
+                      </VStack>
+                    </Box>
+
+                    <Separator />
+
+                    <Box>
+                      <Heading size="sm" mb={4} color="purple.900">Two-Factor Authentication</Heading>
+                      <Card.Root variant="outline" borderColor="purple.200">
+                        <Card.Body>
+                          <HStack justify="space-between">
+                            <Box>
+                              <Text fontWeight="semibold" mb={1} color="purple.900">Enable 2FA</Text>
+                              <Text fontSize="sm" color="purple.800">
+                                Add an extra layer of security to your account
+                              </Text>
+                            </Box>
+                            <Checkbox.Root size="lg">
+                              <Checkbox.HiddenInput />
+                              <Checkbox.Control />
+                            </Checkbox.Root>
+                          </HStack>
+                        </Card.Body>
+                      </Card.Root>
+                    </Box>
+
+                    <Separator />
+
+                    <Box>
+                      <Heading size="sm" mb={4} color="purple.900">Active Sessions</Heading>
+                      <VStack gap={3} align="stretch">
+                        <Card.Root variant="outline">
+                          <Card.Body>
+                            <HStack justify="space-between">
+                              <Box>
+                                <Text fontWeight="medium" color="purple.900">Windows Desktop - Chrome</Text>
+                                <Text fontSize="sm" color="purple.800">
+                                  Current session • Last active: Now
+                                </Text>
+                              </Box>
+                              <Badge colorScheme="green">Active</Badge>
+                            </HStack>
+                          </Card.Body>
+                        </Card.Root>
+
+                        <Card.Root variant="outline">
+                          <Card.Body>
+                            <HStack justify="space-between">
+                              <Box>
+                                <Text fontWeight="medium" color="purple.900">iPhone - Safari</Text>
+                                <Text fontSize="sm" color="purple.800">
+                                  Last active: 2 hours ago
+                                </Text>
+                              </Box>
+                              <Button size="sm" variant="outline" colorScheme="red">
+                                Revoke
+                              </Button>
+                            </HStack>
+                          </Card.Body>
+                        </Card.Root>
+                      </VStack>
+                    </Box>
+
+                    <Separator />
+
+                    <Box>
+                      <Heading size="sm" mb={4} color="red.800">Danger Zone</Heading>
+                      <Card.Root variant="outline" borderColor="red.200" bg="red.50">
+                        <Card.Body>
+                          <VStack align="stretch" gap={3}>
+                            <Box>
+                              <Text fontWeight="semibold" color="red.800" mb={2}>
+                                Delete Account
+                              </Text>
+                              <Text fontSize="sm" color="red.700">
+                                Once you delete your account, there is no going back. Please be certain.
+                              </Text>
+                            </Box>
+                            <Button size="sm" colorScheme="red" variant="outline" alignSelf="flex-start">
+                              Delete Account
+                            </Button>
+                          </VStack>
+                        </Card.Body>
+                      </Card.Root>
+                    </Box>
+                  </VStack>
                 </Box>
               )}
             </Card.Body>
