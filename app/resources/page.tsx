@@ -10,18 +10,13 @@ import {
   Button,
   Input,
   InputGroup,
-  InputRightElement,
-  Card,
-  CardBody,
-  CardHeader,
   SimpleGrid,
+  Badge,
+  Flex,
+  Card,
   Icon,
   IconButton,
   List,
-  ListItem,
-  Badge,
-  useColorModeValue,
-  Flex,
 } from '@chakra-ui/react'
 import { useState } from 'react'
 import {
@@ -63,9 +58,9 @@ export default function ResourcesPage() {
     }
   }
 
-  const borderColor = useColorModeValue('gray.200', 'gray.700')
-  const messageBgUser = useColorModeValue('blue.500', 'blue.600')
-  const messageBgAssistant = useColorModeValue('gray.100', 'gray.700')
+  const borderColor = 'gray.200'
+  const messageBgUser = 'blue.500'
+  const messageBgAssistant = 'gray.100'
 
   const templates = [
     { name: 'Federal Grant Template', icon: FiDownload },
@@ -95,7 +90,7 @@ export default function ResourcesPage() {
   return (
     <MainLayout>
       <Container maxW="container.xl" py={8}>
-        <VStack spacing={8} align="stretch">
+        <VStack gap={8} align="stretch">
           {/* Header */}
           <Box>
             <Heading size="lg" mb={2}>
@@ -107,23 +102,23 @@ export default function ResourcesPage() {
           </Box>
 
           {/* AI Grant Copilot */}
-          <Card>
-            <CardHeader>
+          <Card.Root>
+            <Card.Header>
               <HStack>
                 <Icon as={FiFileText} boxSize={6} color="blue.500" />
                 <Heading size="md">AI Grant Copilot</Heading>
               </HStack>
-            </CardHeader>
-            <CardBody>
-              <VStack spacing={4} align="stretch">
+            </Card.Header>
+            <Card.Body>
+              <VStack gap={4} align="stretch">
                 <Text color="gray.600" fontSize="sm">
                   Hello! I'm your AI Grant Assistant. I can help you with:
                 </Text>
-                <List spacing={1} fontSize="sm" color="gray.600">
-                  <ListItem>• Finding grants and opportunities</ListItem>
-                  <ListItem>• Tracking application deadlines</ListItem>
-                  <ListItem>• Generating reports and analytics</ListItem>
-                </List>
+                <List.Root gap={1} fontSize="sm" color="gray.600">
+                  <List.Item>• Finding grants and opportunities</List.Item>
+                  <List.Item>• Tracking application deadlines</List.Item>
+                  <List.Item>• Generating reports and analytics</List.Item>
+                </List.Root>
 
                 {/* Chat Messages */}
                 <Box
@@ -133,9 +128,9 @@ export default function ResourcesPage() {
                   borderColor={borderColor}
                   borderRadius="md"
                   p={4}
-                  bg={useColorModeValue('gray.50', 'gray.800')}
+                  bg="gray.50"
                 >
-                  <VStack spacing={3} align="stretch">
+                  <VStack gap={3} align="stretch">
                     {messages.map((message, index) => (
                       <Flex
                         key={index}
@@ -158,7 +153,7 @@ export default function ResourcesPage() {
                 </Box>
 
                 {/* Chat Input */}
-                <InputGroup>
+                <HStack>
                   <Input
                     placeholder="Ask me anything about grant management..."
                     value={chatInput}
@@ -169,25 +164,24 @@ export default function ResourcesPage() {
                       }
                     }}
                   />
-                  <InputRightElement>
-                    <IconButton
-                      aria-label="Send message"
-                      icon={<Icon as={FiSend} />}
-                      size="sm"
-                      colorScheme="blue"
-                      onClick={handleSendMessage}
-                    />
-                  </InputRightElement>
-                </InputGroup>
+                  <IconButton
+                    aria-label="Send message"
+                    size="sm"
+                    colorScheme="blue"
+                    onClick={handleSendMessage}
+                  >
+                    <Icon as={FiSend} />
+                  </IconButton>
+                </HStack>
               </VStack>
-            </CardBody>
-          </Card>
+            </Card.Body>
+          </Card.Root>
 
           {/* Resources Grid */}
-          <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6}>
+          <SimpleGrid columns={{ base: 1, md: 3 }} gap={6}>
             {/* Application Templates */}
-            <Card>
-              <CardHeader>
+            <Card.Root>
+              <Card.Header>
                 <HStack>
                   <Icon as={FiFileText} boxSize={5} color="blue.500" />
                   <Heading size="sm">Application Templates</Heading>
@@ -195,9 +189,9 @@ export default function ResourcesPage() {
                 <Text fontSize="sm" color="gray.600" mt={2}>
                   Pre-built templates for common grant applications
                 </Text>
-              </CardHeader>
-              <CardBody>
-                <VStack spacing={3} align="stretch">
+              </Card.Header>
+              <Card.Body>
+                <VStack gap={3} align="stretch">
                   {templates.map((template, index) => (
                     <HStack
                       key={index}
@@ -206,7 +200,7 @@ export default function ResourcesPage() {
                       border="1px"
                       borderColor={borderColor}
                       borderRadius="md"
-                      _hover={{ bg: useColorModeValue('gray.50', 'gray.700') }}
+                      _hover={{ bg: 'gray.50' }}
                       cursor="pointer"
                     >
                       <Text fontSize="sm">{template.name}</Text>
@@ -214,12 +208,12 @@ export default function ResourcesPage() {
                     </HStack>
                   ))}
                 </VStack>
-              </CardBody>
-            </Card>
+              </Card.Body>
+            </Card.Root>
 
             {/* Best Practice Guides */}
-            <Card>
-              <CardHeader>
+            <Card.Root>
+              <Card.Header>
                 <HStack>
                   <Icon as={FiFileText} boxSize={5} color="green.500" />
                   <Heading size="sm">Best Practice Guides</Heading>
@@ -227,9 +221,9 @@ export default function ResourcesPage() {
                 <Text fontSize="sm" color="gray.600" mt={2}>
                   Comprehensive guides for successful grant management
                 </Text>
-              </CardHeader>
-              <CardBody>
-                <VStack spacing={3} align="stretch">
+              </Card.Header>
+              <Card.Body>
+                <VStack gap={3} align="stretch">
                   {guides.map((guide, index) => (
                     <HStack
                       key={index}
@@ -238,7 +232,7 @@ export default function ResourcesPage() {
                       border="1px"
                       borderColor={borderColor}
                       borderRadius="md"
-                      _hover={{ bg: useColorModeValue('gray.50', 'gray.700') }}
+                      _hover={{ bg: 'gray.50' }}
                       cursor="pointer"
                     >
                       <Text fontSize="sm">{guide.name}</Text>
@@ -246,12 +240,12 @@ export default function ResourcesPage() {
                     </HStack>
                   ))}
                 </VStack>
-              </CardBody>
-            </Card>
+              </Card.Body>
+            </Card.Root>
 
             {/* Management Tools */}
-            <Card>
-              <CardHeader>
+            <Card.Root>
+              <Card.Header>
                 <HStack>
                   <Icon as={FiFileText} boxSize={5} color="purple.500" />
                   <Heading size="sm">Management Tools</Heading>
@@ -259,9 +253,9 @@ export default function ResourcesPage() {
                 <Text fontSize="sm" color="gray.600" mt={2}>
                   Tools to streamline your grant management workflow
                 </Text>
-              </CardHeader>
-              <CardBody>
-                <VStack spacing={3} align="stretch">
+              </Card.Header>
+              <Card.Body>
+                <VStack gap={3} align="stretch">
                   {tools.map((tool, index) => (
                     <HStack
                       key={index}
@@ -270,7 +264,7 @@ export default function ResourcesPage() {
                       border="1px"
                       borderColor={borderColor}
                       borderRadius="md"
-                      _hover={{ bg: useColorModeValue('gray.50', 'gray.700') }}
+                      _hover={{ bg: 'gray.50' }}
                       cursor="pointer"
                     >
                       <Text fontSize="sm">{tool.name}</Text>
@@ -278,17 +272,17 @@ export default function ResourcesPage() {
                     </HStack>
                   ))}
                 </VStack>
-              </CardBody>
-            </Card>
+              </Card.Body>
+            </Card.Root>
           </SimpleGrid>
 
           {/* Quick Actions */}
-          <Card>
-            <CardHeader>
+          <Card.Root>
+            <Card.Header>
               <Heading size="md">Quick Actions</Heading>
-            </CardHeader>
-            <CardBody>
-              <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4}>
+            </Card.Header>
+            <Card.Body>
+              <SimpleGrid columns={{ base: 2, md: 4 }} gap={4}>
                 {quickActions.map((action, index) => (
                   <Button
                     key={index}
@@ -302,26 +296,28 @@ export default function ResourcesPage() {
                   </Button>
                 ))}
               </SimpleGrid>
-            </CardBody>
-          </Card>
+            </Card.Body>
+          </Card.Root>
 
           {/* Pagination */}
           <Flex justify="center" align="center" gap={2}>
             <IconButton
               aria-label="Previous page"
-              icon={<Text>&lt;</Text>}
               variant="outline"
               size="sm"
-            />
+            >
+              <Text>&lt;</Text>
+            </IconButton>
             <Text fontSize="sm" color="gray.600">
               8 / 12
             </Text>
             <IconButton
               aria-label="Next page"
-              icon={<Text>&gt;</Text>}
               variant="outline"
               size="sm"
-            />
+            >
+              <Text>&gt;</Text>
+            </IconButton>
           </Flex>
         </VStack>
       </Container>

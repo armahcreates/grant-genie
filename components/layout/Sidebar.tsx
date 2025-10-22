@@ -7,13 +7,12 @@ import {
   Link,
   VStack,
   Text,
-  useColorModeValue,
   Avatar,
-  Menu,
-  MenuButton,
-  MenuList,
+  MenuRoot,
+  MenuTrigger,
+  MenuContent,
   MenuItem,
-  MenuDivider,
+  MenuSeparator,
   Button,
   HStack,
 } from '@chakra-ui/react'
@@ -43,62 +42,57 @@ interface NavItemProps {
 }
 
 const NavItem = ({ icon, children, href, isActive }: NavItemProps) => {
-  const activeColor = useColorModeValue('blue.600', 'blue.200')
-  const activeBg = useColorModeValue('blue.50', 'blue.900')
-  const hoverBg = useColorModeValue('gray.100', 'gray.700')
-
   return (
     <Link
-      as={NextLink}
-      href={href}
+      asChild
       style={{ textDecoration: 'none' }}
       _focus={{ boxShadow: 'none' }}
       w="full"
     >
-      <Flex
-        align="center"
-        p="3"
-        mx="2"
-        borderRadius="lg"
-        role="group"
-        cursor="pointer"
-        bg={isActive ? activeBg : 'transparent'}
-        color={isActive ? activeColor : 'inherit'}
-        _hover={{
-          bg: isActive ? activeBg : hoverBg,
-        }}
-        transition="all 0.2s"
-      >
-        <Icon
-          mr="3"
-          fontSize="20"
-          as={icon}
-        />
-        <Text fontSize="sm" fontWeight={isActive ? 'semibold' : 'medium'}>
-          {children}
-        </Text>
-      </Flex>
+      <NextLink href={href}>
+        <Flex
+          align="center"
+          p="3"
+          mx="2"
+          borderRadius="lg"
+          role="group"
+          cursor="pointer"
+          bg={isActive ? 'purple.50' : 'transparent'}
+          color={isActive ? 'purple.600' : 'inherit'}
+          _hover={{
+            bg: isActive ? 'purple.50' : 'gray.100',
+          }}
+          transition="all 0.2s"
+        >
+          <Icon
+            mr="3"
+            fontSize="20"
+            as={icon}
+          />
+          <Text fontSize="sm" fontWeight={isActive ? 'semibold' : 'medium'}>
+            {children}
+          </Text>
+        </Flex>
+      </NextLink>
     </Link>
   )
 }
 
 export default function Sidebar() {
-  const bgColor = useColorModeValue('white', 'gray.800')
-  const borderColor = useColorModeValue('gray.200', 'gray.700')
   const pathname = usePathname()
   const router = useRouter()
   const { user, logout } = useAuth()
 
   const handleLogout = () => {
     logout()
-    router.push('/landing')
+    router.push('/')
   }
 
   return (
     <Box
-      bg={bgColor}
+      bg="white"
       borderRight="1px"
-      borderColor={borderColor}
+      borderColor="gray.200"
       w={{ base: 'full', md: '240px' }}
       h="100vh"
       position="fixed"
@@ -108,13 +102,13 @@ export default function Sidebar() {
       flexDirection="column"
     >
       <Flex h="20" alignItems="center" mx="4" justifyContent="center">
-        <Text fontSize="2xl" fontWeight="bold" color="blue.500">
-          Grant Genie
+        <Text fontSize="2xl" fontWeight="bold" color="purple.600">
+          Headspace Genie
         </Text>
       </Flex>
 
-      <VStack spacing={1} align="stretch" flex={1} overflowY="auto" pb={4}>
-        <NavItem icon={MdDashboard} href="/" isActive={pathname === '/'}>
+      <VStack gap={1} align="stretch" flex={1} overflowY="auto" pb={4}>
+        <NavItem icon={MdDashboard} href="/dashboard" isActive={pathname === '/dashboard'}>
           Dashboard
         </NavItem>
         <NavItem icon={MdSearch} href="/grant-search" isActive={pathname === '/grant-search'}>
@@ -146,39 +140,44 @@ export default function Sidebar() {
       {/* User Profile Section */}
       <Box
         borderTop="1px"
-        borderColor={borderColor}
+        borderColor="gray.200"
         p={4}
       >
-        <Menu>
-          <MenuButton
-            as={Button}
-            variant="ghost"
-            w="full"
-            textAlign="left"
-            _hover={{ bg: useColorModeValue('gray.100', 'gray.700') }}
-          >
-            <HStack spacing={3}>
-              <Avatar size="sm" name={user?.name || 'User'} bg="blue.500" />
-              <VStack align="start" spacing={0} flex={1}>
-                <Text fontSize="sm" fontWeight="semibold" noOfLines={1}>
-                  {user?.name || 'Guest User'}
-                </Text>
-                <Text fontSize="xs" color="gray.500" noOfLines={1}>
-                  {user?.organization || 'No organization'}
-                </Text>
-              </VStack>
-            </HStack>
-          </MenuButton>
-          <MenuList>
-            <MenuItem icon={<Icon as={MdPerson} />} onClick={() => router.push('/profile')}>
+        <MenuRoot>
+          <MenuTrigger asChild>
+            <Button
+              variant="ghost"
+              w="full"
+              textAlign="left"
+              _hover={{ bg: 'gray.100' }}
+            >
+              <HStack gap={3}>
+                <Avatar.Root size="sm" bg="purple.600">
+                  <Avatar.Fallback>{(user?.name || 'User').substring(0, 2).toUpperCase()}</Avatar.Fallback>
+                </Avatar.Root>
+                <VStack align="start" gap={0} flex={1}>
+                  <Text fontSize="sm" fontWeight="semibold" lineClamp={1}>
+                    {user?.name || 'Guest User'}
+                  </Text>
+                  <Text fontSize="xs" color="gray.500" lineClamp={1}>
+                    {user?.organization || 'No organization'}
+                  </Text>
+                </VStack>
+              </HStack>
+            </Button>
+          </MenuTrigger>
+          <MenuContent>
+            <MenuItem value="profile" onClick={() => router.push('/profile')}>
+              <Icon as={MdPerson} />
               Profile Settings
             </MenuItem>
-            <MenuDivider />
-            <MenuItem icon={<Icon as={MdLogout} />} onClick={handleLogout}>
+            <MenuSeparator />
+            <MenuItem value="logout" onClick={handleLogout}>
+              <Icon as={MdLogout} />
               Log Out
             </MenuItem>
-          </MenuList>
-        </Menu>
+          </MenuContent>
+        </MenuRoot>
       </Box>
     </Box>
   )

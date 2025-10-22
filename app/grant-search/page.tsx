@@ -10,29 +10,17 @@ import {
   Button,
   Input,
   InputGroup,
-  InputLeftElement,
-  Select,
-  Card,
-  CardBody,
   Badge,
   Icon,
   SimpleGrid,
   Flex,
-  Checkbox,
-  RangeSlider,
-  RangeSliderTrack,
-  RangeSliderFilledTrack,
-  RangeSliderThumb,
-  FormControl,
-  FormLabel,
-  Divider,
-  useColorModeValue,
-  Stack,
+  Card,
+  Separator,
+  NativeSelectRoot,
+  NativeSelectField,
+  IconButton,
   Tag,
-  TagLabel,
-  TagCloseButton,
   Wrap,
-  WrapItem,
 } from '@chakra-ui/react'
 import { useState } from 'react'
 import {
@@ -45,19 +33,7 @@ import {
   FiStar,
 } from 'react-icons/fi'
 import MainLayout from '@/components/layout/MainLayout'
-
-interface Grant {
-  id: string
-  title: string
-  organization: string
-  amount: string
-  deadline: string
-  category: string
-  location: string
-  description: string
-  eligibility: string[]
-  status: 'open' | 'closing-soon' | 'closed'
-}
+import { mockGrants, type Grant } from '@/lib/mockData'
 
 export default function GrantSearchPage() {
   const [searchQuery, setSearchQuery] = useState('')
@@ -65,86 +41,21 @@ export default function GrantSearchPage() {
   const [fundingRange, setFundingRange] = useState([0, 500000])
   const [selectedFilters, setSelectedFilters] = useState<string[]>([])
 
-  const grants: Grant[] = [
-    {
-      id: '1',
-      title: 'Community Development Grant Program',
-      organization: 'Federal Housing Authority',
-      amount: '$50,000 - $500,000',
-      deadline: 'March 15, 2025',
-      category: 'Community Development',
-      location: 'National',
-      description:
-        'Funding for community-based organizations working on affordable housing, economic development, and community facilities.',
-      eligibility: ['Non-profit', '501(c)(3)', 'Community-based'],
-      status: 'open',
-    },
-    {
-      id: '2',
-      title: 'Education Innovation Fund',
-      organization: 'Department of Education',
-      amount: '$25,000 - $150,000',
-      deadline: 'February 28, 2025',
-      category: 'Education',
-      location: 'State-wide',
-      description:
-        'Support innovative educational programs that improve student outcomes in underserved communities.',
-      eligibility: ['Schools', 'Educational Non-profits', 'Universities'],
-      status: 'closing-soon',
-    },
-    {
-      id: '3',
-      title: 'Environmental Sustainability Initiative',
-      organization: 'Green Earth Foundation',
-      amount: '$10,000 - $100,000',
-      deadline: 'April 30, 2025',
-      category: 'Environment',
-      location: 'Regional',
-      description:
-        'Grants for projects focused on renewable energy, conservation, and environmental education.',
-      eligibility: ['Non-profit', 'Environmental Groups', 'Research Institutions'],
-      status: 'open',
-    },
-    {
-      id: '4',
-      title: 'Healthcare Access Program',
-      organization: 'National Health Foundation',
-      amount: '$75,000 - $300,000',
-      deadline: 'March 31, 2025',
-      category: 'Healthcare',
-      location: 'National',
-      description:
-        'Funding to expand healthcare access and services in rural and underserved urban communities.',
-      eligibility: ['Healthcare Organizations', 'Clinics', 'Non-profit'],
-      status: 'open',
-    },
-    {
-      id: '5',
-      title: 'Arts & Culture Preservation Grant',
-      organization: 'National Endowment for the Arts',
-      amount: '$5,000 - $75,000',
-      deadline: 'May 15, 2025',
-      category: 'Arts & Culture',
-      location: 'National',
-      description:
-        'Support for arts organizations, cultural heritage projects, and community arts programs.',
-      eligibility: ['Arts Organizations', 'Museums', 'Cultural Centers'],
-      status: 'open',
-    },
-    {
-      id: '6',
-      title: 'Youth Development Fund',
-      organization: 'Youth Opportunity Foundation',
-      amount: '$20,000 - $200,000',
-      deadline: 'March 1, 2025',
-      category: 'Youth Services',
-      location: 'State-wide',
-      description:
-        'Grants for programs serving at-risk youth, including mentoring, education, and workforce development.',
-      eligibility: ['Youth Organizations', 'Non-profit', 'Schools'],
-      status: 'closing-soon',
-    },
-  ]
+  // Filter grants based on search query and category
+  const filteredGrants = mockGrants.filter((grant) => {
+    const matchesSearch =
+      searchQuery === '' ||
+      grant.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      grant.organization.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      grant.description.toLowerCase().includes(searchQuery.toLowerCase())
+
+    const matchesCategory =
+      selectedCategory === 'all' ||
+      selectedCategory === 'all categories' ||
+      grant.category.toLowerCase() === selectedCategory.toLowerCase()
+
+    return matchesSearch && matchesCategory
+  })
 
   const categories = [
     'All Categories',
@@ -153,28 +64,20 @@ export default function GrantSearchPage() {
     'Environment',
     'Healthcare',
     'Arts & Culture',
-    'Youth Services',
+    'Technology',
+    'Economic Development',
   ]
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'open':
+      case 'Open':
         return 'green'
-      case 'closing-soon':
+      case 'Closing Soon':
         return 'orange'
+      case 'Closed':
+        return 'gray'
       default:
         return 'gray'
-    }
-  }
-
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case 'open':
-        return 'Open'
-      case 'closing-soon':
-        return 'Closing Soon'
-      default:
-        return 'Closed'
     }
   }
 
@@ -182,85 +85,83 @@ export default function GrantSearchPage() {
     setSelectedFilters(selectedFilters.filter((f) => f !== filter))
   }
 
-  const borderColor = useColorModeValue('gray.200', 'gray.700')
-  const cardHoverBg = useColorModeValue('gray.50', 'gray.700')
-
   return (
     <MainLayout>
       <Container maxW="container.xl" py={8}>
-        <VStack spacing={8} align="stretch">
+        <VStack gap={8} align="stretch">
           {/* Header */}
           <Box>
-            <Heading size="lg" mb={2}>
+            <Heading size="lg" mb={2} color="purple.900">
               Grant Search
             </Heading>
-            <Text color="gray.600">
+            <Text color="purple.800">
               Discover funding opportunities tailored to your organization's mission
             </Text>
           </Box>
 
           {/* Search Bar */}
-          <Card>
-            <CardBody>
-              <VStack spacing={4} align="stretch">
-                <InputGroup size="lg">
-                  <InputLeftElement pointerEvents="none">
-                    <Icon as={FiSearch} color="gray.400" />
-                  </InputLeftElement>
+          <Card.Root>
+            <Card.Body>
+              <VStack gap={4} align="stretch">
+                <HStack>
+                  <Icon as={FiSearch} color="purple.400" />
                   <Input
+                    size="lg"
                     placeholder="Search grants by keyword, organization, or category..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
-                </InputGroup>
+                </HStack>
 
-                <SimpleGrid columns={{ base: 1, md: 4 }} spacing={4}>
-                  <Select
-                    value={selectedCategory}
-                    onChange={(e) => setSelectedCategory(e.target.value)}
-                  >
-                    {categories.map((cat, index) => (
-                      <option key={index} value={cat.toLowerCase()}>
-                        {cat}
-                      </option>
-                    ))}
-                  </Select>
+                <SimpleGrid columns={{ base: 1, md: 4 }} gap={4}>
+                  <NativeSelectRoot>
+                    <NativeSelectField
+                      value={selectedCategory}
+                      onChange={(e) => setSelectedCategory(e.target.value)}
+                    >
+                      {categories.map((cat, index) => (
+                        <option key={index} value={cat.toLowerCase()}>
+                          {cat}
+                        </option>
+                      ))}
+                    </NativeSelectField>
+                  </NativeSelectRoot>
 
-                  <Select placeholder="Funding Amount">
-                    <option value="0-25k">$0 - $25,000</option>
-                    <option value="25k-100k">$25,000 - $100,000</option>
-                    <option value="100k-500k">$100,000 - $500,000</option>
-                    <option value="500k+">$500,000+</option>
-                  </Select>
+                  <NativeSelectRoot>
+                    <NativeSelectField placeholder="Funding Amount">
+                      <option value="0-25k">$0 - $25,000</option>
+                      <option value="25k-100k">$25,000 - $100,000</option>
+                      <option value="100k-500k">$100,000 - $500,000</option>
+                      <option value="500k+">$500,000+</option>
+                    </NativeSelectField>
+                  </NativeSelectRoot>
 
-                  <Select placeholder="Deadline">
-                    <option value="30days">Next 30 days</option>
-                    <option value="60days">Next 60 days</option>
-                    <option value="90days">Next 90 days</option>
-                    <option value="all">All deadlines</option>
-                  </Select>
+                  <NativeSelectRoot>
+                    <NativeSelectField placeholder="Deadline">
+                      <option value="30days">Next 30 days</option>
+                      <option value="60days">Next 60 days</option>
+                      <option value="90days">Next 90 days</option>
+                      <option value="all">All deadlines</option>
+                    </NativeSelectField>
+                  </NativeSelectRoot>
 
-                  <Select placeholder="Location">
-                    <option value="national">National</option>
-                    <option value="state">State-wide</option>
-                    <option value="regional">Regional</option>
-                    <option value="local">Local</option>
-                  </Select>
+                  <NativeSelectRoot>
+                    <NativeSelectField placeholder="Location">
+                      <option value="national">National</option>
+                      <option value="state">State-wide</option>
+                      <option value="regional">Regional</option>
+                      <option value="local">Local</option>
+                    </NativeSelectField>
+                  </NativeSelectRoot>
                 </SimpleGrid>
 
                 <HStack justify="space-between">
-                  <Button
-                    leftIcon={<Icon as={FiFilter} />}
-                    variant="outline"
-                    size="sm"
-                  >
+                  <Button variant="outline" size="sm">
+                    <Icon as={FiFilter} />
                     Advanced Filters
                   </Button>
-                  <Button
-                    leftIcon={<Icon as={FiBookmark} />}
-                    variant="outline"
-                    size="sm"
-                  >
+                  <Button variant="outline" size="sm">
+                    <Icon as={FiBookmark} />
                     Saved Searches
                   </Button>
                 </HStack>
@@ -271,110 +172,110 @@ export default function GrantSearchPage() {
                     <Text fontSize="sm" fontWeight="medium" mb={2}>
                       Active Filters:
                     </Text>
-                    <Wrap>
+                    <Wrap gap={2}>
                       {selectedFilters.map((filter, index) => (
-                        <WrapItem key={index}>
-                          <Tag size="md" colorScheme="blue" borderRadius="full">
-                            <TagLabel>{filter}</TagLabel>
-                            <TagCloseButton onClick={() => removeFilter(filter)} />
-                          </Tag>
-                        </WrapItem>
+                        <Tag.Root key={index} size="md" colorScheme="purple" borderRadius="full">
+                          <Tag.Label>{filter}</Tag.Label>
+                          <Tag.CloseTrigger onClick={() => removeFilter(filter)} />
+                        </Tag.Root>
                       ))}
                     </Wrap>
                   </Box>
                 )}
               </VStack>
-            </CardBody>
-          </Card>
+            </Card.Body>
+          </Card.Root>
 
           {/* Results Header */}
           <Flex justify="space-between" align="center">
-            <Text fontWeight="medium" color="gray.600">
-              Showing {grants.length} grants
+            <Text fontWeight="medium" color="purple.800">
+              Showing {filteredGrants.length} grants
             </Text>
-            <HStack spacing={2}>
-              <Text fontSize="sm" color="gray.600">
+            <HStack gap={2}>
+              <Text fontSize="sm" color="purple.800">
                 Sort by:
               </Text>
-              <Select size="sm" w="180px" defaultValue="relevance">
-                <option value="relevance">Relevance</option>
-                <option value="deadline">Deadline</option>
-                <option value="amount">Funding Amount</option>
-                <option value="recent">Recently Added</option>
-              </Select>
+              <NativeSelectRoot w="180px" size="sm">
+                <NativeSelectField defaultValue="relevance">
+                  <option value="relevance">Relevance</option>
+                  <option value="deadline">Deadline</option>
+                  <option value="amount">Funding Amount</option>
+                  <option value="recent">Recently Added</option>
+                </NativeSelectField>
+              </NativeSelectRoot>
             </HStack>
           </Flex>
 
           {/* Grant Results */}
-          <VStack spacing={4} align="stretch">
-            {grants.map((grant) => (
-              <Card
+          <VStack gap={4} align="stretch">
+            {filteredGrants.map((grant) => (
+              <Card.Root
                 key={grant.id}
                 cursor="pointer"
-                _hover={{ bg: cardHoverBg }}
+                _hover={{ bg: 'gray.50' }}
                 transition="all 0.2s"
               >
-                <CardBody>
-                  <VStack spacing={4} align="stretch">
+                <Card.Body>
+                  <VStack gap={4} align="stretch">
                     <Flex justify="space-between" align="start">
                       <Box flex={1}>
                         <HStack mb={2}>
                           <Heading size="md">{grant.title}</Heading>
                           <Badge colorScheme={getStatusColor(grant.status)}>
-                            {getStatusLabel(grant.status)}
+                            {grant.status}
                           </Badge>
                         </HStack>
-                        <Text color="gray.600" fontSize="sm" mb={2}>
+                        <Text color="purple.800" fontSize="sm" mb={2}>
                           {grant.organization}
                         </Text>
-                        <Text color="gray.700" mb={3}>
+                        <Text color="purple.900" mb={3}>
                           {grant.description}
                         </Text>
 
-                        <SimpleGrid columns={{ base: 1, md: 4 }} spacing={4} mb={3}>
+                        <SimpleGrid columns={{ base: 1, md: 4 }} gap={4} mb={3}>
                           <HStack>
-                            <Icon as={FiDollarSign} color="gray.500" />
+                            <Icon as={FiDollarSign} color="purple.600" />
                             <Box>
-                              <Text fontSize="xs" color="gray.500">
+                              <Text fontSize="xs" color="purple.700">
                                 Funding Amount
                               </Text>
-                              <Text fontSize="sm" fontWeight="medium">
+                              <Text fontSize="sm" fontWeight="medium" color="purple.900">
                                 {grant.amount}
                               </Text>
                             </Box>
                           </HStack>
 
                           <HStack>
-                            <Icon as={FiCalendar} color="gray.500" />
+                            <Icon as={FiCalendar} color="purple.600" />
                             <Box>
-                              <Text fontSize="xs" color="gray.500">
+                              <Text fontSize="xs" color="purple.700">
                                 Deadline
                               </Text>
-                              <Text fontSize="sm" fontWeight="medium">
-                                {grant.deadline}
+                              <Text fontSize="sm" fontWeight="medium" color="purple.900">
+                                {new Date(grant.deadline).toLocaleDateString()}
                               </Text>
                             </Box>
                           </HStack>
 
                           <HStack>
-                            <Icon as={FiMapPin} color="gray.500" />
+                            <Icon as={FiStar} color="purple.600" />
                             <Box>
-                              <Text fontSize="xs" color="gray.500">
-                                Location
+                              <Text fontSize="xs" color="purple.700">
+                                Match Score
                               </Text>
-                              <Text fontSize="sm" fontWeight="medium">
-                                {grant.location}
+                              <Text fontSize="sm" fontWeight="medium" color="green.600">
+                                {grant.matchScore}%
                               </Text>
                             </Box>
                           </HStack>
 
                           <HStack>
-                            <Icon as={FiStar} color="gray.500" />
+                            <Icon as={FiStar} color="purple.600" />
                             <Box>
-                              <Text fontSize="xs" color="gray.500">
+                              <Text fontSize="xs" color="purple.700">
                                 Category
                               </Text>
-                              <Text fontSize="sm" fontWeight="medium">
+                              <Text fontSize="sm" fontWeight="medium" color="purple.900">
                                 {grant.category}
                               </Text>
                             </Box>
@@ -382,44 +283,43 @@ export default function GrantSearchPage() {
                         </SimpleGrid>
 
                         <Box>
-                          <Text fontSize="xs" color="gray.500" mb={2}>
+                          <Text fontSize="xs" color="purple.700" mb={2}>
                             Eligibility:
                           </Text>
-                          <Wrap>
+                          <Wrap gap={2}>
                             {grant.eligibility.map((item, index) => (
-                              <WrapItem key={index}>
-                                <Badge colorScheme="blue" variant="subtle">
-                                  {item}
-                                </Badge>
-                              </WrapItem>
+                              <Badge key={index} colorScheme="purple" variant="subtle">
+                                {item}
+                              </Badge>
                             ))}
                           </Wrap>
                         </Box>
                       </Box>
 
-                      <VStack spacing={2} ml={4}>
+                      <VStack gap={2} ml={4}>
                         <IconButton
                           aria-label="Bookmark grant"
-                          icon={<Icon as={FiBookmark} />}
                           variant="ghost"
-                          colorScheme="blue"
-                        />
+                          colorScheme="purple"
+                        >
+                          <Icon as={FiBookmark} />
+                        </IconButton>
                       </VStack>
                     </Flex>
 
-                    <Divider />
+                    <Separator />
 
-                    <HStack justify="flex-end" spacing={3}>
+                    <HStack justify="flex-end" gap={3}>
                       <Button variant="outline" size="sm">
                         View Details
                       </Button>
-                      <Button colorScheme="blue" size="sm">
+                      <Button colorScheme="purple" size="sm">
                         Start Application
                       </Button>
                     </HStack>
                   </VStack>
-                </CardBody>
-              </Card>
+                </Card.Body>
+              </Card.Root>
             ))}
           </VStack>
 
@@ -428,8 +328,8 @@ export default function GrantSearchPage() {
             <Button variant="outline" size="sm">
               Previous
             </Button>
-            <HStack spacing={1}>
-              <Button size="sm" colorScheme="blue">
+            <HStack gap={1}>
+              <Button size="sm" colorScheme="purple">
                 1
               </Button>
               <Button size="sm" variant="ghost">

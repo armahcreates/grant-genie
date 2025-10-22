@@ -9,26 +9,15 @@ import {
   HStack,
   Button,
   Card,
-  CardBody,
-  CardHeader,
   SimpleGrid,
   Icon,
-  Select,
   Stat,
-  StatLabel,
-  StatNumber,
-  StatHelpText,
-  StatArrow,
   Progress,
   Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
   Badge,
-  useColorModeValue,
-  Divider,
+  Separator,
+  NativeSelectRoot,
+  NativeSelectField,
 } from '@chakra-ui/react'
 import {
   FiDownload,
@@ -40,158 +29,125 @@ import {
   FiBarChart2,
 } from 'react-icons/fi'
 import MainLayout from '@/components/layout/MainLayout'
+import { mockGrantReports, mockFundingByCategory } from '@/lib/mockData'
 
 export default function ReportingPage() {
-  const borderColor = useColorModeValue('gray.200', 'gray.700')
-
-  const recentGrants = [
-    {
-      name: 'Community Development Grant',
-      amount: '$150,000',
-      status: 'Active',
-      progress: 65,
-      endDate: 'Dec 2025',
-    },
-    {
-      name: 'Education Innovation Fund',
-      amount: '$75,000',
-      status: 'Active',
-      progress: 45,
-      endDate: 'Jun 2025',
-    },
-    {
-      name: 'Healthcare Access Program',
-      amount: '$200,000',
-      status: 'Active',
-      progress: 80,
-      endDate: 'Mar 2026',
-    },
-    {
-      name: 'Youth Development Fund',
-      amount: '$60,000',
-      status: 'Completed',
-      progress: 100,
-      endDate: 'Dec 2024',
-    },
-  ]
-
-  const fundingByCategory = [
-    { category: 'Healthcare', amount: '$200,000', percentage: 41 },
-    { category: 'Community Development', amount: '$150,000', percentage: 31 },
-    { category: 'Education', amount: '$75,000', percentage: 15 },
-    { category: 'Youth Services', amount: '$60,000', percentage: 13 },
-  ]
+  const recentGrants = mockGrantReports
+  const fundingByCategory = mockFundingByCategory
 
   return (
     <MainLayout>
       <Container maxW="container.xl" py={8}>
-        <VStack spacing={8} align="stretch">
+        <VStack gap={8} align="stretch">
           {/* Header */}
           <HStack justify="space-between">
             <Box>
-              <Heading size="lg" mb={2}>
+              <Heading size="lg" mb={2} color="purple.900">
                 Reporting & Analytics
               </Heading>
-              <Text color="gray.600">
+              <Text color="purple.800">
                 Track your grant performance and generate comprehensive reports
               </Text>
             </Box>
             <HStack>
-              <Select w="200px" defaultValue="2025">
-                <option value="2025">Year: 2025</option>
-                <option value="2024">Year: 2024</option>
-                <option value="2023">Year: 2023</option>
-              </Select>
-              <Button leftIcon={<Icon as={FiDownload} />} colorScheme="blue">
+              <NativeSelectRoot w="200px">
+                <NativeSelectField defaultValue="2025">
+                  <option value="2025">Year: 2025</option>
+                  <option value="2024">Year: 2024</option>
+                  <option value="2023">Year: 2023</option>
+                </NativeSelectField>
+              </NativeSelectRoot>
+              <Button colorScheme="purple">
+                <Icon as={FiDownload} />
                 Export Report
               </Button>
             </HStack>
           </HStack>
 
           {/* Key Metrics */}
-          <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={6}>
-            <Card>
-              <CardBody>
-                <Stat>
-                  <StatLabel>Total Funding Secured</StatLabel>
-                  <HStack spacing={2} align="baseline">
+          <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} gap={6}>
+            <Card.Root>
+              <Card.Body>
+                <Stat.Root>
+                  <Stat.Label>Total Funding Secured</Stat.Label>
+                  <HStack gap={2} align="baseline">
                     <Icon as={FiDollarSign} color="green.500" boxSize={6} />
-                    <StatNumber>$485,000</StatNumber>
+                    <Stat.ValueText>$485,000</Stat.ValueText>
                   </HStack>
-                  <StatHelpText>
-                    <StatArrow type="increase" />
+                  <Stat.HelpText>
+                    <Stat.UpIndicator />
                     23.5% from last year
-                  </StatHelpText>
-                </Stat>
-              </CardBody>
-            </Card>
+                  </Stat.HelpText>
+                </Stat.Root>
+              </Card.Body>
+            </Card.Root>
 
-            <Card>
-              <CardBody>
-                <Stat>
-                  <StatLabel>Active Grants</StatLabel>
-                  <HStack spacing={2} align="baseline">
-                    <Icon as={FiFileText} color="blue.500" boxSize={6} />
-                    <StatNumber>12</StatNumber>
+            <Card.Root>
+              <Card.Body>
+                <Stat.Root>
+                  <Stat.Label>Active Grants</Stat.Label>
+                  <HStack gap={2} align="baseline">
+                    <Icon as={FiFileText} color="purple.500" boxSize={6} />
+                    <Stat.ValueText>12</Stat.ValueText>
                   </HStack>
-                  <StatHelpText>
-                    <StatArrow type="increase" />
+                  <Stat.HelpText>
+                    <Stat.UpIndicator />
                     3 new this month
-                  </StatHelpText>
-                </Stat>
-              </CardBody>
-            </Card>
+                  </Stat.HelpText>
+                </Stat.Root>
+              </Card.Body>
+            </Card.Root>
 
-            <Card>
-              <CardBody>
-                <Stat>
-                  <StatLabel>Success Rate</StatLabel>
-                  <HStack spacing={2} align="baseline">
+            <Card.Root>
+              <Card.Body>
+                <Stat.Root>
+                  <Stat.Label>Success Rate</Stat.Label>
+                  <HStack gap={2} align="baseline">
                     <Icon as={FiCheckCircle} color="purple.500" boxSize={6} />
-                    <StatNumber>68%</StatNumber>
+                    <Stat.ValueText>68%</Stat.ValueText>
                   </HStack>
-                  <StatHelpText>
-                    <StatArrow type="increase" />
+                  <Stat.HelpText>
+                    <Stat.UpIndicator />
                     12% improvement
-                  </StatHelpText>
-                </Stat>
-              </CardBody>
-            </Card>
+                  </Stat.HelpText>
+                </Stat.Root>
+              </Card.Body>
+            </Card.Root>
 
-            <Card>
-              <CardBody>
-                <Stat>
-                  <StatLabel>Compliance Rate</StatLabel>
-                  <HStack spacing={2} align="baseline">
-                    <Icon as={FiTrendingUp} color="orange.500" boxSize={6} />
-                    <StatNumber>94%</StatNumber>
+            <Card.Root>
+              <Card.Body>
+                <Stat.Root>
+                  <Stat.Label>Compliance Rate</Stat.Label>
+                  <HStack gap={2} align="baseline">
+                    <Icon as={FiTrendingUp} color="purple.500" boxSize={6} />
+                    <Stat.ValueText>94%</Stat.ValueText>
                   </HStack>
-                  <StatHelpText>
-                    <StatArrow type="increase" />
+                  <Stat.HelpText>
+                    <Stat.UpIndicator />
                     On track
-                  </StatHelpText>
-                </Stat>
-              </CardBody>
-            </Card>
+                  </Stat.HelpText>
+                </Stat.Root>
+              </Card.Body>
+            </Card.Root>
           </SimpleGrid>
 
           {/* Charts Section */}
-          <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={6}>
+          <SimpleGrid columns={{ base: 1, lg: 2 }} gap={6}>
             {/* Funding by Category */}
-            <Card>
-              <CardHeader>
+            <Card.Root>
+              <Card.Header>
                 <HStack justify="space-between">
                   <HStack>
-                    <Icon as={FiPieChart} color="blue.500" />
+                    <Icon as={FiPieChart} color="purple.500" />
                     <Heading size="md">Funding by Category</Heading>
                   </HStack>
                   <Button size="sm" variant="ghost">
                     View Details
                   </Button>
                 </HStack>
-              </CardHeader>
-              <CardBody>
-                <VStack spacing={4} align="stretch">
+              </Card.Header>
+              <Card.Body>
+                <VStack gap={4} align="stretch">
                   {fundingByCategory.map((item, index) => (
                     <Box key={index}>
                       <HStack justify="space-between" mb={2}>
@@ -199,27 +155,26 @@ export default function ReportingPage() {
                           {item.category}
                         </Text>
                         <HStack>
-                          <Text fontSize="sm" color="gray.600">
+                          <Text fontSize="sm" color="purple.700">
                             {item.amount}
                           </Text>
                           <Badge>{item.percentage}%</Badge>
                         </HStack>
                       </HStack>
-                      <Progress
-                        value={item.percentage}
-                        size="sm"
-                        colorScheme="blue"
-                        borderRadius="full"
-                      />
+                      <Progress.Root value={item.percentage} size="sm" colorScheme="purple">
+                        <Progress.Track>
+                          <Progress.Range />
+                        </Progress.Track>
+                      </Progress.Root>
                     </Box>
                   ))}
                 </VStack>
-              </CardBody>
-            </Card>
+              </Card.Body>
+            </Card.Root>
 
             {/* Application Timeline */}
-            <Card>
-              <CardHeader>
+            <Card.Root>
+              <Card.Header>
                 <HStack justify="space-between">
                   <HStack>
                     <Icon as={FiBarChart2} color="purple.500" />
@@ -229,185 +184,207 @@ export default function ReportingPage() {
                     View Details
                   </Button>
                 </HStack>
-              </CardHeader>
-              <CardBody>
-                <VStack spacing={4} align="stretch">
+              </Card.Header>
+              <Card.Body>
+                <VStack gap={4} align="stretch">
                   <HStack justify="space-between">
                     <Text fontSize="sm">Q1 2025</Text>
                     <Badge colorScheme="green">8 Applications</Badge>
                   </HStack>
-                  <Progress value={80} size="sm" colorScheme="green" borderRadius="full" />
+                  <Progress.Root value={80} size="sm" colorScheme="green">
+                    <Progress.Track>
+                      <Progress.Range />
+                    </Progress.Track>
+                  </Progress.Root>
 
                   <HStack justify="space-between">
                     <Text fontSize="sm">Q4 2024</Text>
-                    <Badge colorScheme="blue">6 Applications</Badge>
+                    <Badge colorScheme="purple">6 Applications</Badge>
                   </HStack>
-                  <Progress value={60} size="sm" colorScheme="blue" borderRadius="full" />
+                  <Progress.Root value={60} size="sm" colorScheme="purple">
+                    <Progress.Track>
+                      <Progress.Range />
+                    </Progress.Track>
+                  </Progress.Root>
 
                   <HStack justify="space-between">
                     <Text fontSize="sm">Q3 2024</Text>
                     <Badge colorScheme="purple">5 Applications</Badge>
                   </HStack>
-                  <Progress value={50} size="sm" colorScheme="purple" borderRadius="full" />
+                  <Progress.Root value={50} size="sm" colorScheme="purple">
+                    <Progress.Track>
+                      <Progress.Range />
+                    </Progress.Track>
+                  </Progress.Root>
 
                   <HStack justify="space-between">
                     <Text fontSize="sm">Q2 2024</Text>
                     <Badge colorScheme="orange">4 Applications</Badge>
                   </HStack>
-                  <Progress value={40} size="sm" colorScheme="orange" borderRadius="full" />
+                  <Progress.Root value={40} size="sm" colorScheme="orange">
+                    <Progress.Track>
+                      <Progress.Range />
+                    </Progress.Track>
+                  </Progress.Root>
                 </VStack>
-              </CardBody>
-            </Card>
+              </Card.Body>
+            </Card.Root>
           </SimpleGrid>
 
           {/* Grant Performance Table */}
-          <Card>
-            <CardHeader>
+          <Card.Root>
+            <Card.Header>
               <Heading size="md">Grant Performance Overview</Heading>
-            </CardHeader>
-            <CardBody>
-              <Table variant="simple">
-                <Thead>
-                  <Tr>
-                    <Th>Grant Name</Th>
-                    <Th>Award Amount</Th>
-                    <Th>Status</Th>
-                    <Th>Progress</Th>
-                    <Th>End Date</Th>
-                    <Th>Actions</Th>
-                  </Tr>
-                </Thead>
-                <Tbody>
+            </Card.Header>
+            <Card.Body>
+              <Table.Root variant="outline">
+                <Table.Header>
+                  <Table.Row>
+                    <Table.ColumnHeader>Grant Name</Table.ColumnHeader>
+                    <Table.ColumnHeader>Award Amount</Table.ColumnHeader>
+                    <Table.ColumnHeader>Status</Table.ColumnHeader>
+                    <Table.ColumnHeader>Progress</Table.ColumnHeader>
+                    <Table.ColumnHeader>End Date</Table.ColumnHeader>
+                    <Table.ColumnHeader>Actions</Table.ColumnHeader>
+                  </Table.Row>
+                </Table.Header>
+                <Table.Body>
                   {recentGrants.map((grant, index) => (
-                    <Tr key={index}>
-                      <Td fontWeight="medium">{grant.name}</Td>
-                      <Td>{grant.amount}</Td>
-                      <Td>
-                        <Badge
-                          colorScheme={grant.status === 'Active' ? 'green' : 'gray'}
-                        >
+                    <Table.Row key={index}>
+                      <Table.Cell fontWeight="medium">{grant.name}</Table.Cell>
+                      <Table.Cell>{grant.amount}</Table.Cell>
+                      <Table.Cell>
+                        <Badge colorScheme={grant.status === 'Active' ? 'green' : 'gray'}>
                           {grant.status}
                         </Badge>
-                      </Td>
-                      <Td>
-                        <HStack spacing={3}>
-                          <Progress
-                            value={grant.progress}
-                            size="sm"
-                            colorScheme="blue"
-                            w="100px"
-                            borderRadius="full"
-                          />
+                      </Table.Cell>
+                      <Table.Cell>
+                        <HStack gap={3}>
+                          <Progress.Root value={grant.progress} size="sm" colorScheme="purple" w="100px">
+                            <Progress.Track>
+                              <Progress.Range />
+                            </Progress.Track>
+                          </Progress.Root>
                           <Text fontSize="sm">{grant.progress}%</Text>
                         </HStack>
-                      </Td>
-                      <Td fontSize="sm">{grant.endDate}</Td>
-                      <Td>
+                      </Table.Cell>
+                      <Table.Cell fontSize="sm">{grant.endDate}</Table.Cell>
+                      <Table.Cell>
                         <Button size="xs" variant="outline">
                           View Report
                         </Button>
-                      </Td>
-                    </Tr>
+                      </Table.Cell>
+                    </Table.Row>
                   ))}
-                </Tbody>
-              </Table>
-            </CardBody>
-          </Card>
+                </Table.Body>
+              </Table.Root>
+            </Card.Body>
+          </Card.Root>
 
           {/* Report Templates */}
-          <Card>
-            <CardHeader>
+          <Card.Root>
+            <Card.Header>
               <Heading size="md">Report Templates</Heading>
-            </CardHeader>
-            <CardBody>
-              <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
-                <Card variant="outline">
-                  <CardBody>
-                    <VStack spacing={3}>
-                      <Icon as={FiFileText} boxSize={8} color="blue.500" />
+            </Card.Header>
+            <Card.Body>
+              <SimpleGrid columns={{ base: 1, md: 3 }} gap={4}>
+                <Card.Root variant="outline">
+                  <Card.Body>
+                    <VStack gap={3}>
+                      <Icon as={FiFileText} boxSize={8} color="purple.500" />
                       <Text fontWeight="medium">Financial Summary</Text>
-                      <Text fontSize="sm" color="gray.600" textAlign="center">
+                      <Text fontSize="sm" color="purple.700" textAlign="center">
                         Comprehensive financial report across all grants
                       </Text>
-                      <Button size="sm" w="full" leftIcon={<Icon as={FiDownload} />}>
+                      <Button size="sm" w="full">
+                        <Icon as={FiDownload} />
                         Generate
                       </Button>
                     </VStack>
-                  </CardBody>
-                </Card>
+                  </Card.Body>
+                </Card.Root>
 
-                <Card variant="outline">
-                  <CardBody>
-                    <VStack spacing={3}>
+                <Card.Root variant="outline">
+                  <Card.Body>
+                    <VStack gap={3}>
                       <Icon as={FiBarChart2} boxSize={8} color="purple.500" />
                       <Text fontWeight="medium">Impact Report</Text>
-                      <Text fontSize="sm" color="gray.600" textAlign="center">
+                      <Text fontSize="sm" color="purple.700" textAlign="center">
                         Measure program outcomes and community impact
                       </Text>
-                      <Button size="sm" w="full" leftIcon={<Icon as={FiDownload} />}>
+                      <Button size="sm" w="full">
+                        <Icon as={FiDownload} />
                         Generate
                       </Button>
                     </VStack>
-                  </CardBody>
-                </Card>
+                  </Card.Body>
+                </Card.Root>
 
-                <Card variant="outline">
-                  <CardBody>
-                    <VStack spacing={3}>
-                      <Icon as={FiCheckCircle} boxSize={8} color="green.500" />
+                <Card.Root variant="outline">
+                  <Card.Body>
+                    <VStack gap={3}>
+                      <Icon as={FiCheckCircle} boxSize={8} color="purple.500" />
                       <Text fontWeight="medium">Compliance Report</Text>
-                      <Text fontSize="sm" color="gray.600" textAlign="center">
+                      <Text fontSize="sm" color="purple.700" textAlign="center">
                         Track compliance status and requirements
                       </Text>
-                      <Button size="sm" w="full" leftIcon={<Icon as={FiDownload} />}>
+                      <Button size="sm" w="full">
+                        <Icon as={FiDownload} />
                         Generate
                       </Button>
                     </VStack>
-                  </CardBody>
-                </Card>
+                  </Card.Body>
+                </Card.Root>
               </SimpleGrid>
-            </CardBody>
-          </Card>
+            </Card.Body>
+          </Card.Root>
 
           {/* Export Options */}
-          <Card>
-            <CardHeader>
+          <Card.Root>
+            <Card.Header>
               <Heading size="md">Custom Report Builder</Heading>
-            </CardHeader>
-            <CardBody>
-              <VStack spacing={4} align="stretch">
-                <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
-                  <Select placeholder="Select Date Range">
-                    <option value="last-month">Last Month</option>
-                    <option value="last-quarter">Last Quarter</option>
-                    <option value="last-year">Last Year</option>
-                    <option value="custom">Custom Range</option>
-                  </Select>
+            </Card.Header>
+            <Card.Body>
+              <VStack gap={4} align="stretch">
+                <SimpleGrid columns={{ base: 1, md: 3 }} gap={4}>
+                  <NativeSelectRoot>
+                    <NativeSelectField placeholder="Select Date Range">
+                      <option value="last-month">Last Month</option>
+                      <option value="last-quarter">Last Quarter</option>
+                      <option value="last-year">Last Year</option>
+                      <option value="custom">Custom Range</option>
+                    </NativeSelectField>
+                  </NativeSelectRoot>
 
-                  <Select placeholder="Select Grant(s)">
-                    <option value="all">All Grants</option>
-                    <option value="active">Active Grants Only</option>
-                    <option value="completed">Completed Grants Only</option>
-                  </Select>
+                  <NativeSelectRoot>
+                    <NativeSelectField placeholder="Select Grant(s)">
+                      <option value="all">All Grants</option>
+                      <option value="active">Active Grants Only</option>
+                      <option value="completed">Completed Grants Only</option>
+                    </NativeSelectField>
+                  </NativeSelectRoot>
 
-                  <Select placeholder="Export Format">
-                    <option value="pdf">PDF</option>
-                    <option value="excel">Excel (XLSX)</option>
-                    <option value="csv">CSV</option>
-                  </Select>
+                  <NativeSelectRoot>
+                    <NativeSelectField placeholder="Export Format">
+                      <option value="pdf">PDF</option>
+                      <option value="excel">Excel (XLSX)</option>
+                      <option value="csv">CSV</option>
+                    </NativeSelectField>
+                  </NativeSelectRoot>
                 </SimpleGrid>
 
-                <Divider />
+                <Separator />
 
                 <HStack justify="flex-end">
                   <Button variant="outline">Preview</Button>
-                  <Button colorScheme="blue" leftIcon={<Icon as={FiDownload} />}>
+                  <Button colorScheme="purple">
+                    <Icon as={FiDownload} />
                     Generate Custom Report
                   </Button>
                 </HStack>
               </VStack>
-            </CardBody>
-          </Card>
+            </Card.Body>
+          </Card.Root>
         </VStack>
       </Container>
     </MainLayout>

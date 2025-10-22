@@ -9,18 +9,16 @@ import {
   VStack,
   HStack,
   Button,
-  FormControl,
-  FormLabel,
+  Field,
   Input,
   Textarea,
-  Select,
-  Avatar,
   Icon,
-  Card,
-  CardBody,
-  useColorModeValue,
-  Divider,
   SimpleGrid,
+  NativeSelectRoot,
+  NativeSelectField,
+  Avatar,
+  Separator,
+  Card,
 } from '@chakra-ui/react'
 import { useState } from 'react'
 import { MdPerson, MdBusiness, MdNotifications, MdSecurity, MdCamera } from 'react-icons/md'
@@ -34,22 +32,18 @@ interface SectionTabProps {
 }
 
 const SectionTab = ({ icon, label, isActive, onClick }: SectionTabProps) => {
-  const activeColor = useColorModeValue('blue.600', 'blue.200')
-  const activeBg = useColorModeValue('blue.50', 'blue.900')
-  const hoverBg = useColorModeValue('gray.100', 'gray.700')
-
   return (
     <Button
       variant="ghost"
       justifyContent="flex-start"
-      leftIcon={<Icon as={icon} />}
       w="full"
-      bg={isActive ? activeBg : 'transparent'}
-      color={isActive ? activeColor : 'inherit'}
+      bg={isActive ? 'blue.50' : 'transparent'}
+      color={isActive ? 'blue.600' : 'inherit'}
       fontWeight={isActive ? 'semibold' : 'medium'}
-      _hover={{ bg: isActive ? activeBg : hoverBg }}
+      _hover={{ bg: isActive ? 'blue.50' : 'gray.100' }}
       onClick={onClick}
     >
+      <Icon as={icon} />
       {label}
     </Button>
   )
@@ -57,8 +51,6 @@ const SectionTab = ({ icon, label, isActive, onClick }: SectionTabProps) => {
 
 export default function SettingsPage() {
   const [activeSection, setActiveSection] = useState('personal')
-  const bgColor = useColorModeValue('white', 'gray.800')
-  const borderColor = useColorModeValue('gray.200', 'gray.700')
 
   return (
     <MainLayout>
@@ -74,13 +66,13 @@ export default function SettingsPage() {
 
         <Flex gap={6} direction={{ base: 'column', lg: 'row' }}>
           {/* Left Sidebar Navigation */}
-          <Card
+          <Card.Root
             w={{ base: 'full', lg: '280px' }}
             h="fit-content"
             flexShrink={0}
           >
-            <CardBody p={4}>
-              <VStack spacing={2} align="stretch">
+            <Card.Body p={4}>
+              <VStack gap={2} align="stretch">
                 <SectionTab
                   icon={MdPerson}
                   label="Personal Information"
@@ -106,12 +98,12 @@ export default function SettingsPage() {
                   onClick={() => setActiveSection('security')}
                 />
               </VStack>
-            </CardBody>
-          </Card>
+            </Card.Body>
+          </Card.Root>
 
           {/* Main Content Area */}
-          <Card flex={1}>
-            <CardBody p={8}>
+          <Card.Root flex={1}>
+            <Card.Body p={8}>
               {activeSection === 'personal' && (
                 <Box>
                   <Heading size="md" mb={2}>
@@ -123,117 +115,114 @@ export default function SettingsPage() {
 
                   {/* Profile Photo */}
                   <Flex align="center" gap={4} mb={8}>
-                    <Avatar
-                      size="xl"
-                      name="Sarah Johnson"
-                      bg="blue.500"
-                    />
-                    <Button
-                      leftIcon={<Icon as={MdCamera} />}
-                      variant="outline"
-                      size="sm"
-                    >
+                    <Avatar.Root size="xl" bg="blue.500">
+                      <Avatar.Fallback>SJ</Avatar.Fallback>
+                    </Avatar.Root>
+                    <Button variant="outline" size="sm">
+                      <Icon as={MdCamera} />
                       Change Photo
                     </Button>
                   </Flex>
 
-                  <VStack spacing={6} align="stretch">
-                    <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
-                      <FormControl>
-                        <FormLabel>First Name</FormLabel>
+                  <VStack gap={6} align="stretch">
+                    <SimpleGrid columns={{ base: 1, md: 2 }} gap={6}>
+                      <Field.Root>
+                        <Field.Label>First Name</Field.Label>
                         <Input
                           placeholder="Enter first name"
                           defaultValue="Sarah"
                         />
-                      </FormControl>
-                      <FormControl>
-                        <FormLabel>Last Name</FormLabel>
+                      </Field.Root>
+                      <Field.Root>
+                        <Field.Label>Last Name</Field.Label>
                         <Input
                           placeholder="Enter last name"
                           defaultValue="Johnson"
                         />
-                      </FormControl>
+                      </Field.Root>
                     </SimpleGrid>
 
-                    <FormControl>
-                      <FormLabel>Email Address</FormLabel>
+                    <Field.Root>
+                      <Field.Label>Email Address</Field.Label>
                       <Input
                         type="email"
                         placeholder="Enter email address"
                         defaultValue="sarah.johnson@nonprofit6.org"
                       />
-                    </FormControl>
+                    </Field.Root>
 
-                    <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
-                      <FormControl>
-                        <FormLabel>Phone Number</FormLabel>
+                    <SimpleGrid columns={{ base: 1, md: 2 }} gap={6}>
+                      <Field.Root>
+                        <Field.Label>Phone Number</Field.Label>
                         <Input
                           type="tel"
                           placeholder="Enter phone number"
                           defaultValue="+1 (555) 123-4567"
                         />
-                      </FormControl>
-                      <FormControl>
-                        <FormLabel>Job Title</FormLabel>
+                      </Field.Root>
+                      <Field.Root>
+                        <Field.Label>Job Title</Field.Label>
                         <Input
                           placeholder="Enter job title"
                           defaultValue="Program Director"
                         />
-                      </FormControl>
+                      </Field.Root>
                     </SimpleGrid>
 
-                    <FormControl>
-                      <FormLabel>Bio</FormLabel>
+                    <Field.Root>
+                      <Field.Label>Bio</Field.Label>
                       <Textarea
                         placeholder="Tell us about yourself and your role..."
                         rows={4}
                       />
-                    </FormControl>
+                    </Field.Root>
 
-                    <Divider my={4} />
+                    <Separator my={4} />
 
                     {/* Address Information */}
                     <Heading size="sm" mb={2}>
                       Address Information
                     </Heading>
 
-                    <FormControl>
-                      <FormLabel>Street Address</FormLabel>
+                    <Field.Root>
+                      <Field.Label>Street Address</Field.Label>
                       <Input
                         placeholder="Enter street address"
                         defaultValue="123 Main Street"
                       />
-                    </FormControl>
+                    </Field.Root>
 
-                    <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6}>
-                      <FormControl>
-                        <FormLabel>City</FormLabel>
+                    <SimpleGrid columns={{ base: 1, md: 3 }} gap={6}>
+                      <Field.Root>
+                        <Field.Label>City</Field.Label>
                         <Input
                           placeholder="Enter city"
                           defaultValue="Springfield"
                         />
-                      </FormControl>
-                      <FormControl>
-                        <FormLabel>State</FormLabel>
-                        <Select defaultValue="IL">
-                          <option value="">Select state</option>
-                          <option value="AL">Alabama</option>
-                          <option value="AK">Alaska</option>
-                          <option value="AZ">Arizona</option>
-                          <option value="CA">California</option>
-                          <option value="FL">Florida</option>
-                          <option value="IL">Illinois</option>
-                          <option value="NY">New York</option>
-                          <option value="TX">Texas</option>
-                        </Select>
-                      </FormControl>
-                      <FormControl>
-                        <FormLabel>ZIP Code</FormLabel>
+                      </Field.Root>
+                      <Field.Root>
+                        <Field.Label>State</Field.Label>
+                        <NativeSelectRoot>
+                          <NativeSelectField defaultValue="IL">
+                            <option value="">Select state</option>
+                            <option value="AL">Alabama</option>
+                            <option value="AK">Alaska</option>
+                            <option value="AZ">Arizona</option>
+                            <option value="CA">California</option>
+                            <option value="FL">Florida</option>
+                            <option value="IL">Illinois</option>
+                            <option value="NY">New York</option>
+                            <option value="TX">Texas</option>
+                          </NativeSelectField>
+                        </NativeSelectRoot>
+                      </Field.Root>
+                      <Field.Root>
+                        <Field.Label>ZIP Code</Field.Label>
                         <Input
                           placeholder="Enter ZIP code"
                           defaultValue="62701"
                         />
-                      </FormControl>
+                      </Field.Root>
                     </SimpleGrid>
 
                     {/* Action Buttons */}
@@ -290,8 +279,8 @@ export default function SettingsPage() {
                   </Text>
                 </Box>
               )}
-            </CardBody>
-          </Card>
+            </Card.Body>
+          </Card.Root>
         </Flex>
       </Container>
     </MainLayout>

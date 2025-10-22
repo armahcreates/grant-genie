@@ -8,29 +8,19 @@ import {
   VStack,
   HStack,
   Button,
-  Select,
   Badge,
   Card,
-  CardBody,
   Switch,
-  FormControl,
-  FormLabel,
-  Divider,
+  Field,
+  Separator,
   Icon,
-  useColorModeValue,
+  NativeSelectRoot,
+  NativeSelectField,
 } from '@chakra-ui/react'
 import { useState } from 'react'
 import { FiAlertCircle, FiCheckCircle, FiInfo, FiClock } from 'react-icons/fi'
 import MainLayout from '@/components/layout/MainLayout'
-
-interface Notification {
-  id: string
-  type: 'critical' | 'update' | 'info'
-  title: string
-  message: string
-  time: string
-  actionLabel?: string
-}
+import { mockNotifications, type Notification } from '@/lib/mockData'
 
 export default function NotificationsPage() {
   const [filterType, setFilterType] = useState('All Alerts')
@@ -38,54 +28,7 @@ export default function NotificationsPage() {
   const [emailNotifications, setEmailNotifications] = useState(true)
   const [inAppNotifications, setInAppNotifications] = useState(true)
 
-  const notifications: Notification[] = [
-    {
-      id: '1',
-      type: 'critical',
-      title: 'Application Deadline Approaching',
-      message: 'Healthcare Research Grant - $45,000\nDeadline: March 15, 2025 (3 days remaining)\nYour application status: In review',
-      time: '2 hours ago',
-      actionLabel: 'View Application',
-    },
-    {
-      id: '2',
-      type: 'critical',
-      title: 'Missing Required Documents',
-      message: 'Education Technology Grant - $25,000\nMissing documents: Budget breakdown and timeline\nPlease upload required documents to complete your application',
-      time: '4 hours ago',
-      actionLabel: 'Upload Documents',
-    },
-    {
-      id: '3',
-      type: 'update',
-      title: 'Application Submitted Successfully',
-      message: 'Youth Development Program Grant - $75,000\nYour application has been submitted and is under review',
-      time: '1 day ago',
-    },
-    {
-      id: '4',
-      type: 'info',
-      title: 'New Grant Opportunity Available',
-      message: 'Environmental Sustainability Grant - Up to $150,000\nDeadline: April 30, 2025\nFunding for sustainable community projects',
-      time: '2 days ago',
-      actionLabel: 'View Details',
-    },
-    {
-      id: '5',
-      type: 'update',
-      title: 'Compliance Report Due',
-      message: 'Annual Health Report - Community Arts Grant\nDue: February 15, 2025\nPlease submit your compliance report before the deadline',
-      time: '3 days ago',
-    },
-    {
-      id: '6',
-      type: 'info',
-      title: 'Upcoming Grant Workshop',
-      message: 'Grant Writing Best Practices Webinar\nJanuary 25, 2025 at 2:00 PM EST\nRegister now to improve your grant writing skills',
-      time: '5 days ago',
-      actionLabel: 'Register Now',
-    },
-  ]
+  const notifications = mockNotifications
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
@@ -103,7 +46,7 @@ export default function NotificationsPage() {
       case 'critical':
         return 'red'
       case 'update':
-        return 'blue'
+        return 'purple'
       default:
         return 'gray'
     }
@@ -120,75 +63,88 @@ export default function NotificationsPage() {
     }
   }
 
-  const borderColor = useColorModeValue('gray.200', 'gray.700')
-  const bgHover = useColorModeValue('gray.50', 'gray.700')
+  const formatTimestamp = (timestamp: string) => {
+    const date = new Date(timestamp)
+    const now = new Date()
+    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60))
+
+    if (diffInHours < 1) return 'Just now'
+    if (diffInHours < 24) return `${diffInHours} hours ago`
+
+    const diffInDays = Math.floor(diffInHours / 24)
+    if (diffInDays === 1) return '1 day ago'
+    return `${diffInDays} days ago`
+  }
 
   return (
     <MainLayout>
       <Container maxW="container.xl" py={8}>
-        <VStack spacing={8} align="stretch">
+        <VStack gap={8} align="stretch">
           {/* Header */}
           <Box>
-            <Heading size="lg" mb={2}>
+            <Heading size="lg" mb={2} color="purple.900">
               Notifications & Alerts
             </Heading>
-            <Text color="gray.600">
+            <Text color="purple.800">
               Stay updated with important dates and deadlines for your grant applications
             </Text>
           </Box>
 
           {/* Filters */}
-          <HStack spacing={4}>
-            <Select
-              w="200px"
-              value={filterType}
-              onChange={(e) => setFilterType(e.target.value)}
-            >
-              <option>All Alerts</option>
-              <option>Critical</option>
-              <option>Updates</option>
-              <option>Info</option>
-            </Select>
-            <Select
-              w="200px"
-              value={filterDays}
-              onChange={(e) => setFilterDays(e.target.value)}
-            >
-              <option>Last 7 days</option>
-              <option>Last 30 days</option>
-              <option>Last 90 days</option>
-              <option>All time</option>
-            </Select>
-            <Button colorScheme="blue" leftIcon={<Icon as={FiClock} />}>
+          <HStack gap={4}>
+            <NativeSelectRoot w="200px">
+              <NativeSelectField
+                value={filterType}
+                onChange={(e) => setFilterType(e.target.value)}
+              >
+                <option>All Alerts</option>
+                <option>Critical</option>
+                <option>Updates</option>
+                <option>Info</option>
+              </NativeSelectField>
+            </NativeSelectRoot>
+            <NativeSelectRoot w="200px">
+              <NativeSelectField
+                value={filterDays}
+                onChange={(e) => setFilterDays(e.target.value)}
+              >
+                <option>Last 7 days</option>
+                <option>Last 30 days</option>
+                <option>Last 90 days</option>
+                <option>All time</option>
+              </NativeSelectField>
+            </NativeSelectRoot>
+            <Button colorScheme="purple">
+              <Icon as={FiClock} />
               Mark All Read
             </Button>
           </HStack>
 
           {/* Critical Alerts Section */}
           <Box>
-            <Heading size="md" mb={4}>
+            <Heading size="md" mb={4} color="purple.900">
               Critical Alerts
             </Heading>
-            <VStack spacing={4} align="stretch">
+            <VStack gap={4} align="stretch">
               {notifications
                 .filter((n) => n.type === 'critical')
                 .map((notification) => (
-                  <Card
+                  <Card.Root
                     key={notification.id}
                     borderLeft="4px solid"
                     borderLeftColor={`${getNotificationColor(notification.type)}.500`}
-                    _hover={{ bg: bgHover }}
+                    _hover={{ bg: 'gray.50' }}
                     cursor="pointer"
                   >
-                    <CardBody>
-                      <HStack align="start" spacing={4}>
+                    <Card.Body>
+                      <HStack align="start" gap={4}>
                         <Icon
                           as={getNotificationIcon(notification.type)}
                           boxSize={6}
                           color={`${getNotificationColor(notification.type)}.500`}
                           mt={1}
                         />
-                        <VStack align="stretch" flex={1} spacing={2}>
+                        <VStack align="stretch" flex={1} gap={2}>
                           <HStack justify="space-between">
                             <HStack>
                               <Heading size="sm">{notification.title}</Heading>
@@ -196,53 +152,51 @@ export default function NotificationsPage() {
                                 {getBadgeLabel(notification.type)}
                               </Badge>
                             </HStack>
-                            <Text fontSize="sm" color="gray.500">
-                              {notification.time}
+                            <Text fontSize="sm" color="purple.600">
+                              {formatTimestamp(notification.timestamp)}
                             </Text>
                           </HStack>
-                          <Text whiteSpace="pre-line" color="gray.600">
+                          <Text whiteSpace="pre-line" color="purple.800">
                             {notification.message}
                           </Text>
-                          {notification.actionLabel && (
-                            <Box>
-                              <Button size="sm" colorScheme="blue" variant="outline">
-                                {notification.actionLabel}
-                              </Button>
-                            </Box>
-                          )}
+                          <Box>
+                            <Button size="sm" colorScheme="purple" variant="outline">
+                              View Details
+                            </Button>
+                          </Box>
                         </VStack>
                       </HStack>
-                    </CardBody>
-                  </Card>
+                    </Card.Body>
+                  </Card.Root>
                 ))}
             </VStack>
           </Box>
 
           {/* Recent Updates Section */}
           <Box>
-            <Heading size="md" mb={4}>
+            <Heading size="md" mb={4} color="purple.900">
               Recent Updates
             </Heading>
-            <VStack spacing={4} align="stretch">
+            <VStack gap={4} align="stretch">
               {notifications
                 .filter((n) => n.type !== 'critical')
                 .map((notification) => (
-                  <Card
+                  <Card.Root
                     key={notification.id}
                     borderLeft="4px solid"
                     borderLeftColor={`${getNotificationColor(notification.type)}.500`}
-                    _hover={{ bg: bgHover }}
+                    _hover={{ bg: 'gray.50' }}
                     cursor="pointer"
                   >
-                    <CardBody>
-                      <HStack align="start" spacing={4}>
+                    <Card.Body>
+                      <HStack align="start" gap={4}>
                         <Icon
                           as={getNotificationIcon(notification.type)}
                           boxSize={6}
                           color={`${getNotificationColor(notification.type)}.500`}
                           mt={1}
                         />
-                        <VStack align="stretch" flex={1} spacing={2}>
+                        <VStack align="stretch" flex={1} gap={2}>
                           <HStack justify="space-between">
                             <HStack>
                               <Heading size="sm">{notification.title}</Heading>
@@ -250,85 +204,89 @@ export default function NotificationsPage() {
                                 {getBadgeLabel(notification.type)}
                               </Badge>
                             </HStack>
-                            <Text fontSize="sm" color="gray.500">
-                              {notification.time}
+                            <Text fontSize="sm" color="purple.600">
+                              {formatTimestamp(notification.timestamp)}
                             </Text>
                           </HStack>
-                          <Text whiteSpace="pre-line" color="gray.600">
+                          <Text whiteSpace="pre-line" color="purple.800">
                             {notification.message}
                           </Text>
-                          {notification.actionLabel && (
-                            <Box>
-                              <Button size="sm" colorScheme="blue" variant="outline">
-                                {notification.actionLabel}
-                              </Button>
-                            </Box>
-                          )}
+                          <Box>
+                            <Button size="sm" colorScheme="purple" variant="outline">
+                              View Details
+                            </Button>
+                          </Box>
                         </VStack>
                       </HStack>
-                    </CardBody>
-                  </Card>
+                    </Card.Body>
+                  </Card.Root>
                 ))}
             </VStack>
           </Box>
 
           {/* Notification Preferences */}
-          <Card>
-            <CardBody>
-              <VStack spacing={6} align="stretch">
-                <Heading size="md">Notification Preferences</Heading>
-                <Divider />
+          <Card.Root>
+            <Card.Body>
+              <VStack gap={6} align="stretch">
+                <Heading size="md" color="purple.900">Notification Preferences</Heading>
+                <Separator />
 
-                <FormControl display="flex" alignItems="center" justifyContent="space-between">
+                <HStack justify="space-between" align="center">
                   <Box>
-                    <FormLabel mb={1} fontWeight="semibold">
+                    <Text mb={1} fontWeight="semibold" color="purple.900">
                       Email Notifications
-                    </FormLabel>
-                    <Text fontSize="sm" color="gray.600">
+                    </Text>
+                    <Text fontSize="sm" color="purple.800">
                       Receive important updates via email
                     </Text>
                   </Box>
-                  <Switch
+                  <Switch.Root
                     size="lg"
-                    isChecked={emailNotifications}
-                    onChange={(e) => setEmailNotifications(e.target.checked)}
-                  />
-                </FormControl>
+                    checked={emailNotifications}
+                    onCheckedChange={(e: any) => setEmailNotifications(!!e.checked)}
+                  >
+                    <Switch.Thumb />
+                  </Switch.Root>
+                </HStack>
 
-                <FormControl display="flex" alignItems="center" justifyContent="space-between">
+                <HStack justify="space-between" align="center">
                   <Box>
-                    <FormLabel mb={1} fontWeight="semibold">
+                    <Text mb={1} fontWeight="semibold" color="purple.900">
                       In-App Alerts
-                    </FormLabel>
-                    <Text fontSize="sm" color="gray.600">
+                    </Text>
+                    <Text fontSize="sm" color="purple.800">
                       Get in-app alerts for time-sensitive updates
                     </Text>
                   </Box>
-                  <Switch
+                  <Switch.Root
                     size="lg"
-                    isChecked={inAppNotifications}
-                    onChange={(e) => setInAppNotifications(e.target.checked)}
-                  />
-                </FormControl>
+                    checked={inAppNotifications}
+                    onCheckedChange={(e: any) => setInAppNotifications(!!e.checked)}
+                  >
+                    <Switch.Thumb />
+                  </Switch.Root>
+                </HStack>
 
-                <FormControl display="flex" alignItems="center" justifyContent="space-between">
+                <HStack justify="space-between" align="center">
                   <Box>
-                    <FormLabel mb={1} fontWeight="semibold">
+                    <Text mb={1} fontWeight="semibold" color="purple.900">
                       In-App Notifications
-                    </FormLabel>
-                    <Text fontSize="sm" color="gray.600">
+                    </Text>
+                    <Text fontSize="sm" color="purple.800">
                       Show notifications inside the application
                     </Text>
                   </Box>
-                  <Switch size="lg" defaultChecked />
-                </FormControl>
+                  <Switch.Root size="lg" defaultChecked>
+                    <Switch.Thumb />
+                  </Switch.Root>
+                </HStack>
 
-                <Button colorScheme="blue" alignSelf="flex-start">
+                <Button colorScheme="purple" alignSelf="flex-start">
                   Save Preferences
                 </Button>
               </VStack>
-            </CardBody>
-          </Card>
+            </Card.Body>
+          </Card.Root>
         </VStack>
       </Container>
     </MainLayout>

@@ -5,25 +5,25 @@ import {
   Container,
   Heading,
   Text,
-  FormControl,
-  FormLabel,
+  Field,
   Input,
   Textarea,
-  Select,
   Button,
   VStack,
   HStack,
   Grid,
   GridItem,
   Avatar,
-  Divider,
-  List,
-  ListItem,
-  ListIcon,
+  Separator,
+  Icon,
   Flex,
+  NativeSelectRoot,
+  NativeSelectField,
+  List,
 } from '@chakra-ui/react'
 import { useState } from 'react'
-import { FiUser, FiBuilding, FiBell, FiLock } from 'react-icons/fi'
+import { FiUser, FiBell, FiLock } from 'react-icons/fi'
+import { MdBusiness } from 'react-icons/md'
 import MainLayout from '@/components/layout/MainLayout'
 
 export default function ProfilePage() {
@@ -53,7 +53,7 @@ export default function ProfilePage() {
 
   const menuItems = [
     { id: 'personal', icon: FiUser, label: 'Personal Information' },
-    { id: 'organization', icon: FiBuilding, label: 'Organization Details' },
+    { id: 'organization', icon: MdBusiness, label: 'Organization Details' },
     { id: 'notifications', icon: FiBell, label: 'Notification Preferences' },
     { id: 'security', icon: FiLock, label: 'Security Settings' },
   ]
@@ -61,7 +61,7 @@ export default function ProfilePage() {
   return (
     <MainLayout>
       <Container maxW="container.xl" py={8}>
-      <VStack spacing={6} align="stretch">
+      <VStack gap={6} align="stretch">
         <Box>
           <Heading size="lg" mb={2}>Profile Management</Heading>
           <Text color="gray.600">Manage your contact information and organization details</Text>
@@ -70,12 +70,15 @@ export default function ProfilePage() {
         <Grid templateColumns={{ base: '1fr', md: '300px 1fr' }} gap={6}>
           {/* Left Sidebar */}
           <GridItem>
-            <VStack spacing={6} align="stretch">
+            <VStack gap={6} align="stretch">
               {/* Profile Picture Section */}
               <Box p={6} bg="white" borderRadius="lg" boxShadow="sm" border="1px" borderColor="gray.200">
-                <VStack spacing={4}>
-                  <Avatar size="2xl" name="Sarah Johnson" />
-                  <Button size="sm" leftIcon={<FiUser />}>
+                <VStack gap={4}>
+                  <Avatar.Root size="2xl" bg="blue.500">
+                    <Avatar.Fallback>SJ</Avatar.Fallback>
+                  </Avatar.Root>
+                  <Button size="sm">
+                    <Icon as={FiUser} />
                     Change Photo
                   </Button>
                 </VStack>
@@ -83,9 +86,9 @@ export default function ProfilePage() {
 
               {/* Navigation Menu */}
               <Box p={4} bg="white" borderRadius="lg" boxShadow="sm" border="1px" borderColor="gray.200">
-                <List spacing={2}>
+                <List.Root gap={2}>
                   {menuItems.map((item) => (
-                    <ListItem
+                    <List.Item
                       key={item.id}
                       p={3}
                       borderRadius="md"
@@ -97,12 +100,12 @@ export default function ProfilePage() {
                       onClick={() => setActiveTab(item.id)}
                     >
                       <Flex align="center">
-                        <ListIcon as={item.icon} boxSize={5} />
-                        <Text ml={2}>{item.label}</Text>
+                        <Icon as={item.icon} boxSize={5} mr={2} />
+                        <Text>{item.label}</Text>
                       </Flex>
-                    </ListItem>
+                    </List.Item>
                   ))}
-                </List>
+                </List.Root>
               </Box>
             </VStack>
           </GridItem>
@@ -111,7 +114,7 @@ export default function ProfilePage() {
           <GridItem>
             <Box p={8} bg="white" borderRadius="lg" boxShadow="sm" border="1px" borderColor="gray.200">
               {activeTab === 'personal' && (
-                <VStack spacing={6} align="stretch">
+                <VStack gap={6} align="stretch">
                   <Box>
                     <Heading size="md" mb={2}>Personal Information</Heading>
                     <Text color="gray.600" fontSize="sm">
@@ -119,60 +122,60 @@ export default function ProfilePage() {
                     </Text>
                   </Box>
 
-                  <Divider />
+                  <Separator />
 
                   <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={4}>
-                    <FormControl>
-                      <FormLabel>First Name</FormLabel>
+                    <Field.Root>
+                      <Field.Label>First Name</Field.Label>
                       <Input
                         name="firstName"
                         value={formData.firstName}
                         onChange={handleInputChange}
                       />
-                    </FormControl>
+                    </Field.Root>
 
-                    <FormControl>
-                      <FormLabel>Last Name</FormLabel>
+                    <Field.Root>
+                      <Field.Label>Last Name</Field.Label>
                       <Input
                         name="lastName"
                         value={formData.lastName}
                         onChange={handleInputChange}
                       />
-                    </FormControl>
+                    </Field.Root>
                   </Grid>
 
-                  <FormControl>
-                    <FormLabel>Email Address</FormLabel>
+                  <Field.Root>
+                    <Field.Label>Email Address</Field.Label>
                     <Input
                       name="email"
                       type="email"
                       value={formData.email}
                       onChange={handleInputChange}
                     />
-                  </FormControl>
+                  </Field.Root>
 
                   <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={4}>
-                    <FormControl>
-                      <FormLabel>Phone Number</FormLabel>
+                    <Field.Root>
+                      <Field.Label>Phone Number</Field.Label>
                       <Input
                         name="phone"
                         value={formData.phone}
                         onChange={handleInputChange}
                       />
-                    </FormControl>
+                    </Field.Root>
 
-                    <FormControl>
-                      <FormLabel>Job Title</FormLabel>
+                    <Field.Root>
+                      <Field.Label>Job Title</Field.Label>
                       <Input
                         name="jobTitle"
                         value={formData.jobTitle}
                         onChange={handleInputChange}
                       />
-                    </FormControl>
+                    </Field.Root>
                   </Grid>
 
-                  <FormControl>
-                    <FormLabel>Bio</FormLabel>
+                  <Field.Root>
+                    <Field.Label>Bio</Field.Label>
                     <Textarea
                       name="bio"
                       placeholder="Tell us about yourself and your role..."
@@ -180,60 +183,62 @@ export default function ProfilePage() {
                       onChange={handleInputChange}
                       rows={4}
                     />
-                  </FormControl>
+                  </Field.Root>
 
                   <Box>
                     <Heading size="sm" mb={4}>Address Information</Heading>
 
-                    <VStack spacing={4} align="stretch">
-                      <FormControl>
-                        <FormLabel>Street Address</FormLabel>
+                    <VStack gap={4} align="stretch">
+                      <Field.Root>
+                        <Field.Label>Street Address</Field.Label>
                         <Input
                           name="streetAddress"
                           value={formData.streetAddress}
                           onChange={handleInputChange}
                         />
-                      </FormControl>
+                      </Field.Root>
 
                       <Grid templateColumns={{ base: '1fr', md: '2fr 2fr 1fr' }} gap={4}>
-                        <FormControl>
-                          <FormLabel>City</FormLabel>
+                        <Field.Root>
+                          <Field.Label>City</Field.Label>
                           <Input
                             name="city"
                             value={formData.city}
                             onChange={handleInputChange}
                           />
-                        </FormControl>
+                        </Field.Root>
 
-                        <FormControl>
-                          <FormLabel>State</FormLabel>
-                          <Select
-                            name="state"
-                            value={formData.state}
-                            onChange={handleInputChange}
-                          >
-                            <option value="Illinois">Illinois</option>
-                            <option value="California">California</option>
-                            <option value="New York">New York</option>
-                            <option value="Texas">Texas</option>
-                            <option value="Florida">Florida</option>
-                            {/* Add more states as needed */}
-                          </Select>
-                        </FormControl>
+                        <Field.Root>
+                          <Field.Label>State</Field.Label>
+                          <NativeSelectRoot>
+                            <NativeSelectField
+                              name="state"
+                              value={formData.state}
+                              onChange={handleInputChange}
+                            >
+                              <option value="Illinois">Illinois</option>
+                              <option value="California">California</option>
+                              <option value="New York">New York</option>
+                              <option value="Texas">Texas</option>
+                              <option value="Florida">Florida</option>
+                              {/* Add more states as needed */}
+                            </NativeSelectField>
+                          </NativeSelectRoot>
+                        </Field.Root>
 
-                        <FormControl>
-                          <FormLabel>ZIP Code</FormLabel>
+                        <Field.Root>
+                          <Field.Label>ZIP Code</Field.Label>
                           <Input
                             name="zipCode"
                             value={formData.zipCode}
                             onChange={handleInputChange}
                           />
-                        </FormControl>
+                        </Field.Root>
                       </Grid>
                     </VStack>
                   </Box>
 
-                  <HStack spacing={4} justify="flex-end" pt={4}>
+                  <HStack gap={4} justify="flex-end" pt={4}>
                     <Button variant="outline">Cancel</Button>
                     <Button colorScheme="blue" onClick={handleSave}>
                       Save Changes

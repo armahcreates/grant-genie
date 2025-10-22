@@ -18,8 +18,8 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
   if (isLoading) {
     return (
       <Box minH="100vh" display="flex" alignItems="center" justifyContent="center">
-        <VStack spacing={4}>
-          <Spinner size="xl" color="blue.500" thickness="4px" />
+        <VStack gap={4}>
+          <Spinner size="xl" color="blue.500" borderWidth="4px" />
         </VStack>
       </Box>
     )

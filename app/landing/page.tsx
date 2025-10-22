@@ -8,19 +8,13 @@ import {
   Text,
   VStack,
   HStack,
-  Stack,
   SimpleGrid,
   Card,
-  CardBody,
   Icon,
-  useColorModeValue,
   Badge,
-  List,
-  ListItem,
-  ListIcon,
   Flex,
-  useDisclosure,
 } from '@chakra-ui/react'
+import { useState } from 'react'
 import {
   FiCheck,
   FiSearch,
@@ -29,9 +23,6 @@ import {
   FiBarChart2,
   FiBell,
   FiUsers,
-  FiZap,
-  FiShield,
-  FiTrendingUp,
 } from 'react-icons/fi'
 import { useRouter } from 'next/navigation'
 import LoginModal from '@/components/auth/LoginModal'
@@ -39,14 +30,8 @@ import SignupModal from '@/components/auth/SignupModal'
 
 export default function LandingPage() {
   const router = useRouter()
-  const loginModal = useDisclosure()
-  const signupModal = useDisclosure()
-
-  const bgGradient = useColorModeValue(
-    'linear(to-r, blue.400, purple.500)',
-    'linear(to-r, blue.600, purple.700)'
-  )
-  const cardBg = useColorModeValue('white', 'gray.800')
+  const [loginModalOpen, setLoginModalOpen] = useState(false)
+  const [signupModalOpen, setSignupModalOpen] = useState(false)
 
   const features = [
     {
@@ -144,9 +129,9 @@ export default function LandingPage() {
         position="sticky"
         top={0}
         zIndex={10}
-        bg={useColorModeValue('white', 'gray.800')}
+        bg="white"
         borderBottom="1px"
-        borderColor={useColorModeValue('gray.200', 'gray.700')}
+        borderColor="gray.200"
         backdropFilter="blur(10px)"
       >
         <Container maxW="container.xl" py={4}>
@@ -154,11 +139,11 @@ export default function LandingPage() {
             <Heading size="lg" color="blue.500">
               Grant Genie
             </Heading>
-            <HStack spacing={4}>
-              <Button variant="ghost" onClick={loginModal.onOpen}>
+            <HStack gap={4}>
+              <Button variant="ghost" onClick={() => setLoginModalOpen(true)}>
                 Log In
               </Button>
-              <Button colorScheme="blue" onClick={signupModal.onOpen}>
+              <Button colorScheme="blue" onClick={() => setSignupModalOpen(true)}>
                 Get Started
               </Button>
             </HStack>
@@ -167,9 +152,9 @@ export default function LandingPage() {
       </Box>
 
       {/* Hero Section */}
-      <Box bgGradient={bgGradient} color="white" py={20}>
+      <Box bgGradient="linear(to-r, blue.400, purple.500)" color="white" py={20}>
         <Container maxW="container.xl">
-          <VStack spacing={8} textAlign="center">
+          <VStack gap={8} textAlign="center">
             <Badge colorScheme="yellow" fontSize="md" px={3} py={1}>
               AI-Powered Grant Management
             </Badge>
@@ -180,8 +165,8 @@ export default function LandingPage() {
               Join thousands of organizations using Grant Genie to discover, apply for, and
               manage grants with AI-powered intelligence.
             </Text>
-            <HStack spacing={4} pt={4}>
-              <Button size="lg" colorScheme="yellow" onClick={signupModal.onOpen}>
+            <HStack gap={4} pt={4}>
+              <Button size="lg" colorScheme="yellow" onClick={() => setSignupModalOpen(true)}>
                 Start Free Trial
               </Button>
               <Button size="lg" variant="outline" colorScheme="whiteAlpha">
@@ -197,7 +182,7 @@ export default function LandingPage() {
 
       {/* Stats Section */}
       <Container maxW="container.xl" py={12}>
-        <SimpleGrid columns={{ base: 2, md: 4 }} spacing={8}>
+        <SimpleGrid columns={{ base: 2, md: 4 }} gap={8}>
           {stats.map((stat, index) => (
             <VStack key={index}>
               <Heading size="2xl" color="blue.500">
@@ -212,21 +197,21 @@ export default function LandingPage() {
       </Container>
 
       {/* Features Section */}
-      <Box bg={useColorModeValue('gray.50', 'gray.900')} py={20}>
+      <Box bg="gray.50" py={20}>
         <Container maxW="container.xl">
-          <VStack spacing={12}>
-            <VStack spacing={4} textAlign="center">
+          <VStack gap={12}>
+            <VStack gap={4} textAlign="center">
               <Heading size="2xl">Everything You Need to Succeed</Heading>
               <Text fontSize="lg" color="gray.600" maxW="600px">
                 Comprehensive tools to streamline your entire grant management process
               </Text>
             </VStack>
 
-            <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={8}>
+            <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap={8}>
               {features.map((feature, index) => (
-                <Card key={index} bg={cardBg}>
-                  <CardBody>
-                    <VStack align="start" spacing={4}>
+                <Card.Root key={index} bg="white">
+                  <Card.Body>
+                    <VStack align="start" gap={4}>
                       <Flex
                         w={12}
                         h={12}
@@ -240,8 +225,8 @@ export default function LandingPage() {
                       <Heading size="md">{feature.title}</Heading>
                       <Text color="gray.600">{feature.description}</Text>
                     </VStack>
-                  </CardBody>
-                </Card>
+                  </Card.Body>
+                </Card.Root>
               ))}
             </SimpleGrid>
           </VStack>
@@ -250,19 +235,19 @@ export default function LandingPage() {
 
       {/* Pricing Section */}
       <Container maxW="container.xl" py={20}>
-        <VStack spacing={12}>
-          <VStack spacing={4} textAlign="center">
+        <VStack gap={12}>
+          <VStack gap={4} textAlign="center">
             <Heading size="2xl">Simple, Transparent Pricing</Heading>
             <Text fontSize="lg" color="gray.600" maxW="600px">
               Choose the plan that fits your organization's needs
             </Text>
           </VStack>
 
-          <SimpleGrid columns={{ base: 1, lg: 3 }} spacing={8} w="full">
+          <SimpleGrid columns={{ base: 1, lg: 3 }} gap={8} w="full">
             {pricingPlans.map((plan, index) => (
-              <Card
+              <Card.Root
                 key={index}
-                bg={cardBg}
+                bg="white"
                 borderWidth={plan.highlighted ? '2px' : '1px'}
                 borderColor={plan.highlighted ? 'blue.500' : 'gray.200'}
                 position="relative"
@@ -281,9 +266,9 @@ export default function LandingPage() {
                     MOST POPULAR
                   </Badge>
                 )}
-                <CardBody>
-                  <VStack align="stretch" spacing={6}>
-                    <VStack align="start" spacing={2}>
+                <Card.Body>
+                  <VStack align="stretch" gap={6}>
+                    <VStack align="start" gap={2}>
                       <Text fontWeight="semibold" fontSize="lg">
                         {plan.name}
                       </Text>
@@ -298,22 +283,22 @@ export default function LandingPage() {
                       size="lg"
                       colorScheme={plan.highlighted ? 'blue' : 'gray'}
                       variant={plan.highlighted ? 'solid' : 'outline'}
-                      onClick={signupModal.onOpen}
+                      onClick={() => setSignupModalOpen(true)}
                     >
                       {plan.name === 'Enterprise' ? 'Contact Sales' : 'Start Free Trial'}
                     </Button>
 
-                    <List spacing={3}>
+                    <VStack gap={3} align="start">
                       {plan.features.map((feature, idx) => (
-                        <ListItem key={idx} display="flex" alignItems="center">
-                          <ListIcon as={FiCheck} color="green.500" />
+                        <HStack key={idx}>
+                          <Icon as={FiCheck} color="green.500" />
                           <Text>{feature}</Text>
-                        </ListItem>
+                        </HStack>
                       ))}
-                    </List>
+                    </VStack>
                   </VStack>
-                </CardBody>
-              </Card>
+                </Card.Body>
+              </Card.Root>
             ))}
           </SimpleGrid>
         </VStack>
@@ -322,14 +307,14 @@ export default function LandingPage() {
       {/* CTA Section */}
       <Box bg="blue.500" color="white" py={20}>
         <Container maxW="container.xl">
-          <VStack spacing={8} textAlign="center">
+          <VStack gap={8} textAlign="center">
             <Heading size="2xl">Ready to Transform Your Grant Management?</Heading>
             <Text fontSize="xl" maxW="700px">
               Join thousands of successful organizations using Grant Genie to secure more
               funding and streamline their operations.
             </Text>
-            <HStack spacing={4}>
-              <Button size="lg" colorScheme="yellow" onClick={signupModal.onOpen}>
+            <HStack gap={4}>
+              <Button size="lg" colorScheme="yellow" onClick={() => setSignupModalOpen(true)}>
                 Start Your Free Trial
               </Button>
               <Button size="lg" variant="outline" colorScheme="whiteAlpha">
@@ -341,10 +326,10 @@ export default function LandingPage() {
       </Box>
 
       {/* Footer */}
-      <Box bg={useColorModeValue('gray.50', 'gray.900')} py={12}>
+      <Box bg="gray.50" py={12}>
         <Container maxW="container.xl">
-          <SimpleGrid columns={{ base: 1, md: 4 }} spacing={8}>
-            <VStack align="start" spacing={4}>
+          <SimpleGrid columns={{ base: 1, md: 4 }} gap={8}>
+            <VStack align="start" gap={4}>
               <Heading size="md" color="blue.500">
                 Grant Genie
               </Heading>
@@ -353,7 +338,7 @@ export default function LandingPage() {
               </Text>
             </VStack>
 
-            <VStack align="start" spacing={2}>
+            <VStack align="start" gap={2}>
               <Text fontWeight="semibold">Product</Text>
               <Text fontSize="sm" color="gray.600" cursor="pointer">
                 Features
@@ -366,7 +351,7 @@ export default function LandingPage() {
               </Text>
             </VStack>
 
-            <VStack align="start" spacing={2}>
+            <VStack align="start" gap={2}>
               <Text fontWeight="semibold">Company</Text>
               <Text fontSize="sm" color="gray.600" cursor="pointer">
                 About
@@ -379,7 +364,7 @@ export default function LandingPage() {
               </Text>
             </VStack>
 
-            <VStack align="start" spacing={2}>
+            <VStack align="start" gap={2}>
               <Text fontWeight="semibold">Support</Text>
               <Text fontSize="sm" color="gray.600" cursor="pointer">
                 Help Center
@@ -403,14 +388,20 @@ export default function LandingPage() {
 
       {/* Modals */}
       <LoginModal
-        isOpen={loginModal.isOpen}
-        onClose={loginModal.onClose}
-        onSwitchToSignup={signupModal.onOpen}
+        isOpen={loginModalOpen}
+        onClose={() => setLoginModalOpen(false)}
+        onSwitchToSignup={() => {
+          setLoginModalOpen(false)
+          setSignupModalOpen(true)
+        }}
       />
       <SignupModal
-        isOpen={signupModal.isOpen}
-        onClose={signupModal.onClose}
-        onSwitchToLogin={loginModal.onOpen}
+        isOpen={signupModalOpen}
+        onClose={() => setSignupModalOpen(false)}
+        onSwitchToLogin={() => {
+          setSignupModalOpen(false)
+          setLoginModalOpen(true)
+        }}
       />
     </Box>
   )

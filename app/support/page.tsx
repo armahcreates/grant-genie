@@ -9,19 +9,10 @@ import {
   HStack,
   Button,
   Accordion,
-  AccordionItem,
-  AccordionButton,
-  AccordionPanel,
-  AccordionIcon,
   Card,
-  CardBody,
-  CardHeader,
   Icon,
   Link,
-  Divider,
-  List,
-  ListItem,
-  useColorModeValue,
+  Separator,
   Grid,
   GridItem,
 } from '@chakra-ui/react'
@@ -42,36 +33,42 @@ import {
 import MainLayout from '@/components/layout/MainLayout'
 
 export default function SupportPage() {
-  const borderColor = useColorModeValue('gray.200', 'gray.700')
-  const accordionBg = useColorModeValue('white', 'gray.800')
+  const borderColor = 'gray.200'
+  const accordionBg = 'white'
 
   const faqs = [
     {
+      value: 'q1',
       question: 'How do I search for relevant grants?',
       answer:
         'Use the Grant Search feature to filter by category, funding amount, deadline, and eligibility criteria. Our AI will suggest grants that match your organization profile.',
     },
     {
+      value: 'q2',
       question: 'What documents do I need for grant applications?',
       answer:
         'Typically you\'ll need your organization\'s tax-exempt status, financial statements, project/budget, and organizational information. Each grant may have specific requirements.',
     },
     {
+      value: 'q3',
       question: 'How does the compliance tracker work?',
       answer:
         'The compliance tracker monitors deadlines, required reports, and documentation. It sends automated reminders and helps ensure you meet all grant compliance requirements.',
     },
     {
+      value: 'q4',
       question: 'Can I collaborate with team members on applications?',
       answer:
         'Yes! You can invite team members to your organization account, assign roles and permissions, and collaborate on grant applications in real-time.',
     },
     {
+      value: 'q5',
       question: 'How do I generate reports for funders?',
       answer:
         'Navigate to the Reporting section and select the type of report you need. You can customize reports with specific metrics, timelines, and export them in various formats.',
     },
     {
+      value: 'q6',
       question: 'What if I need help with my application?',
       answer:
         'Our support team is available 24/7 via email, phone, or live chat. You can also access our video tutorials, community forum, and schedule a consultation with our grant experts.',
@@ -96,7 +93,7 @@ export default function SupportPage() {
   return (
     <MainLayout>
       <Container maxW="container.xl" py={8}>
-        <VStack spacing={8} align="stretch">
+        <VStack gap={8} align="stretch">
           {/* Header */}
           <Box>
             <Heading size="lg" mb={2}>
@@ -110,52 +107,51 @@ export default function SupportPage() {
           <Grid templateColumns={{ base: '1fr', lg: '2fr 1fr' }} gap={8}>
             {/* Left Column - FAQs */}
             <GridItem>
-              <Card>
-                <CardHeader>
+              <Card.Root>
+                <Card.Header>
                   <Heading size="md">Frequently Asked Questions</Heading>
-                </CardHeader>
-                <CardBody>
-                  <Accordion allowToggle>
-                    {faqs.map((faq, index) => (
-                      <AccordionItem key={index} border="none" mb={2}>
-                        <h2>
-                          <AccordionButton
-                            bg={accordionBg}
-                            border="1px"
-                            borderColor={borderColor}
-                            borderRadius="md"
-                            _hover={{ bg: useColorModeValue('gray.50', 'gray.700') }}
-                            _expanded={{ bg: useColorModeValue('blue.50', 'blue.900') }}
-                            py={4}
-                          >
-                            <Box flex="1" textAlign="left" fontWeight="medium">
-                              {faq.question}
-                            </Box>
-                            <AccordionIcon />
-                          </AccordionButton>
-                        </h2>
-                        <AccordionPanel pb={4} pt={4} color="gray.600">
+                </Card.Header>
+                <Card.Body>
+                  <Accordion.Root collapsible>
+                    {faqs.map((faq) => (
+                      <Accordion.Item key={faq.value} value={faq.value} border="none" mb={2}>
+                        <Accordion.ItemTrigger
+                          bg={accordionBg}
+                          border="1px"
+                          borderColor={borderColor}
+                          borderRadius="md"
+                          _hover={{ bg: 'gray.50' }}
+                          _expanded={{ bg: 'blue.50' }}
+                          py={4}
+                          cursor="pointer"
+                        >
+                          <Box flex="1" textAlign="left" fontWeight="medium">
+                            {faq.question}
+                          </Box>
+                          <Accordion.ItemIndicator />
+                        </Accordion.ItemTrigger>
+                        <Accordion.ItemContent pb={4} pt={4} color="gray.600">
                           {faq.answer}
-                        </AccordionPanel>
-                      </AccordionItem>
+                        </Accordion.ItemContent>
+                      </Accordion.Item>
                     ))}
-                  </Accordion>
-                </CardBody>
-              </Card>
+                  </Accordion.Root>
+                </Card.Body>
+              </Card.Root>
             </GridItem>
 
             {/* Right Column - Contact & Resources */}
             <GridItem>
-              <VStack spacing={6} align="stretch">
+              <VStack gap={6} align="stretch">
                 {/* Contact Support */}
-                <Card>
-                  <CardHeader>
+                <Card.Root>
+                  <Card.Header>
                     <Heading size="md">Contact Support</Heading>
-                  </CardHeader>
-                  <CardBody>
-                    <VStack spacing={4} align="stretch">
+                  </Card.Header>
+                  <Card.Body>
+                    <VStack gap={4} align="stretch">
                       {/* Email Support */}
-                      <HStack spacing={3} align="start">
+                      <HStack gap={3} align="start">
                         <Icon as={FiMail} boxSize={5} color="blue.500" mt={1} />
                         <Box flex={1}>
                           <Text fontWeight="semibold" mb={1}>
@@ -171,10 +167,10 @@ export default function SupportPage() {
                         </Box>
                       </HStack>
 
-                      <Divider />
+                      <Separator />
 
                       {/* Phone Support */}
-                      <HStack spacing={3} align="start">
+                      <HStack gap={3} align="start">
                         <Icon as={FiPhone} boxSize={5} color="blue.500" mt={1} />
                         <Box flex={1}>
                           <Text fontWeight="semibold" mb={1}>
@@ -189,10 +185,10 @@ export default function SupportPage() {
                         </Box>
                       </HStack>
 
-                      <Divider />
+                      <Separator />
 
                       {/* Live Chat */}
-                      <HStack spacing={3} align="start">
+                      <HStack gap={3} align="start">
                         <Icon as={FiMessageCircle} boxSize={5} color="blue.500" mt={1} />
                         <Box flex={1}>
                           <Text fontWeight="semibold" mb={1}>
@@ -210,23 +206,23 @@ export default function SupportPage() {
                         </Box>
                       </HStack>
                     </VStack>
-                  </CardBody>
-                </Card>
+                  </Card.Body>
+                </Card.Root>
 
                 {/* Community Resources */}
-                <Card>
-                  <CardHeader>
+                <Card.Root>
+                  <Card.Header>
                     <Heading size="md">Community Resources</Heading>
-                  </CardHeader>
-                  <CardBody>
-                    <VStack spacing={2} align="stretch">
+                  </Card.Header>
+                  <Card.Body>
+                    <VStack gap={2} align="stretch">
                       {communityResources.map((resource, index) => (
                         <HStack
                           key={index}
                           p={3}
                           borderRadius="md"
                           cursor="pointer"
-                          _hover={{ bg: useColorModeValue('gray.50', 'gray.700') }}
+                          _hover={{ bg: 'gray.50' }}
                           transition="all 0.2s"
                         >
                           <Icon as={resource.icon} boxSize={5} color="gray.500" />
@@ -234,23 +230,23 @@ export default function SupportPage() {
                         </HStack>
                       ))}
                     </VStack>
-                  </CardBody>
-                </Card>
+                  </Card.Body>
+                </Card.Root>
 
                 {/* Quick Actions */}
-                <Card>
-                  <CardHeader>
+                <Card.Root>
+                  <Card.Header>
                     <Heading size="md">Quick Actions</Heading>
-                  </CardHeader>
-                  <CardBody>
-                    <VStack spacing={2} align="stretch">
+                  </Card.Header>
+                  <Card.Body>
+                    <VStack gap={2} align="stretch">
                       {quickActions.map((action, index) => (
                         <HStack
                           key={index}
                           p={3}
                           borderRadius="md"
                           cursor="pointer"
-                          _hover={{ bg: useColorModeValue('gray.50', 'gray.700') }}
+                          _hover={{ bg: 'gray.50' }}
                           transition="all 0.2s"
                         >
                           <Icon as={action.icon} boxSize={5} color="gray.500" />
@@ -258,8 +254,8 @@ export default function SupportPage() {
                         </HStack>
                       ))}
                     </VStack>
-                  </CardBody>
-                </Card>
+                  </Card.Body>
+                </Card.Root>
               </VStack>
             </GridItem>
           </Grid>

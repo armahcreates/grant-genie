@@ -5,70 +5,67 @@ import {
   Container,
   Heading,
   Text,
-  FormControl,
-  FormLabel,
+  Field,
   Input,
   Textarea,
-  Select,
+  NativeSelectRoot,
+  NativeSelectField,
   Button,
   VStack,
   HStack,
-  Grid,
   SimpleGrid,
-  Divider,
   Icon,
-  useColorModeValue,
   Card,
-  CardBody,
-  CardHeader,
   IconButton,
 } from '@chakra-ui/react'
-import { useState } from 'react'
-import { FiUpload, FiCalendar, FiPlus, FiTrash2 } from 'react-icons/fi'
+import { useForm } from 'react-hook-form'
+import { FiUpload, FiPlus, FiTrash2 } from 'react-icons/fi'
 import MainLayout from '@/components/layout/MainLayout'
+import { useState } from 'react'
+
+interface FormData {
+  projectTitle: string
+  organizationName: string
+  departmentName: string
+  grantCategory: string
+  projectDescription: string
+  personnelCosts: string
+  equipmentCosts: string
+  indirectCosts: string
+  totalBudget: string
+  budgetJustification: string
+  projectStartDate: string
+  projectEndDate: string
+}
 
 export default function GrantApplicationPage() {
-  const [formData, setFormData] = useState({
-    projectTitle: '',
-    organizationName: '',
-    departmentName: '',
-    grantCategory: '',
-    projectDescription: '',
-    personnelCosts: '',
-    equipmentCosts: '',
-    indirectCosts: '',
-    totalBudget: '',
-    budgetJustification: '',
-    projectStartDate: '',
-    projectEndDate: '',
-    keyMilestones: '',
-    importantDeadlines: '',
-  })
-
+  const { register, handleSubmit, formState: { errors }, reset } = useForm<FormData>()
   const [milestones, setMilestones] = useState<string[]>([])
   const [deadlines, setDeadlines] = useState<string[]>([])
+  const [currentMilestone, setCurrentMilestone] = useState('')
+  const [currentDeadline, setCurrentDeadline] = useState('')
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target
-    setFormData(prev => ({ ...prev, [name]: value }))
+  const onSubmit = (data: FormData) => {
+    console.log('Form submitted:', { ...data, milestones, deadlines })
+    // Add your submission logic here
   }
 
   const handleSaveDraft = () => {
-    console.log('Saving draft:', formData)
+    console.log('Saving draft')
     // Add your save draft logic here
   }
 
   const addMilestone = () => {
-    if (formData.keyMilestones.trim()) {
-      setMilestones([...milestones, formData.keyMilestones])
-      setFormData(prev => ({ ...prev, keyMilestones: '' }))
+    if (currentMilestone.trim()) {
+      setMilestones([...milestones, currentMilestone])
+      setCurrentMilestone('')
     }
   }
 
   const addDeadline = () => {
-    if (formData.importantDeadlines.trim()) {
-      setDeadlines([...deadlines, formData.importantDeadlines])
-      setFormData(prev => ({ ...prev, importantDeadlines: '' }))
+    if (currentDeadline.trim()) {
+      setDeadlines([...deadlines, currentDeadline])
+      setCurrentDeadline('')
     }
   }
 
@@ -80,331 +77,312 @@ export default function GrantApplicationPage() {
     setDeadlines(deadlines.filter((_, i) => i !== index))
   }
 
-  const borderColor = useColorModeValue('gray.200', 'gray.700')
-
   return (
     <MainLayout>
       <Container maxW="container.xl" py={8}>
-        <VStack spacing={8} align="stretch">
-          {/* Header */}
-          <Box>
-            <Heading size="lg" mb={2}>
-              Create New Grant Application
-            </Heading>
-            <Text color="gray.600">
-              Fill out the form below to start a new grant application. All required fields must be completed.
-            </Text>
-          </Box>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <VStack gap={8} align="stretch">
+            {/* Header */}
+            <Box>
+              <Heading size="lg" mb={2}>
+                Create New Grant Application
+              </Heading>
+              <Text color="gray.600">
+                Fill out the form below to start a new grant application. All required fields must be completed.
+              </Text>
+            </Box>
 
-          {/* Basic Information */}
-          <Card>
-            <CardHeader>
-              <Heading size="md">Basic Information</Heading>
-            </CardHeader>
-            <CardBody>
-              <VStack spacing={6} align="stretch">
-                <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
-                  <FormControl isRequired>
-                    <FormLabel>Grant project title</FormLabel>
-                    <Input
-                      name="projectTitle"
-                      placeholder="Enter project title"
-                      value={formData.projectTitle}
-                      onChange={handleInputChange}
-                    />
-                  </FormControl>
+            {/* Basic Information */}
+            <Card.Root>
+              <Card.Header>
+                <Heading size="md">Basic Information</Heading>
+              </Card.Header>
+              <Card.Body>
+                <VStack gap={6} align="stretch">
+                  <SimpleGrid columns={{ base: 1, md: 2 }} gap={6}>
+                    <Field.Root required>
+                      <Field.Label>Grant project title</Field.Label>
+                      <Input
+                        placeholder="Enter project title"
+                        {...register('projectTitle', { required: true })}
+                      />
+                    </Field.Root>
 
-                  <FormControl isRequired>
-                    <FormLabel>Organization name</FormLabel>
-                    <Input
-                      name="organizationName"
-                      placeholder="Enter organization name"
-                      value={formData.organizationName}
-                      onChange={handleInputChange}
-                    />
-                  </FormControl>
-                </SimpleGrid>
+                    <Field.Root required>
+                      <Field.Label>Organization name</Field.Label>
+                      <Input
+                        placeholder="Enter organization name"
+                        {...register('organizationName', { required: true })}
+                      />
+                    </Field.Root>
+                  </SimpleGrid>
 
-                <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
-                  <FormControl isRequired>
-                    <FormLabel>Department name</FormLabel>
-                    <Input
-                      name="departmentName"
-                      placeholder="Enter department name"
-                      value={formData.departmentName}
-                      onChange={handleInputChange}
-                    />
-                  </FormControl>
+                  <SimpleGrid columns={{ base: 1, md: 2 }} gap={6}>
+                    <Field.Root required>
+                      <Field.Label>Department name</Field.Label>
+                      <Input
+                        placeholder="Enter department name"
+                        {...register('departmentName', { required: true })}
+                      />
+                    </Field.Root>
 
-                  <FormControl isRequired>
-                    <FormLabel>Grant category</FormLabel>
-                    <Select
-                      name="grantCategory"
-                      placeholder="Select category"
-                      value={formData.grantCategory}
-                      onChange={handleInputChange}
-                    >
-                      <option value="education">Education</option>
-                      <option value="healthcare">Healthcare</option>
-                      <option value="environment">Environment</option>
-                      <option value="community">Community Development</option>
-                      <option value="arts">Arts & Culture</option>
-                      <option value="research">Research</option>
-                    </Select>
-                  </FormControl>
-                </SimpleGrid>
-
-                <FormControl isRequired>
-                  <FormLabel>Project description</FormLabel>
-                  <Textarea
-                    name="projectDescription"
-                    placeholder="Provide a detailed description of your project"
-                    rows={6}
-                    value={formData.projectDescription}
-                    onChange={handleInputChange}
-                  />
-                </FormControl>
-              </VStack>
-            </CardBody>
-          </Card>
-
-          {/* Budget Breakdown */}
-          <Card>
-            <CardHeader>
-              <Heading size="md">Budget Breakdown</Heading>
-            </CardHeader>
-            <CardBody>
-              <VStack spacing={6} align="stretch">
-                <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6}>
-                  <FormControl isRequired>
-                    <FormLabel>Personnel Costs</FormLabel>
-                    <Input
-                      name="personnelCosts"
-                      type="number"
-                      placeholder="$0.00"
-                      value={formData.personnelCosts}
-                      onChange={handleInputChange}
-                    />
-                  </FormControl>
-
-                  <FormControl isRequired>
-                    <FormLabel>Equipment Costs</FormLabel>
-                    <Input
-                      name="equipmentCosts"
-                      type="number"
-                      placeholder="$0.00"
-                      value={formData.equipmentCosts}
-                      onChange={handleInputChange}
-                    />
-                  </FormControl>
-
-                  <FormControl isRequired>
-                    <FormLabel>Indirect Costs</FormLabel>
-                    <Input
-                      name="indirectCosts"
-                      type="number"
-                      placeholder="$0.00"
-                      value={formData.indirectCosts}
-                      onChange={handleInputChange}
-                    />
-                  </FormControl>
-                </SimpleGrid>
-
-                <FormControl isRequired>
-                  <FormLabel>Total budget</FormLabel>
-                  <Input
-                    name="totalBudget"
-                    type="number"
-                    placeholder="$0.00"
-                    value={formData.totalBudget}
-                    onChange={handleInputChange}
-                  />
-                </FormControl>
-
-                <FormControl isRequired>
-                  <FormLabel>Budget justification</FormLabel>
-                  <Textarea
-                    name="budgetJustification"
-                    placeholder="Explain how funds will be used to support your project goals"
-                    rows={6}
-                    value={formData.budgetJustification}
-                    onChange={handleInputChange}
-                  />
-                </FormControl>
-              </VStack>
-            </CardBody>
-          </Card>
-
-          {/* Project Timeline */}
-          <Card>
-            <CardHeader>
-              <Heading size="md">Project Timeline</Heading>
-            </CardHeader>
-            <CardBody>
-              <VStack spacing={6} align="stretch">
-                <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
-                  <FormControl isRequired>
-                    <FormLabel>Project start date</FormLabel>
-                    <Input
-                      name="projectStartDate"
-                      type="date"
-                      value={formData.projectStartDate}
-                      onChange={handleInputChange}
-                    />
-                  </FormControl>
-
-                  <FormControl isRequired>
-                    <FormLabel>Project end date</FormLabel>
-                    <Input
-                      name="projectEndDate"
-                      type="date"
-                      value={formData.projectEndDate}
-                      onChange={handleInputChange}
-                    />
-                  </FormControl>
-                </SimpleGrid>
-
-                <FormControl>
-                  <FormLabel>Key Milestones</FormLabel>
-                  <HStack>
-                    <Textarea
-                      name="keyMilestones"
-                      placeholder="Add milestone description"
-                      rows={2}
-                      value={formData.keyMilestones}
-                      onChange={handleInputChange}
-                    />
-                    <IconButton
-                      aria-label="Add milestone"
-                      icon={<Icon as={FiPlus} />}
-                      onClick={addMilestone}
-                      colorScheme="blue"
-                    />
-                  </HStack>
-                  {milestones.length > 0 && (
-                    <VStack mt={4} spacing={2} align="stretch">
-                      {milestones.map((milestone, index) => (
-                        <HStack
-                          key={index}
-                          p={3}
-                          bg="gray.50"
-                          borderRadius="md"
-                          justify="space-between"
+                    <Field.Root required>
+                      <Field.Label>Grant category</Field.Label>
+                      <NativeSelectRoot>
+                        <NativeSelectField
+                          placeholder="Select category"
+                          {...register('grantCategory', { required: true })}
                         >
-                          <Text>{milestone}</Text>
-                          <IconButton
-                            aria-label="Remove milestone"
-                            icon={<Icon as={FiTrash2} />}
-                            size="sm"
-                            variant="ghost"
-                            colorScheme="red"
-                            onClick={() => removeMilestone(index)}
-                          />
-                        </HStack>
-                      ))}
-                    </VStack>
-                  )}
-                </FormControl>
+                          <option value="education">Education</option>
+                          <option value="healthcare">Healthcare</option>
+                          <option value="environment">Environment</option>
+                          <option value="community">Community Development</option>
+                          <option value="arts">Arts & Culture</option>
+                          <option value="research">Research</option>
+                        </NativeSelectField>
+                      </NativeSelectRoot>
+                    </Field.Root>
+                  </SimpleGrid>
 
-                <FormControl>
-                  <FormLabel>Important deadlines</FormLabel>
-                  <HStack>
+                  <Field.Root required>
+                    <Field.Label>Project description</Field.Label>
                     <Textarea
-                      name="importantDeadlines"
-                      placeholder="Add deadline description"
-                      rows={2}
-                      value={formData.importantDeadlines}
-                      onChange={handleInputChange}
+                      placeholder="Provide a detailed description of your project"
+                      rows={6}
+                      {...register('projectDescription', { required: true })}
                     />
-                    <IconButton
-                      aria-label="Add deadline"
-                      icon={<Icon as={FiPlus} />}
-                      onClick={addDeadline}
-                      colorScheme="blue"
+                  </Field.Root>
+                </VStack>
+              </Card.Body>
+            </Card.Root>
+
+            {/* Budget Breakdown */}
+            <Card.Root>
+              <Card.Header>
+                <Heading size="md">Budget Breakdown</Heading>
+              </Card.Header>
+              <Card.Body>
+                <VStack gap={6} align="stretch">
+                  <SimpleGrid columns={{ base: 1, md: 3 }} gap={6}>
+                    <Field.Root required>
+                      <Field.Label>Personnel Costs</Field.Label>
+                      <Input
+                        type="number"
+                        placeholder="$0.00"
+                        {...register('personnelCosts', { required: true })}
+                      />
+                    </Field.Root>
+
+                    <Field.Root required>
+                      <Field.Label>Equipment Costs</Field.Label>
+                      <Input
+                        type="number"
+                        placeholder="$0.00"
+                        {...register('equipmentCosts', { required: true })}
+                      />
+                    </Field.Root>
+
+                    <Field.Root required>
+                      <Field.Label>Indirect Costs</Field.Label>
+                      <Input
+                        type="number"
+                        placeholder="$0.00"
+                        {...register('indirectCosts', { required: true })}
+                      />
+                    </Field.Root>
+                  </SimpleGrid>
+
+                  <Field.Root required>
+                    <Field.Label>Total budget</Field.Label>
+                    <Input
+                      type="number"
+                      placeholder="$0.00"
+                      {...register('totalBudget', { required: true })}
                     />
-                  </HStack>
-                  {deadlines.length > 0 && (
-                    <VStack mt={4} spacing={2} align="stretch">
-                      {deadlines.map((deadline, index) => (
-                        <HStack
-                          key={index}
-                          p={3}
-                          bg="gray.50"
-                          borderRadius="md"
-                          justify="space-between"
-                        >
-                          <Text>{deadline}</Text>
-                          <IconButton
-                            aria-label="Remove deadline"
-                            icon={<Icon as={FiTrash2} />}
-                            size="sm"
-                            variant="ghost"
-                            colorScheme="red"
-                            onClick={() => removeDeadline(index)}
-                          />
-                        </HStack>
-                      ))}
+                  </Field.Root>
+
+                  <Field.Root required>
+                    <Field.Label>Budget justification</Field.Label>
+                    <Textarea
+                      placeholder="Explain how funds will be used to support your project goals"
+                      rows={6}
+                      {...register('budgetJustification', { required: true })}
+                    />
+                  </Field.Root>
+                </VStack>
+              </Card.Body>
+            </Card.Root>
+
+            {/* Project Timeline */}
+            <Card.Root>
+              <Card.Header>
+                <Heading size="md">Project Timeline</Heading>
+              </Card.Header>
+              <Card.Body>
+                <VStack gap={6} align="stretch">
+                  <SimpleGrid columns={{ base: 1, md: 2 }} gap={6}>
+                    <Field.Root required>
+                      <Field.Label>Project start date</Field.Label>
+                      <Input
+                        type="date"
+                        {...register('projectStartDate', { required: true })}
+                      />
+                    </Field.Root>
+
+                    <Field.Root required>
+                      <Field.Label>Project end date</Field.Label>
+                      <Input
+                        type="date"
+                        {...register('projectEndDate', { required: true })}
+                      />
+                    </Field.Root>
+                  </SimpleGrid>
+
+                  <Field.Root>
+                    <Field.Label>Key Milestones</Field.Label>
+                    <HStack>
+                      <Textarea
+                        placeholder="Add milestone description"
+                        rows={2}
+                        value={currentMilestone}
+                        onChange={(e) => setCurrentMilestone(e.target.value)}
+                      />
+                      <IconButton
+                        aria-label="Add milestone"
+                        onClick={addMilestone}
+                        colorScheme="blue"
+                      >
+                        <Icon as={FiPlus} />
+                      </IconButton>
+                    </HStack>
+                    {milestones.length > 0 && (
+                      <VStack mt={4} gap={2} align="stretch">
+                        {milestones.map((milestone, index) => (
+                          <HStack
+                            key={index}
+                            p={3}
+                            bg="gray.50"
+                            borderRadius="md"
+                            justify="space-between"
+                          >
+                            <Text>{milestone}</Text>
+                            <IconButton
+                              aria-label="Remove milestone"
+                              size="sm"
+                              variant="ghost"
+                              colorScheme="red"
+                              onClick={() => removeMilestone(index)}
+                            >
+                              <Icon as={FiTrash2} />
+                            </IconButton>
+                          </HStack>
+                        ))}
+                      </VStack>
+                    )}
+                  </Field.Root>
+
+                  <Field.Root>
+                    <Field.Label>Important deadlines</Field.Label>
+                    <HStack>
+                      <Textarea
+                        placeholder="Add deadline description"
+                        rows={2}
+                        value={currentDeadline}
+                        onChange={(e) => setCurrentDeadline(e.target.value)}
+                      />
+                      <IconButton
+                        aria-label="Add deadline"
+                        onClick={addDeadline}
+                        colorScheme="blue"
+                      >
+                        <Icon as={FiPlus} />
+                      </IconButton>
+                    </HStack>
+                    {deadlines.length > 0 && (
+                      <VStack mt={4} gap={2} align="stretch">
+                        {deadlines.map((deadline, index) => (
+                          <HStack
+                            key={index}
+                            p={3}
+                            bg="gray.50"
+                            borderRadius="md"
+                            justify="space-between"
+                          >
+                            <Text>{deadline}</Text>
+                            <IconButton
+                              aria-label="Remove deadline"
+                              size="sm"
+                              variant="ghost"
+                              colorScheme="red"
+                              onClick={() => removeDeadline(index)}
+                            >
+                              <Icon as={FiTrash2} />
+                            </IconButton>
+                          </HStack>
+                        ))}
+                      </VStack>
+                    )}
+                  </Field.Root>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    alignSelf="flex-start"
+                    onClick={handleSaveDraft}
+                    type="button"
+                  >
+                    Save as Draft
+                  </Button>
+                </VStack>
+              </Card.Body>
+            </Card.Root>
+
+            {/* Supporting Documents */}
+            <Card.Root>
+              <Card.Header>
+                <Heading size="md">Supporting Documents</Heading>
+              </Card.Header>
+              <Card.Body>
+                <VStack gap={4} align="stretch">
+                  <Box
+                    border="2px dashed"
+                    borderColor="gray.200"
+                    borderRadius="lg"
+                    p={12}
+                    textAlign="center"
+                    cursor="pointer"
+                    _hover={{ borderColor: 'blue.400', bg: 'blue.50' }}
+                    transition="all 0.2s"
+                  >
+                    <VStack gap={3}>
+                      <Icon as={FiUpload} boxSize={12} color="gray.400" />
+                      <Text fontWeight="medium" color="gray.700">
+                        Drag and drop files here, or click to browse
+                      </Text>
+                      <Text fontSize="sm" color="gray.500">
+                        Supported file types: PDF, DOC, DOCX, XLS, XLSX (Max 10MB)
+                      </Text>
                     </VStack>
-                  )}
-                </FormControl>
+                  </Box>
 
-                <Button
-                  variant="outline"
-                  size="sm"
-                  alignSelf="flex-start"
-                  onClick={handleSaveDraft}
-                >
-                  Save as Draft
-                </Button>
-              </VStack>
-            </CardBody>
-          </Card>
+                  <Text fontSize="sm" color="gray.600">
+                    Attachments can include: <strong>Budget spreadsheets, Letters of support, Project timeline documents</strong>
+                  </Text>
+                </VStack>
+              </Card.Body>
+            </Card.Root>
 
-          {/* Supporting Documents */}
-          <Card>
-            <CardHeader>
-              <Heading size="md">Supporting Documents</Heading>
-            </CardHeader>
-            <CardBody>
-              <VStack spacing={4} align="stretch">
-                <Box
-                  border="2px dashed"
-                  borderColor={borderColor}
-                  borderRadius="lg"
-                  p={12}
-                  textAlign="center"
-                  cursor="pointer"
-                  _hover={{ borderColor: 'blue.400', bg: 'blue.50' }}
-                  transition="all 0.2s"
-                >
-                  <VStack spacing={3}>
-                    <Icon as={FiUpload} boxSize={12} color="gray.400" />
-                    <Text fontWeight="medium" color="gray.700">
-                      Drag and drop files here, or click to browse
-                    </Text>
-                    <Text fontSize="sm" color="gray.500">
-                      Supported file types: PDF, DOC, DOCX, XLS, XLSX (Max 10MB)
-                    </Text>
-                  </VStack>
-                </Box>
-
-                <Text fontSize="sm" color="gray.600">
-                  Attachments can include: <strong>Budget spreadsheets, Letters of support, Project timeline documents</strong>
-                </Text>
-              </VStack>
-            </CardBody>
-          </Card>
-
-          {/* Action Buttons */}
-          <HStack spacing={4} justify="flex-end">
-            <Button variant="outline" size="lg">
-              Cancel
-            </Button>
-            <Button colorScheme="blue" size="lg">
-              Submit Application
-            </Button>
-          </HStack>
-        </VStack>
+            {/* Action Buttons */}
+            <HStack gap={4} justify="flex-end">
+              <Button variant="outline" size="lg" type="button">
+                Cancel
+              </Button>
+              <Button colorScheme="blue" size="lg" type="submit">
+                Submit Application
+              </Button>
+            </HStack>
+          </VStack>
+        </form>
       </Container>
     </MainLayout>
   )

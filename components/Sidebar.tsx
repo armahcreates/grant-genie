@@ -77,7 +77,7 @@ export default function Sidebar() {
       top={0}
       overflowY="auto"
     >
-      <VStack spacing={1} align="stretch" p={4}>
+      <VStack gap={1} align="stretch" p={4}>
         {/* Logo/Brand */}
         <Flex align="center" mb={6} px={2}>
           <Text fontSize="xl" fontWeight="bold" color="blue.600">

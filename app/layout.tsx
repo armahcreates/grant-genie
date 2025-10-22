@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Grant Genie",
-  description: "Created with Next.js and Chakra UI",
+  title: "Headspace Genie",
+  description: "AI-powered grant management for modern organizations",
 };
 
 export default function RootLayout({

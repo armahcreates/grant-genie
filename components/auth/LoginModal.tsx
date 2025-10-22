@@ -1,23 +1,17 @@
 'use client'
 
 import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalCloseButton,
+  Dialog,
   VStack,
-  FormControl,
-  FormLabel,
+  Field,
   Input,
   Button,
   Text,
   HStack,
-  Divider,
+  Separator,
   Link,
   Checkbox,
-  useToast,
+  createToaster,
 } from '@chakra-ui/react'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -29,23 +23,26 @@ interface LoginModalProps {
   onSwitchToSignup?: () => void
 }
 
+const toaster = createToaster({
+  placement: 'bottom-end',
+  pauseOnPageIdle: true,
+})
+
 export default function LoginModal({ isOpen, onClose, onSwitchToSignup }: LoginModalProps) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
   const router = useRouter()
-  const toast = useToast()
   const { login } = useAuth()
 
   const handleLogin = async () => {
     if (!email || !password) {
-      toast({
+      toaster.create({
         title: 'Error',
         description: 'Please fill in all fields',
-        status: 'error',
+        type: 'error',
         duration: 3000,
-        isClosable: true,
       })
       return
     }
@@ -61,12 +58,11 @@ export default function LoginModal({ isOpen, onClose, onSwitchToSignup }: LoginM
         organization: 'Nonprofit Organization',
       })
 
-      toast({
+      toaster.create({
         title: 'Success',
         description: 'Welcome back!',
-        status: 'success',
+        type: 'success',
         duration: 3000,
-        isClosable: true,
       })
 
       setIsLoading(false)
@@ -76,78 +72,81 @@ export default function LoginModal({ isOpen, onClose, onSwitchToSignup }: LoginM
   }
 
   const handleGoogleLogin = () => {
-    toast({
+    toaster.create({
       title: 'Coming Soon',
       description: 'Google login will be available soon',
-      status: 'info',
+      type: 'info',
       duration: 3000,
-      isClosable: true,
     })
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="md" isCentered>
-      <ModalOverlay backdropFilter="blur(5px)" />
-      <ModalContent>
-        <ModalHeader>Welcome Back</ModalHeader>
-        <ModalCloseButton />
-        <ModalBody pb={6}>
-          <VStack spacing={4}>
-            <FormControl isRequired>
-              <FormLabel>Email</FormLabel>
-              <Input
-                type="email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
-              />
-            </FormControl>
+    <Dialog.Root open={isOpen} onOpenChange={(e) => !e.open && onClose()} size="md" placement="center">
+      <Dialog.Backdrop backdropFilter="blur(5px)" />
+      <Dialog.Positioner>
+        <Dialog.Content>
+          <Dialog.Header>Welcome Back</Dialog.Header>
+          <Dialog.CloseTrigger />
+          <Dialog.Body pb={6}>
+            <VStack gap={4}>
+              <Field.Root>
+                <Field.Label>Email</Field.Label>
+                <Input
+                  type="email"
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
+                />
+              </Field.Root>
 
-            <FormControl isRequired>
-              <FormLabel>Password</FormLabel>
-              <Input
-                type="password"
-                placeholder="Enter your password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
-              />
-            </FormControl>
+              <Field.Root>
+                <Field.Label>Password</Field.Label>
+                <Input
+                  type="password"
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
+                />
+              </Field.Root>
 
-            <HStack w="full" justify="space-between">
-              <Checkbox
-                isChecked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
+              <HStack w="full" justify="space-between">
+                <Checkbox.Root
+                  checked={rememberMe}
+                  onCheckedChange={(e: any) => setRememberMe(!!e.checked)}
+                >
+                  <Checkbox.HiddenInput />
+                  <Checkbox.Control />
+                  <Checkbox.Label>Remember me</Checkbox.Label>
+                </Checkbox.Root>
+                <Link color="purple.600" fontSize="sm">
+                  Forgot password?
+                </Link>
+              </HStack>
+
+              <Button
+                colorScheme="purple"
+                w="full"
+                onClick={handleLogin}
+                loading={isLoading}
               >
-                Remember me
-              </Checkbox>
-              <Link color="blue.500" fontSize="sm">
-                Forgot password?
-              </Link>
-            </HStack>
+                Log In
+              </Button>
 
-            <Button
-              colorScheme="blue"
-              w="full"
-              onClick={handleLogin}
-              isLoading={isLoading}
-            >
-              Log In
-            </Button>
+              <HStack w="full">
+                <Separator />
+                <Text fontSize="sm" color="purple.800" whiteSpace="nowrap">
+                  or continue with
+                </Text>
+                <Separator />
+              </HStack>
 
-            <HStack w="full">
-              <Divider />
-              <Text fontSize="sm" color="gray.500" whiteSpace="nowrap">
-                or continue with
-              </Text>
-              <Divider />
-            </HStack>
-
-            <Button
-              w="full"
-              variant="outline"
-              leftIcon={
+              <Button
+                w="full"
+                variant="outline"
+                onClick={handleGoogleLogin}
+              >
                 <svg width="18" height="18" viewBox="0 0 18 18">
                   <path
                     fill="#4285F4"
@@ -166,28 +165,26 @@ export default function LoginModal({ isOpen, onClose, onSwitchToSignup }: LoginM
                     d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"
                   />
                 </svg>
-              }
-              onClick={handleGoogleLogin}
-            >
-              Google
-            </Button>
+                Google
+              </Button>
 
-            <Text fontSize="sm" textAlign="center">
-              Don't have an account?{' '}
-              <Link
-                color="blue.500"
-                fontWeight="semibold"
-                onClick={() => {
-                  onClose()
-                  onSwitchToSignup?.()
-                }}
-              >
-                Sign up
-              </Link>
-            </Text>
-          </VStack>
-        </ModalBody>
-      </ModalContent>
-    </Modal>
+              <Text fontSize="sm" textAlign="center" color="purple.800">
+                Don't have an account?{' '}
+                <Link
+                  color="purple.600"
+                  fontWeight="semibold"
+                  onClick={() => {
+                    onClose()
+                    onSwitchToSignup?.()
+                  }}
+                >
+                  Sign up
+                </Link>
+              </Text>
+            </VStack>
+          </Dialog.Body>
+        </Dialog.Content>
+      </Dialog.Positioner>
+    </Dialog.Root>
   )
 }

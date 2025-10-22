@@ -1,23 +1,17 @@
 'use client'
 
 import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalCloseButton,
+  Dialog,
   VStack,
-  FormControl,
-  FormLabel,
+  Field,
   Input,
   Button,
   Text,
   HStack,
-  Divider,
+  Separator,
   Link,
   Checkbox,
-  useToast,
+  createToaster,
   SimpleGrid,
 } from '@chakra-ui/react'
 import { useState } from 'react'
@@ -29,6 +23,11 @@ interface SignupModalProps {
   onClose: () => void
   onSwitchToLogin?: () => void
 }
+
+const toaster = createToaster({
+  placement: 'bottom-end',
+  pauseOnPageIdle: true,
+})
 
 export default function SignupModal({ isOpen, onClose, onSwitchToLogin }: SignupModalProps) {
   const [formData, setFormData] = useState({
@@ -42,7 +41,6 @@ export default function SignupModal({ isOpen, onClose, onSwitchToLogin }: Signup
   const [isLoading, setIsLoading] = useState(false)
   const [agreeToTerms, setAgreeToTerms] = useState(false)
   const router = useRouter()
-  const toast = useToast()
   const { login } = useAuth()
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -60,34 +58,31 @@ export default function SignupModal({ isOpen, onClose, onSwitchToLogin }: Signup
       !formData.password ||
       !formData.confirmPassword
     ) {
-      toast({
+      toaster.create({
         title: 'Error',
         description: 'Please fill in all fields',
-        status: 'error',
+        type: 'error',
         duration: 3000,
-        isClosable: true,
       })
       return
     }
 
     if (formData.password !== formData.confirmPassword) {
-      toast({
+      toaster.create({
         title: 'Error',
         description: 'Passwords do not match',
-        status: 'error',
+        type: 'error',
         duration: 3000,
-        isClosable: true,
       })
       return
     }
 
     if (!agreeToTerms) {
-      toast({
+      toaster.create({
         title: 'Error',
         description: 'Please agree to the terms and conditions',
-        status: 'error',
+        type: 'error',
         duration: 3000,
-        isClosable: true,
       })
       return
     }
@@ -103,12 +98,11 @@ export default function SignupModal({ isOpen, onClose, onSwitchToLogin }: Signup
         organization: formData.organization,
       })
 
-      toast({
+      toaster.create({
         title: 'Success',
-        description: 'Account created successfully! Welcome to Grant Genie.',
-        status: 'success',
+        description: 'Account created successfully! Welcome to Headspace Genie.',
+        type: 'success',
         duration: 3000,
-        isClosable: true,
       })
 
       setIsLoading(false)
@@ -118,127 +112,132 @@ export default function SignupModal({ isOpen, onClose, onSwitchToLogin }: Signup
   }
 
   const handleGoogleSignup = () => {
-    toast({
+    toaster.create({
       title: 'Coming Soon',
       description: 'Google signup will be available soon',
-      status: 'info',
+      type: 'info',
       duration: 3000,
-      isClosable: true,
     })
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="lg" isCentered>
-      <ModalOverlay backdropFilter="blur(5px)" />
-      <ModalContent>
-        <ModalHeader>Create Your Account</ModalHeader>
-        <ModalCloseButton />
-        <ModalBody pb={6}>
-          <VStack spacing={4}>
-            <SimpleGrid columns={2} spacing={4} w="full">
-              <FormControl isRequired>
-                <FormLabel>First Name</FormLabel>
+    <Dialog.Root open={isOpen} onOpenChange={(e) => !e.open && onClose()} size="lg" placement="center">
+      <Dialog.Backdrop backdropFilter="blur(5px)" />
+      <Dialog.Positioner>
+        <Dialog.Content>
+          <Dialog.Header>Create Your Account</Dialog.Header>
+          <Dialog.CloseTrigger />
+          <Dialog.Body pb={6}>
+            <VStack gap={4}>
+              <SimpleGrid columns={2} gap={4} w="full">
+                <Field.Root>
+                  <Field.Label>First Name</Field.Label>
+                  <Input
+                    name="firstName"
+                    placeholder="John"
+                    value={formData.firstName}
+                    onChange={handleInputChange}
+                  />
+                </Field.Root>
+
+                <Field.Root>
+                  <Field.Label>Last Name</Field.Label>
+                  <Input
+                    name="lastName"
+                    placeholder="Doe"
+                    value={formData.lastName}
+                    onChange={handleInputChange}
+                  />
+                </Field.Root>
+              </SimpleGrid>
+
+              <Field.Root>
+                <Field.Label>Email</Field.Label>
                 <Input
-                  name="firstName"
-                  placeholder="John"
-                  value={formData.firstName}
+                  name="email"
+                  type="email"
+                  placeholder="john@example.com"
+                  value={formData.email}
                   onChange={handleInputChange}
                 />
-              </FormControl>
+              </Field.Root>
 
-              <FormControl isRequired>
-                <FormLabel>Last Name</FormLabel>
+              <Field.Root>
+                <Field.Label>Organization</Field.Label>
                 <Input
-                  name="lastName"
-                  placeholder="Doe"
-                  value={formData.lastName}
+                  name="organization"
+                  placeholder="Your organization name"
+                  value={formData.organization}
                   onChange={handleInputChange}
                 />
-              </FormControl>
-            </SimpleGrid>
+              </Field.Root>
 
-            <FormControl isRequired>
-              <FormLabel>Email</FormLabel>
-              <Input
-                name="email"
-                type="email"
-                placeholder="john@example.com"
-                value={formData.email}
-                onChange={handleInputChange}
-              />
-            </FormControl>
+              <Field.Root>
+                <Field.Label>Password</Field.Label>
+                <Input
+                  name="password"
+                  type="password"
+                  placeholder="Create a strong password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                />
+              </Field.Root>
 
-            <FormControl isRequired>
-              <FormLabel>Organization</FormLabel>
-              <Input
-                name="organization"
-                placeholder="Your organization name"
-                value={formData.organization}
-                onChange={handleInputChange}
-              />
-            </FormControl>
+              <Field.Root>
+                <Field.Label>Confirm Password</Field.Label>
+                <Input
+                  name="confirmPassword"
+                  type="password"
+                  placeholder="Confirm your password"
+                  value={formData.confirmPassword}
+                  onChange={handleInputChange}
+                  onKeyPress={(e) => e.key === 'Enter' && handleSignup()}
+                />
+              </Field.Root>
 
-            <FormControl isRequired>
-              <FormLabel>Password</FormLabel>
-              <Input
-                name="password"
-                type="password"
-                placeholder="Create a strong password"
-                value={formData.password}
-                onChange={handleInputChange}
-              />
-            </FormControl>
+              <Checkbox.Root
+                w="full"
+                checked={agreeToTerms}
+                onCheckedChange={(e: any) => setAgreeToTerms(!!e.checked)}
+              >
+                <Checkbox.HiddenInput />
+                <Checkbox.Control />
+                <Checkbox.Label>
+                  <Text fontSize="sm" color="purple.800">
+                    I agree to the{' '}
+                    <Link color="purple.600" fontWeight="semibold">
+                      Terms of Service
+                    </Link>{' '}
+                    and{' '}
+                    <Link color="purple.600" fontWeight="semibold">
+                      Privacy Policy
+                    </Link>
+                  </Text>
+                </Checkbox.Label>
+              </Checkbox.Root>
 
-            <FormControl isRequired>
-              <FormLabel>Confirm Password</FormLabel>
-              <Input
-                name="confirmPassword"
-                type="password"
-                placeholder="Confirm your password"
-                value={formData.confirmPassword}
-                onChange={handleInputChange}
-                onKeyPress={(e) => e.key === 'Enter' && handleSignup()}
-              />
-            </FormControl>
+              <Button
+                colorScheme="purple"
+                w="full"
+                onClick={handleSignup}
+                loading={isLoading}
+              >
+                Create Account
+              </Button>
 
-            <Checkbox
-              w="full"
-              isChecked={agreeToTerms}
-              onChange={(e) => setAgreeToTerms(e.target.checked)}
-            >
-              <Text fontSize="sm">
-                I agree to the{' '}
-                <Link color="blue.500" fontWeight="semibold">
-                  Terms of Service
-                </Link>{' '}
-                and{' '}
-                <Link color="blue.500" fontWeight="semibold">
-                  Privacy Policy
-                </Link>
-              </Text>
-            </Checkbox>
+              <HStack w="full">
+                <Separator />
+                <Text fontSize="sm" color="purple.800" whiteSpace="nowrap">
+                  or sign up with
+                </Text>
+                <Separator />
+              </HStack>
 
-            <Button
-              colorScheme="blue"
-              w="full"
-              onClick={handleSignup}
-              isLoading={isLoading}
-            >
-              Create Account
-            </Button>
-
-            <HStack w="full">
-              <Divider />
-              <Text fontSize="sm" color="gray.500" whiteSpace="nowrap">
-                or sign up with
-              </Text>
-              <Divider />
-            </HStack>
-
-            <Button
-              w="full"
-              variant="outline"
-              leftIcon={
+              <Button
+                w="full"
+                variant="outline"
+                onClick={handleGoogleSignup}
+              >
                 <svg width="18" height="18" viewBox="0 0 18 18">
                   <path
                     fill="#4285F4"
@@ -257,28 +256,26 @@ export default function SignupModal({ isOpen, onClose, onSwitchToLogin }: Signup
                     d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"
                   />
                 </svg>
-              }
-              onClick={handleGoogleSignup}
-            >
-              Google
-            </Button>
+                Google
+              </Button>
 
-            <Text fontSize="sm" textAlign="center">
-              Already have an account?{' '}
-              <Link
-                color="blue.500"
-                fontWeight="semibold"
-                onClick={() => {
-                  onClose()
-                  onSwitchToLogin?.()
-                }}
-              >
-                Log in
-              </Link>
-            </Text>
-          </VStack>
-        </ModalBody>
-      </ModalContent>
-    </Modal>
+              <Text fontSize="sm" textAlign="center" color="purple.800">
+                Already have an account?{' '}
+                <Link
+                  color="purple.600"
+                  fontWeight="semibold"
+                  onClick={() => {
+                    onClose()
+                    onSwitchToLogin?.()
+                  }}
+                >
+                  Log in
+                </Link>
+              </Text>
+            </VStack>
+          </Dialog.Body>
+        </Dialog.Content>
+      </Dialog.Positioner>
+    </Dialog.Root>
   )
 }
