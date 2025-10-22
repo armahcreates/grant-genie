@@ -125,66 +125,76 @@ export default function SignupModal({ isOpen, onClose, onSwitchToLogin }: Signup
       <Dialog.Backdrop backdropFilter="blur(5px)" />
       <Dialog.Positioner>
         <Dialog.Content>
-          <Dialog.Header>Create Your Account</Dialog.Header>
+          <Dialog.Header color="purple.900">Create Your Account</Dialog.Header>
           <Dialog.CloseTrigger />
           <Dialog.Body pb={6}>
             <VStack gap={4}>
               <SimpleGrid columns={2} gap={4} w="full">
                 <Field.Root>
-                  <Field.Label>First Name</Field.Label>
+                  <Field.Label color="purple.900" fontWeight="medium">First Name</Field.Label>
                   <Input
                     name="firstName"
                     placeholder="John"
                     value={formData.firstName}
                     onChange={handleInputChange}
+                    color="purple.900"
+                    _placeholder={{ color: 'gray.500' }}
                   />
                 </Field.Root>
 
                 <Field.Root>
-                  <Field.Label>Last Name</Field.Label>
+                  <Field.Label color="purple.900" fontWeight="medium">Last Name</Field.Label>
                   <Input
                     name="lastName"
                     placeholder="Doe"
                     value={formData.lastName}
                     onChange={handleInputChange}
+                    color="purple.900"
+                    _placeholder={{ color: 'gray.500' }}
                   />
                 </Field.Root>
               </SimpleGrid>
 
               <Field.Root>
-                <Field.Label>Email</Field.Label>
+                <Field.Label color="purple.900" fontWeight="medium">Email</Field.Label>
                 <Input
                   name="email"
                   type="email"
                   placeholder="john@example.com"
                   value={formData.email}
                   onChange={handleInputChange}
+                  color="purple.900"
+                  _placeholder={{ color: 'gray.500' }}
                 />
               </Field.Root>
 
               <Field.Root>
-                <Field.Label>Organization</Field.Label>
+                <Field.Label color="purple.900" fontWeight="medium">Organization</Field.Label>
                 <Input
                   name="organization"
                   placeholder="Your organization name"
                   value={formData.organization}
                   onChange={handleInputChange}
+                  color="purple.900"
+                  _placeholder={{ color: 'gray.500' }}
                 />
               </Field.Root>
 
               <Field.Root>
-                <Field.Label>Password</Field.Label>
+                <Field.Label color="purple.900" fontWeight="medium">Password</Field.Label>
                 <Input
                   name="password"
                   type="password"
                   placeholder="Create a strong password"
                   value={formData.password}
                   onChange={handleInputChange}
+                  color="purple.900"
+                  _placeholder={{ color: 'gray.500' }}
                 />
               </Field.Root>
 
               <Field.Root>
-                <Field.Label>Confirm Password</Field.Label>
+                <Field.Label color="purple.900" fontWeight="medium">Confirm Password</Field.Label>
                 <Input
                   name="confirmPassword"
                   type="password"
@@ -192,6 +202,8 @@ export default function SignupModal({ isOpen, onClose, onSwitchToLogin }: Signup
                   value={formData.confirmPassword}
                   onChange={handleInputChange}
                   onKeyPress={(e) => e.key === 'Enter' && handleSignup()}
+                  color="purple.900"
+                  _placeholder={{ color: 'gray.500' }}
                 />
               </Field.Root>
 

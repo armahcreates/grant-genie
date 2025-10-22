@@ -85,29 +85,33 @@ export default function LoginModal({ isOpen, onClose, onSwitchToSignup }: LoginM
       <Dialog.Backdrop backdropFilter="blur(5px)" />
       <Dialog.Positioner>
         <Dialog.Content>
-          <Dialog.Header>Welcome Back</Dialog.Header>
+          <Dialog.Header color="purple.900">Welcome Back</Dialog.Header>
           <Dialog.CloseTrigger />
           <Dialog.Body pb={6}>
             <VStack gap={4}>
               <Field.Root>
-                <Field.Label>Email</Field.Label>
+                <Field.Label color="purple.900" fontWeight="medium">Email</Field.Label>
                 <Input
                   type="email"
                   placeholder="Enter your email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
+                  color="purple.900"
+                  _placeholder={{ color: 'gray.500' }}
                 />
               </Field.Root>
 
               <Field.Root>
-                <Field.Label>Password</Field.Label>
+                <Field.Label color="purple.900" fontWeight="medium">Password</Field.Label>
                 <Input
                   type="password"
                   placeholder="Enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
+                  color="purple.900"
+                  _placeholder={{ color: 'gray.500' }}
                 />
               </Field.Root>
 
@@ -118,7 +122,7 @@ export default function LoginModal({ isOpen, onClose, onSwitchToSignup }: LoginM
                 >
                   <Checkbox.HiddenInput />
                   <Checkbox.Control />
-                  <Checkbox.Label>Remember me</Checkbox.Label>
+                  <Checkbox.Label color="purple.900">Remember me</Checkbox.Label>
                 </Checkbox.Root>
                 <Link color="purple.600" fontSize="sm">
                   Forgot password?

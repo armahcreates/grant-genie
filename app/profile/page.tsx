@@ -63,8 +63,8 @@ export default function ProfilePage() {
       <Container maxW="container.xl" py={8}>
       <VStack gap={6} align="stretch">
         <Box>
-          <Heading size="lg" mb={2}>Profile Management</Heading>
-          <Text color="gray.600">Manage your contact information and organization details</Text>
+          <Heading size="lg" mb={2} color="purple.900">Profile Management</Heading>
+          <Text color="purple.800">Manage your contact information and organization details</Text>
         </Box>
 
         <Grid templateColumns={{ base: '1fr', md: '300px 1fr' }} gap={6}>
@@ -74,7 +74,7 @@ export default function ProfilePage() {
               {/* Profile Picture Section */}
               <Box p={6} bg="white" borderRadius="lg" boxShadow="sm" border="1px" borderColor="gray.200">
                 <VStack gap={4}>
-                  <Avatar.Root size="2xl" bg="blue.500">
+                  <Avatar.Root size="2xl" bg="purple.500">
                     <Avatar.Fallback>SJ</Avatar.Fallback>
                   </Avatar.Root>
                   <Button size="sm">
@@ -93,10 +93,10 @@ export default function ProfilePage() {
                       p={3}
                       borderRadius="md"
                       cursor="pointer"
-                      bg={activeTab === item.id ? 'blue.50' : 'transparent'}
-                      color={activeTab === item.id ? 'blue.600' : 'gray.700'}
+                      bg={activeTab === item.id ? 'purple.50' : 'transparent'}
+                      color={activeTab === item.id ? 'purple.600' : 'purple.800'}
                       fontWeight={activeTab === item.id ? 'semibold' : 'normal'}
-                      _hover={{ bg: activeTab === item.id ? 'blue.50' : 'gray.50' }}
+                      _hover={{ bg: activeTab === item.id ? 'purple.50' : 'gray.50' }}
                       onClick={() => setActiveTab(item.id)}
                     >
                       <Flex align="center">
@@ -116,8 +116,8 @@ export default function ProfilePage() {
               {activeTab === 'personal' && (
                 <VStack gap={6} align="stretch">
                   <Box>
-                    <Heading size="md" mb={2}>Personal Information</Heading>
-                    <Text color="gray.600" fontSize="sm">
+                    <Heading size="md" mb={2} color="purple.900">Personal Information</Heading>
+                    <Text color="purple.700" fontSize="sm">
                       Update your personal details and contact information
                     </Text>
                   </Box>
@@ -126,95 +126,105 @@ export default function ProfilePage() {
 
                   <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={4}>
                     <Field.Root>
-                      <Field.Label>First Name</Field.Label>
+                      <Field.Label color="purple.900" fontWeight="medium">First Name</Field.Label>
                       <Input
                         name="firstName"
                         value={formData.firstName}
                         onChange={handleInputChange}
+                        color="purple.900"
                       />
                     </Field.Root>
 
                     <Field.Root>
-                      <Field.Label>Last Name</Field.Label>
+                      <Field.Label color="purple.900" fontWeight="medium">Last Name</Field.Label>
                       <Input
                         name="lastName"
                         value={formData.lastName}
                         onChange={handleInputChange}
+                        color="purple.900"
                       />
                     </Field.Root>
                   </Grid>
 
                   <Field.Root>
-                    <Field.Label>Email Address</Field.Label>
+                    <Field.Label color="purple.900" fontWeight="medium">Email Address</Field.Label>
                     <Input
                       name="email"
                       type="email"
                       value={formData.email}
                       onChange={handleInputChange}
+                      color="purple.900"
                     />
                   </Field.Root>
 
                   <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={4}>
                     <Field.Root>
-                      <Field.Label>Phone Number</Field.Label>
+                      <Field.Label color="purple.900" fontWeight="medium">Phone Number</Field.Label>
                       <Input
                         name="phone"
                         value={formData.phone}
                         onChange={handleInputChange}
+                        color="purple.900"
                       />
                     </Field.Root>
 
                     <Field.Root>
-                      <Field.Label>Job Title</Field.Label>
+                      <Field.Label color="purple.900" fontWeight="medium">Job Title</Field.Label>
                       <Input
                         name="jobTitle"
                         value={formData.jobTitle}
                         onChange={handleInputChange}
+                        color="purple.900"
                       />
                     </Field.Root>
                   </Grid>
 
                   <Field.Root>
-                    <Field.Label>Bio</Field.Label>
+                    <Field.Label color="purple.900" fontWeight="medium">Bio</Field.Label>
                     <Textarea
                       name="bio"
                       placeholder="Tell us about yourself and your role..."
                       value={formData.bio}
                       onChange={handleInputChange}
                       rows={4}
+                      color="purple.900"
+                      _placeholder={{ color: 'gray.500' }}
                     />
                   </Field.Root>
 
                   <Box>
-                    <Heading size="sm" mb={4}>Address Information</Heading>
+                    <Heading size="sm" mb={4} color="purple.900">Address Information</Heading>
 
                     <VStack gap={4} align="stretch">
                       <Field.Root>
-                        <Field.Label>Street Address</Field.Label>
+                        <Field.Label color="purple.900" fontWeight="medium">Street Address</Field.Label>
                         <Input
                           name="streetAddress"
                           value={formData.streetAddress}
                           onChange={handleInputChange}
+                          color="purple.900"
                         />
                       </Field.Root>
 
                       <Grid templateColumns={{ base: '1fr', md: '2fr 2fr 1fr' }} gap={4}>
                         <Field.Root>
-                          <Field.Label>City</Field.Label>
+                          <Field.Label color="purple.900" fontWeight="medium">City</Field.Label>
                           <Input
                             name="city"
                             value={formData.city}
                             onChange={handleInputChange}
+                            color="purple.900"
                           />
                         </Field.Root>
 
                         <Field.Root>
-                          <Field.Label>State</Field.Label>
+                          <Field.Label color="purple.900" fontWeight="medium">State</Field.Label>
                           <NativeSelectRoot>
                             <NativeSelectField
                               name="state"
                               value={formData.state}
                               onChange={handleInputChange}
+                              color="purple.900"
                             >
                               <option value="Illinois">Illinois</option>
                               <option value="California">California</option>
@@ -227,11 +237,12 @@ export default function ProfilePage() {
                         </Field.Root>
 
                         <Field.Root>
-                          <Field.Label>ZIP Code</Field.Label>
+                          <Field.Label color="purple.900" fontWeight="medium">ZIP Code</Field.Label>
                           <Input
                             name="zipCode"
                             value={formData.zipCode}
                             onChange={handleInputChange}
+                            color="purple.900"
                           />
                         </Field.Root>
                       </Grid>
@@ -240,7 +251,7 @@ export default function ProfilePage() {
 
                   <HStack gap={4} justify="flex-end" pt={4}>
                     <Button variant="outline">Cancel</Button>
-                    <Button colorScheme="blue" onClick={handleSave}>
+                    <Button colorScheme="purple" onClick={handleSave}>
                       Save Changes
                     </Button>
                   </HStack>
@@ -249,22 +260,22 @@ export default function ProfilePage() {
 
               {activeTab === 'organization' && (
                 <Box>
-                  <Heading size="md" mb={4}>Organization Details</Heading>
-                  <Text color="gray.600">Organization settings will be displayed here.</Text>
+                  <Heading size="md" mb={4} color="purple.900">Organization Details</Heading>
+                  <Text color="purple.700">Organization settings will be displayed here.</Text>
                 </Box>
               )}
 
               {activeTab === 'notifications' && (
                 <Box>
-                  <Heading size="md" mb={4}>Notification Preferences</Heading>
-                  <Text color="gray.600">Notification settings will be displayed here.</Text>
+                  <Heading size="md" mb={4} color="purple.900">Notification Preferences</Heading>
+                  <Text color="purple.700">Notification settings will be displayed here.</Text>
                 </Box>
               )}
 
               {activeTab === 'security' && (
                 <Box>
-                  <Heading size="md" mb={4}>Security Settings</Heading>
-                  <Text color="gray.600">Security settings will be displayed here.</Text>
+                  <Heading size="md" mb={4} color="purple.900">Security Settings</Heading>
+                  <Text color="purple.700">Security settings will be displayed here.</Text>
                 </Box>
               )}
             </Box>

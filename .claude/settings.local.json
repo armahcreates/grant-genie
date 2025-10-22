@@ -5,7 +5,9 @@
       "Bash(npm install:*)",
       "Bash(cut:*)",
       "Bash(git add:*)",
-      "Bash(git commit -m \"$(cat <<''EOF''\nUpdate branding to Headspace Genie with purple theme and premium landing page\n\n- Renamed application from \"Grant Genie\" to \"Headspace Genie\" across all pages\n- Implemented purple brand colors (purple.600-900) throughout entire application\n- Moved landing page to main route (/) and created separate dashboard at /dashboard\n- Updated all text colors from gray to purple for on-brand consistency\n- Enhanced landing page with premium UX, Unsplash images, and glassmorphic effects\n- Fixed text visibility in login/signup modals (gray.500 → purple.800)\n- Updated all buttons, badges, and UI elements to use purple colorScheme\n- Removed fake track record and replaced with capability-focused messaging\n- Added mock data infrastructure in lib/mockData.ts\n- Updated compliance tracker and notifications to use purple theme\n- Changed all dashboard pages to use purple text colors (purple.700-900)\nEOF\n)\")"
+      "Bash(git commit -m \"$(cat <<''EOF''\nUpdate branding to Headspace Genie with purple theme and premium landing page\n\n- Renamed application from \"Grant Genie\" to \"Headspace Genie\" across all pages\n- Implemented purple brand colors (purple.600-900) throughout entire application\n- Moved landing page to main route (/) and created separate dashboard at /dashboard\n- Updated all text colors from gray to purple for on-brand consistency\n- Enhanced landing page with premium UX, Unsplash images, and glassmorphic effects\n- Fixed text visibility in login/signup modals (gray.500 → purple.800)\n- Updated all buttons, badges, and UI elements to use purple colorScheme\n- Removed fake track record and replaced with capability-focused messaging\n- Added mock data infrastructure in lib/mockData.ts\n- Updated compliance tracker and notifications to use purple theme\n- Changed all dashboard pages to use purple text colors (purple.700-900)\nEOF\n)\")",
+      "Bash(git push)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []

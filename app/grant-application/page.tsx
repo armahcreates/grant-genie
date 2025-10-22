@@ -101,7 +101,7 @@ export default function GrantApplicationPage() {
                 <VStack gap={6} align="stretch">
                   <SimpleGrid columns={{ base: 1, md: 2 }} gap={6}>
                     <Field.Root required>
-                      <Field.Label>Grant project title</Field.Label>
+                      <Field.Label color="purple.900" fontWeight="medium">Grant project title</Field.Label>
                       <Input
                         placeholder="Enter project title"
                         {...register('projectTitle', { required: true })}
@@ -109,7 +109,7 @@ export default function GrantApplicationPage() {
                     </Field.Root>
 
                     <Field.Root required>
-                      <Field.Label>Organization name</Field.Label>
+                      <Field.Label color="purple.900" fontWeight="medium">Organization name</Field.Label>
                       <Input
                         placeholder="Enter organization name"
                         {...register('organizationName', { required: true })}
@@ -119,7 +119,7 @@ export default function GrantApplicationPage() {
 
                   <SimpleGrid columns={{ base: 1, md: 2 }} gap={6}>
                     <Field.Root required>
-                      <Field.Label>Department name</Field.Label>
+                      <Field.Label color="purple.900" fontWeight="medium">Department name</Field.Label>
                       <Input
                         placeholder="Enter department name"
                         {...register('departmentName', { required: true })}
@@ -127,7 +127,7 @@ export default function GrantApplicationPage() {
                     </Field.Root>
 
                     <Field.Root required>
-                      <Field.Label>Grant category</Field.Label>
+                      <Field.Label color="purple.900" fontWeight="medium">Grant category</Field.Label>
                       <NativeSelectRoot>
                         <NativeSelectField
                           placeholder="Select category"
@@ -145,7 +145,7 @@ export default function GrantApplicationPage() {
                   </SimpleGrid>
 
                   <Field.Root required>
-                    <Field.Label>Project description</Field.Label>
+                    <Field.Label color="purple.900" fontWeight="medium">Project description</Field.Label>
                     <Textarea
                       placeholder="Provide a detailed description of your project"
                       rows={6}
@@ -165,7 +165,7 @@ export default function GrantApplicationPage() {
                 <VStack gap={6} align="stretch">
                   <SimpleGrid columns={{ base: 1, md: 3 }} gap={6}>
                     <Field.Root required>
-                      <Field.Label>Personnel Costs</Field.Label>
+                      <Field.Label color="purple.900" fontWeight="medium">Personnel Costs</Field.Label>
                       <Input
                         type="number"
                         placeholder="$0.00"
@@ -174,7 +174,7 @@ export default function GrantApplicationPage() {
                     </Field.Root>
 
                     <Field.Root required>
-                      <Field.Label>Equipment Costs</Field.Label>
+                      <Field.Label color="purple.900" fontWeight="medium">Equipment Costs</Field.Label>
                       <Input
                         type="number"
                         placeholder="$0.00"
@@ -183,7 +183,7 @@ export default function GrantApplicationPage() {
                     </Field.Root>
 
                     <Field.Root required>
-                      <Field.Label>Indirect Costs</Field.Label>
+                      <Field.Label color="purple.900" fontWeight="medium">Indirect Costs</Field.Label>
                       <Input
                         type="number"
                         placeholder="$0.00"
@@ -193,7 +193,7 @@ export default function GrantApplicationPage() {
                   </SimpleGrid>
 
                   <Field.Root required>
-                    <Field.Label>Total budget</Field.Label>
+                    <Field.Label color="purple.900" fontWeight="medium">Total budget</Field.Label>
                     <Input
                       type="number"
                       placeholder="$0.00"
@@ -202,7 +202,7 @@ export default function GrantApplicationPage() {
                   </Field.Root>
 
                   <Field.Root required>
-                    <Field.Label>Budget justification</Field.Label>
+                    <Field.Label color="purple.900" fontWeight="medium">Budget justification</Field.Label>
                     <Textarea
                       placeholder="Explain how funds will be used to support your project goals"
                       rows={6}
@@ -222,7 +222,7 @@ export default function GrantApplicationPage() {
                 <VStack gap={6} align="stretch">
                   <SimpleGrid columns={{ base: 1, md: 2 }} gap={6}>
                     <Field.Root required>
-                      <Field.Label>Project start date</Field.Label>
+                      <Field.Label color="purple.900" fontWeight="medium">Project start date</Field.Label>
                       <Input
                         type="date"
                         {...register('projectStartDate', { required: true })}
@@ -230,7 +230,7 @@ export default function GrantApplicationPage() {
                     </Field.Root>
 
                     <Field.Root required>
-                      <Field.Label>Project end date</Field.Label>
+                      <Field.Label color="purple.900" fontWeight="medium">Project end date</Field.Label>
                       <Input
                         type="date"
                         {...register('projectEndDate', { required: true })}
@@ -239,7 +239,7 @@ export default function GrantApplicationPage() {
                   </SimpleGrid>
 
                   <Field.Root>
-                    <Field.Label>Key Milestones</Field.Label>
+                    <Field.Label color="purple.900" fontWeight="medium">Key Milestones</Field.Label>
                     <HStack>
                       <Textarea
                         placeholder="Add milestone description"
@@ -282,7 +282,7 @@ export default function GrantApplicationPage() {
                   </Field.Root>
 
                   <Field.Root>
-                    <Field.Label>Important deadlines</Field.Label>
+                    <Field.Label color="purple.900" fontWeight="medium">Important deadlines</Field.Label>
                     <HStack>
                       <Textarea
                         placeholder="Add deadline description"
