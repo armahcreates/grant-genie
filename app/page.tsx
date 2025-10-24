@@ -541,7 +541,7 @@ export default function LandingPage() {
               >
                 Most leaders don't need another tool.
               </Heading>
-              <Text fontSize="xl" color="gray.600" lineHeight="tall">
+              <Text fontSize="xl" color={deepIndigo} lineHeight="tall">
                 Mission-driven leaders are drowning in noise: endless grant deadlines, donor emails, unposted newsletters, untracked applicants — and no time to breathe.
               </Text>
               <Box
@@ -591,7 +591,7 @@ export default function LandingPage() {
               >
                 <VStack align="start" gap={2}>
                   <Text fontSize="3xl" fontWeight="bold" color={deepIndigo}>73%</Text>
-                  <Text fontSize="sm" color="gray.600" maxW="200px">
+                  <Text fontSize="sm" color={deepIndigo} maxW="200px">
                     of nonprofit leaders report burnout from administrative work
                   </Text>
                 </VStack>
@@ -626,7 +626,7 @@ export default function LandingPage() {
               >
                 HeadspaceGenie gives you back what leadership takes away
               </Heading>
-              <Text fontSize="xl" color="gray.600" maxW="2xl">
+              <Text fontSize="xl" color={deepIndigo} maxW="2xl">
                 Clarity, creativity, and time.
               </Text>
             </VStack>
@@ -675,7 +675,7 @@ export default function LandingPage() {
                         <Icon as={item.icon} boxSize={10} color={softTeal} />
                       </Flex>
                       <Heading size="xl" color={deepIndigo}>{item.title}</Heading>
-                      <Text color="gray.600" textAlign="center" fontSize="lg" lineHeight="tall">
+                      <Text color={deepIndigo} textAlign="center" fontSize="lg" lineHeight="tall">
                         {item.desc}
                       </Text>
                     </VStack>
@@ -712,7 +712,7 @@ export default function LandingPage() {
               >
                 Meet Your Genies
               </Heading>
-              <Text fontSize="xl" color="gray.600" maxW="2xl">
+              <Text fontSize="xl" color={deepIndigo} maxW="2xl">
                 Each Genie is a living, trainable companion that grows with you.
               </Text>
             </VStack>
@@ -752,7 +752,7 @@ export default function LandingPage() {
                           <Heading size="md" color={deepIndigo}>{genie.name}</Heading>
                         </VStack>
                       </HStack>
-                      <Text color="gray.600" gridColumn={{ md: 'span 5' }} fontSize="md">
+                      <Text color={deepIndigo} gridColumn={{ md: 'span 5' }} fontSize="md">
                         {genie.description}
                       </Text>
                       <Badge
@@ -813,7 +813,7 @@ export default function LandingPage() {
               >
                 The Headspace ROI
               </Heading>
-              <Text fontSize="xl" color="gray.600">
+              <Text fontSize="xl" color={deepIndigo}>
                 We measure success differently.
               </Text>
             </VStack>
@@ -847,7 +847,7 @@ export default function LandingPage() {
                         <Icon as={item.icon} boxSize={8} color={softTeal} />
                       </Flex>
                       <Heading size="lg" color={deepIndigo}>{item.title}</Heading>
-                      <Text color="gray.600" fontSize="sm" textAlign="center" lineHeight="tall">
+                      <Text color={deepIndigo} fontSize="sm" textAlign="center" lineHeight="tall">
                         {item.description}
                       </Text>
                     </VStack>
@@ -914,7 +914,7 @@ export default function LandingPage() {
                         <Icon as={FiCheck} boxSize={6} color={softTeal} fontWeight="bold" strokeWidth={3} />
                       </Flex>
                       <Heading size="lg" color={deepIndigo}>{item.title}</Heading>
-                      <Text color="gray.600" lineHeight="tall">{item.description}</Text>
+                      <Text color={deepIndigo} lineHeight="tall">{item.description}</Text>
                     </VStack>
                   </Card.Body>
                 </Card.Root>
@@ -1043,7 +1043,7 @@ export default function LandingPage() {
               >
                 Simple, Transparent Pricing
               </Heading>
-              <Text fontSize="xl" color="gray.600" maxW="2xl">
+              <Text fontSize="xl" color={deepIndigo} maxW="2xl">
                 Start your free trial — no credit card required.
               </Text>
             </VStack>
@@ -1101,7 +1101,7 @@ export default function LandingPage() {
                         <Text fontWeight="bold" fontSize="xl" color={deepIndigo}>
                           {plan.name}
                         </Text>
-                        <Text fontSize="sm" color="gray.500" lineHeight="short">
+                        <Text fontSize="sm" color={deepIndigo} lineHeight="short" opacity={0.7}>
                           {plan.designedFor}
                         </Text>
                         <HStack align="baseline" gap={1}>
@@ -1113,7 +1113,7 @@ export default function LandingPage() {
                           >
                             {plan.price}
                           </Heading>
-                          <Text color="gray.600" fontSize="lg">{plan.period}</Text>
+                          <Text color={deepIndigo} fontSize="lg" opacity={0.7}>{plan.period}</Text>
                         </HStack>
                       </VStack>
 
@@ -1147,7 +1147,7 @@ export default function LandingPage() {
                               flexShrink={0}
                               strokeWidth={3}
                             />
-                            <Text color="gray.700" fontSize="sm" lineHeight="tall">{feature}</Text>
+                            <Text color={deepIndigo} fontSize="sm" lineHeight="tall">{feature}</Text>
                           </HStack>
                         ))}
                       </VStack>
