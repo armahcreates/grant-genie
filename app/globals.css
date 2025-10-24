@@ -1,26 +1,16 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-@layer base {
-  :root {
-    --background: #ffffff;
-    --foreground: #171717;
-  }
-
-  /* Disable Tailwind's dark mode color scheme detection */
-  :root {
-    color-scheme: light;
-  }
-
-  body {
-    color: #171717;
-    background: #ffffff;
-  }
+/* Global styles - Chakra UI only */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
 }

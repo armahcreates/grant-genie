@@ -13,7 +13,8 @@
       "Bash(npm run build)",
       "Bash(git push:*)",
       "WebFetch(domain:chakra-ui.com)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(npm uninstall:*)"
     ],
     "deny": [],
     "ask": []
