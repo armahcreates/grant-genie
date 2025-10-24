@@ -12,7 +12,8 @@
       "WebFetch(domain:www.chakra-ui.com)",
       "Bash(npm run build)",
       "Bash(git push:*)",
-      "WebFetch(domain:chakra-ui.com)"
+      "WebFetch(domain:chakra-ui.com)",
+      "Bash(cat:*)"
     ],
     "deny": [],
     "ask": []
