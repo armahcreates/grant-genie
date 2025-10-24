@@ -15,15 +15,27 @@ import {
   Button,
   Progress,
   Separator,
+  Image,
 } from '@chakra-ui/react'
 import { MdDescription, MdTrendingUp, MdCheckCircle, MdPending, MdCalendarToday, MdSearch, MdAdd, MdNotifications } from 'react-icons/md'
-import { FiTrendingUp, FiArrowRight, FiClock, FiAlertCircle } from 'react-icons/fi'
+import { FiTrendingUp, FiArrowRight, FiClock, FiAlertCircle, FiZap, FiTarget, FiDollarSign, FiAward } from 'react-icons/fi'
 import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
 import MainLayout from '@/components/layout/MainLayout'
 import { mockApplications, mockCompliance, mockDashboardStats, mockRecentActivity } from '@/lib/mockData'
 
 export default function DashboardPage() {
   const router = useRouter()
+  const [currentTime, setCurrentTime] = useState(new Date())
+
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 60000)
+    return () => clearInterval(timer)
+  }, [])
+
+  // Brand colors
+  const deepIndigo = '#3C3B6E'
+  const softTeal = '#5CE1E6'
 
   // Get recent applications (top 5)
   const recentApplications = mockApplications.slice(0, 5)
@@ -33,198 +45,381 @@ export default function DashboardPage() {
     .filter(item => item.status === 'Upcoming' || item.status === 'Overdue')
     .slice(0, 5)
 
+  const getGreeting = () => {
+    const hour = currentTime.getHours()
+    if (hour < 12) return 'Good morning'
+    if (hour < 17) return 'Good afternoon'
+    return 'Good evening'
+  }
+
   return (
     <MainLayout>
-      <Container maxW="container.xl" py={8}>
-        {/* Header with Quick Actions */}
-        <Flex justify="space-between" align="start" mb={8} flexWrap="wrap" gap={4}>
-          <Box>
-            <Heading size="lg" mb={2} color="purple.900">
-              Welcome back, Sarah! 👋
-            </Heading>
-            <Text color="purple.800">
-              Here's an overview of your grant activities and upcoming tasks
-            </Text>
-          </Box>
-          <HStack gap={3}>
-            <Button
-              colorScheme="purple"
-              variant="outline"
-              onClick={() => router.push('/grant-search')}
-            >
-              <Icon as={MdSearch} mr={2} />
-              Find Grants
-            </Button>
-            <Button
-              colorScheme="purple"
-              onClick={() => router.push('/grant-application')}
-            >
-              <Icon as={MdAdd} mr={2} />
-              New Application
-            </Button>
-          </HStack>
-        </Flex>
+      {/* Premium Header Background */}
+      <Box
+        position="relative"
+        bgGradient={`linear(to-br, ${deepIndigo}, #2D2C5A, #1a1a3e)`}
+        overflow="hidden"
+        _before={{
+          content: '""',
+          position: 'absolute',
+          top: '-50%',
+          right: '-10%',
+          w: '600px',
+          h: '600px',
+          bg: softTeal,
+          borderRadius: 'full',
+          filter: 'blur(120px)',
+          opacity: 0.15,
+        }}
+      >
+        <Container maxW="container.xl" py={12} position="relative" zIndex={1}>
+          <VStack align="stretch" gap={6}>
+            {/* Welcome Header */}
+            <Flex justify="space-between" align="start" flexWrap="wrap" gap={4}>
+              <VStack align="start" gap={2}>
+                <HStack gap={3}>
+                  <Text fontSize="lg" color="gray.300" fontWeight="medium">
+                    {getGreeting()}, Sarah
+                  </Text>
+                  <Text fontSize="3xl">👋</Text>
+                </HStack>
+                <Heading size="2xl" color="white" letterSpacing="-0.02em">
+                  Your Headspace Command Center
+                </Heading>
+                <Text color="gray.300" fontSize="lg" maxW="2xl">
+                  {currentTime.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                </Text>
+              </VStack>
 
-        {/* Urgent Alert Banner */}
-        {upcomingDeadlines.some(item => item.status === 'Overdue') && (
-          <Card.Root bg="red.50" borderLeft="4px" borderLeftColor="red.500" mb={6}>
-            <Card.Body>
               <HStack gap={3}>
-                <Icon as={FiAlertCircle} boxSize={5} color="red.600" />
-                <Box flex={1}>
-                  <Text fontWeight="semibold" color="red.900" mb={1}>
-                    Action Required: Overdue Compliance Tasks
-                  </Text>
-                  <Text fontSize="sm" color="red.700">
-                    You have {upcomingDeadlines.filter(item => item.status === 'Overdue').length} overdue compliance task(s) that need immediate attention.
-                  </Text>
-                </Box>
-                <Button size="sm" colorScheme="red" onClick={() => router.push('/compliance-tracker')}>
-                  View Tasks
+                <Button
+                  size="lg"
+                  variant="outline"
+                  borderWidth="2px"
+                  borderColor="whiteAlpha.400"
+                  color="white"
+                  bg="whiteAlpha.100"
+                  backdropFilter="blur(10px)"
+                  _hover={{
+                    bg: 'whiteAlpha.200',
+                    borderColor: softTeal,
+                    transform: 'translateY(-2px)',
+                  }}
+                  transition="all 0.3s"
+                  onClick={() => router.push('/grant-search')}
+                >
+                  <Icon as={MdSearch} />
+                  Discover Grants
+                </Button>
+                <Button
+                  size="lg"
+                  bgGradient={`linear(to-r, ${softTeal}, #4BC5CC)`}
+                  color="white"
+                  _hover={{
+                    bgGradient: `linear(to-r, #4BC5CC, ${softTeal})`,
+                    transform: 'translateY(-2px)',
+                    boxShadow: '0 10px 25px rgba(92, 225, 230, 0.4)'
+                  }}
+                  transition="all 0.3s"
+                  boxShadow="0 4px 15px rgba(92, 225, 230, 0.3)"
+                  onClick={() => router.push('/grant-application')}
+                >
+                  <Icon as={FiZap} />
+                  Start Writing
                 </Button>
               </HStack>
-            </Card.Body>
-          </Card.Root>
-        )}
+            </Flex>
 
-        {/* Enhanced Stats Cards with Actions */}
-        <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} gap={6} mb={8}>
+            {/* Urgent Alert Banner */}
+            {upcomingDeadlines.some(item => item.status === 'Overdue') && (
+              <Card.Root
+                bg="whiteAlpha.100"
+                backdropFilter="blur(20px)"
+                border="2px solid"
+                borderColor="red.400"
+                borderRadius="2xl"
+              >
+                <Card.Body p={5}>
+                  <HStack gap={4}>
+                    <Flex
+                      w={12}
+                      h={12}
+                      bg="red.500"
+                      borderRadius="xl"
+                      align="center"
+                      justify="center"
+                      flexShrink={0}
+                    >
+                      <Icon as={FiAlertCircle} boxSize={6} color="white" />
+                    </Flex>
+                    <Box flex={1}>
+                      <Text fontWeight="bold" color="white" mb={1} fontSize="lg">
+                        Action Required: Overdue Tasks
+                      </Text>
+                      <Text fontSize="md" color="gray.200">
+                        You have {upcomingDeadlines.filter(item => item.status === 'Overdue').length} overdue compliance task(s) that need immediate attention.
+                      </Text>
+                    </Box>
+                    <Button
+                      size="md"
+                      bg="red.500"
+                      color="white"
+                      _hover={{ bg: 'red.600', transform: 'scale(1.05)' }}
+                      onClick={() => router.push('/compliance-tracker')}
+                      flexShrink={0}
+                    >
+                      View Tasks
+                    </Button>
+                  </HStack>
+                </Card.Body>
+              </Card.Root>
+            )}
+          </VStack>
+        </Container>
+      </Box>
+
+      <Container maxW="container.xl" py={8}>
+        {/* Premium Stats Grid */}
+        <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} gap={6} mb={8} mt={-12} position="relative" zIndex={2}>
+          {/* Active Grants Card */}
           <Card.Root
+            bg="white"
             cursor="pointer"
-            _hover={{ transform: 'translateY(-4px)', shadow: 'lg' }}
-            transition="all 0.2s"
+            border="1px solid"
+            borderColor="gray.100"
+            _hover={{
+              transform: 'translateY(-8px)',
+              boxShadow: `0 20px 40px ${softTeal}20`,
+              borderColor: softTeal,
+            }}
+            transition="all 0.4s cubic-bezier(0.4, 0, 0.2, 1)"
             onClick={() => router.push('/grant-application')}
+            borderRadius="2xl"
+            overflow="hidden"
+            position="relative"
           >
-            <Card.Body>
-              <Flex direction="column" gap={3}>
-                <Flex align="center" justify="space-between">
+            <Box
+              position="absolute"
+              top={0}
+              left={0}
+              right={0}
+              h="4px"
+              bgGradient={`linear(to-r, ${deepIndigo}, ${softTeal})`}
+            />
+            <Card.Body p={6}>
+              <VStack gap={4} align="stretch">
+                <HStack justify="space-between">
                   <Flex
-                    bg="purple.100"
-                    borderRadius="lg"
-                    p={3}
+                    w={14}
+                    h={14}
+                    bgGradient={`linear(135deg, ${softTeal}20, ${deepIndigo}10)`}
+                    borderRadius="xl"
                     align="center"
                     justify="center"
+                    boxShadow={`0 4px 15px ${softTeal}30`}
                   >
-                    <Icon as={MdDescription} boxSize={6} color="purple.600" />
+                    <Icon as={MdDescription} boxSize={7} color={softTeal} />
                   </Flex>
-                  <Icon as={FiArrowRight} color="purple.600" />
-                </Flex>
+                  <Icon as={FiArrowRight} color={deepIndigo} boxSize={5} />
+                </HStack>
                 <Box>
-                  <Text fontSize="sm" color="purple.700" mb={1}>Active Grants</Text>
-                  <Text fontSize="3xl" fontWeight="bold" color="purple.900">{mockDashboardStats.activeGrants}</Text>
-                  <Text fontSize="xs" color="purple.700">Currently managing</Text>
+                  <Text fontSize="sm" color="gray.600" mb={2} fontWeight="medium">Active Grants</Text>
+                  <Heading size="3xl" color={deepIndigo} mb={1}>{mockDashboardStats.activeGrants}</Heading>
+                  <Text fontSize="sm" color="gray.500">Currently managing</Text>
                 </Box>
-              </Flex>
+              </VStack>
             </Card.Body>
           </Card.Root>
 
+          {/* Total Funding Card */}
           <Card.Root
+            bgGradient={`linear(135deg, ${softTeal}, #4BC5CC)`}
             cursor="pointer"
-            _hover={{ transform: 'translateY(-4px)', shadow: 'lg' }}
-            transition="all 0.2s"
+            _hover={{
+              transform: 'translateY(-8px) scale(1.02)',
+              boxShadow: `0 25px 50px ${softTeal}40`,
+            }}
+            transition="all 0.4s cubic-bezier(0.4, 0, 0.2, 1)"
             onClick={() => router.push('/reporting')}
+            borderRadius="2xl"
+            position="relative"
+            overflow="hidden"
+            _before={{
+              content: '""',
+              position: 'absolute',
+              top: '-50%',
+              right: '-30%',
+              w: '300px',
+              h: '300px',
+              bg: 'whiteAlpha.300',
+              borderRadius: 'full',
+              filter: 'blur(60px)',
+            }}
           >
-            <Card.Body>
-              <Flex direction="column" gap={3}>
-                <Flex align="center" justify="space-between">
+            <Card.Body p={6} position="relative" zIndex={1}>
+              <VStack gap={4} align="stretch">
+                <HStack justify="space-between">
                   <Flex
-                    bg="green.100"
-                    borderRadius="lg"
-                    p={3}
+                    w={14}
+                    h={14}
+                    bg="whiteAlpha.300"
+                    backdropFilter="blur(10px)"
+                    borderRadius="xl"
                     align="center"
                     justify="center"
                   >
-                    <Icon as={MdCheckCircle} boxSize={6} color="green.600" />
+                    <Icon as={FiDollarSign} boxSize={7} color="white" />
                   </Flex>
-                  <Badge colorScheme="green" size="sm">
+                  <Badge
+                    bg="whiteAlpha.300"
+                    backdropFilter="blur(10px)"
+                    color="white"
+                    px={3}
+                    py={1}
+                    borderRadius="full"
+                    fontSize="sm"
+                    fontWeight="bold"
+                  >
                     <Icon as={FiTrendingUp} mr={1} />
                     +23%
                   </Badge>
-                </Flex>
+                </HStack>
                 <Box>
-                  <Text fontSize="sm" color="purple.700" mb={1}>Total Funding</Text>
-                  <Text fontSize="2xl" fontWeight="bold" color="purple.900">{mockDashboardStats.totalFunding}</Text>
-                  <Text fontSize="xs" color="purple.700">Secured to date</Text>
+                  <Text fontSize="sm" color="whiteAlpha.900" mb={2} fontWeight="semibold">Total Funding</Text>
+                  <Heading size="2xl" color="white" mb={1}>{mockDashboardStats.totalFunding}</Heading>
+                  <Text fontSize="sm" color="whiteAlpha.800">Secured to date</Text>
                 </Box>
-              </Flex>
+              </VStack>
             </Card.Body>
           </Card.Root>
 
+          {/* Upcoming Deadlines Card */}
           <Card.Root
+            bg="white"
             cursor="pointer"
-            _hover={{ transform: 'translateY(-4px)', shadow: 'lg' }}
-            transition="all 0.2s"
-            borderLeft={mockDashboardStats.upcomingDeadlines > 5 ? '4px' : '0'}
-            borderLeftColor="orange.500"
+            border="2px solid"
+            borderColor={mockDashboardStats.upcomingDeadlines > 5 ? 'orange.300' : 'gray.100'}
+            _hover={{
+              transform: 'translateY(-8px)',
+              boxShadow: '0 20px 40px rgba(251, 146, 60, 0.2)',
+              borderColor: 'orange.400',
+            }}
+            transition="all 0.4s cubic-bezier(0.4, 0, 0.2, 1)"
             onClick={() => router.push('/compliance-tracker')}
+            borderRadius="2xl"
+            position="relative"
+            overflow="hidden"
           >
-            <Card.Body>
-              <Flex direction="column" gap={3}>
-                <Flex align="center" justify="space-between">
+            {mockDashboardStats.upcomingDeadlines > 5 && (
+              <Box
+                position="absolute"
+                top={0}
+                left={0}
+                right={0}
+                h="4px"
+                bg="orange.400"
+              />
+            )}
+            <Card.Body p={6}>
+              <VStack gap={4} align="stretch">
+                <HStack justify="space-between">
                   <Flex
+                    w={14}
+                    h={14}
                     bg="orange.100"
-                    borderRadius="lg"
-                    p={3}
+                    borderRadius="xl"
                     align="center"
                     justify="center"
                   >
-                    <Icon as={MdPending} boxSize={6} color="orange.600" />
+                    <Icon as={FiClock} boxSize={7} color="orange.500" />
                   </Flex>
                   {mockDashboardStats.upcomingDeadlines > 5 && (
-                    <Badge colorScheme="orange" size="sm">Urgent</Badge>
+                    <Badge colorScheme="orange" fontSize="sm" px={3} py={1}>Urgent</Badge>
                   )}
-                </Flex>
+                </HStack>
                 <Box>
-                  <Text fontSize="sm" color="purple.700" mb={1}>Upcoming Deadlines</Text>
-                  <Text fontSize="3xl" fontWeight="bold" color="purple.900">{mockDashboardStats.upcomingDeadlines}</Text>
-                  <Text fontSize="xs" color="purple.700">This month</Text>
+                  <Text fontSize="sm" color="gray.600" mb={2} fontWeight="medium">Upcoming Deadlines</Text>
+                  <Heading size="3xl" color={deepIndigo} mb={1}>{mockDashboardStats.upcomingDeadlines}</Heading>
+                  <Text fontSize="sm" color="gray.500">This month</Text>
                 </Box>
-              </Flex>
+              </VStack>
             </Card.Body>
           </Card.Root>
 
+          {/* Compliance Rate Card */}
           <Card.Root
+            bgGradient={`linear(135deg, ${deepIndigo}, #2D2C5A)`}
             cursor="pointer"
-            _hover={{ transform: 'translateY(-4px)', shadow: 'lg' }}
-            transition="all 0.2s"
+            _hover={{
+              transform: 'translateY(-8px) scale(1.02)',
+              boxShadow: `0 25px 50px ${deepIndigo}60`,
+            }}
+            transition="all 0.4s cubic-bezier(0.4, 0, 0.2, 1)"
             onClick={() => router.push('/compliance-tracker')}
+            borderRadius="2xl"
+            position="relative"
+            overflow="hidden"
           >
-            <Card.Body>
-              <Flex direction="column" gap={3}>
-                <Flex align="center" justify="space-between">
+            <Card.Body p={6} position="relative" zIndex={1}>
+              <VStack gap={4} align="stretch">
+                <HStack justify="space-between">
                   <Flex
-                    bg="purple.100"
-                    borderRadius="lg"
-                    p={3}
+                    w={14}
+                    h={14}
+                    bg="whiteAlpha.200"
+                    backdropFilter="blur(10px)"
+                    borderRadius="xl"
                     align="center"
                     justify="center"
                   >
-                    <Icon as={MdTrendingUp} boxSize={6} color="purple.600" />
+                    <Icon as={FiTarget} boxSize={7} color={softTeal} />
                   </Flex>
-                </Flex>
+                  <Icon as={FiAward} boxSize={6} color={softTeal} />
+                </HStack>
                 <Box>
-                  <Text fontSize="sm" color="purple.700" mb={1}>Compliance Rate</Text>
-                  <Text fontSize="3xl" fontWeight="bold" color="purple.900">{mockDashboardStats.complianceRate}%</Text>
-                  <Progress.Root value={mockDashboardStats.complianceRate} size="sm" colorScheme="purple" mt={2}>
-                    <Progress.Track>
-                      <Progress.Range />
+                  <Text fontSize="sm" color="whiteAlpha.900" mb={2} fontWeight="semibold">Compliance Rate</Text>
+                  <Heading size="3xl" color="white" mb={3}>{mockDashboardStats.complianceRate}%</Heading>
+                  <Progress.Root value={mockDashboardStats.complianceRate} h={2} borderRadius="full">
+                    <Progress.Track bg="whiteAlpha.300">
+                      <Progress.Range bg={softTeal} />
                     </Progress.Track>
                   </Progress.Root>
                 </Box>
-              </Flex>
+              </VStack>
             </Card.Body>
           </Card.Root>
         </SimpleGrid>
 
-        <SimpleGrid columns={{ base: 1, lg: 2 }} gap={6} mb={8}>
-          {/* Recent Applications */}
-          <Card.Root>
-            <Card.Header>
+        {/* Main Content Grid */}
+        <SimpleGrid columns={{ base: 1, lg: 2 }} gap={8} mb={8}>
+          {/* Recent Applications - Premium Card */}
+          <Card.Root
+            bg="white"
+            border="1px solid"
+            borderColor="gray.100"
+            borderRadius="2xl"
+            boxShadow="lg"
+          >
+            <Card.Header p={6} pb={4}>
               <Flex justify="space-between" align="center">
-                <Heading size="md" color="purple.900">Recent Applications</Heading>
+                <HStack gap={3}>
+                  <Flex
+                    w={10}
+                    h={10}
+                    bgGradient={`linear(135deg, ${softTeal}20, ${deepIndigo}10)`}
+                    borderRadius="lg"
+                    align="center"
+                    justify="center"
+                  >
+                    <Icon as={MdDescription} boxSize={5} color={softTeal} />
+                  </Flex>
+                  <Heading size="md" color={deepIndigo}>Recent Applications</Heading>
+                </HStack>
                 <Button
                   size="sm"
                   variant="ghost"
+                  color={deepIndigo}
+                  _hover={{ bg: `${softTeal}10` }}
                   onClick={() => router.push('/grant-application')}
                 >
                   View All
@@ -232,65 +427,97 @@ export default function DashboardPage() {
                 </Button>
               </Flex>
             </Card.Header>
-            <Card.Body>
+            <Card.Body p={6} pt={2}>
               <VStack gap={3} align="stretch">
                 {recentApplications.map((app) => (
                   <Box
                     key={app.id}
-                    p={4}
+                    p={5}
+                    bg="gray.50"
                     border="1px"
-                    borderColor="gray.200"
-                    borderRadius="md"
-                    _hover={{ bg: 'purple.50', borderColor: 'purple.300', transform: 'translateX(4px)' }}
-                    transition="all 0.2s"
+                    borderColor="gray.100"
+                    borderRadius="xl"
+                    _hover={{
+                      bg: `${softTeal}05`,
+                      borderColor: softTeal,
+                      transform: 'translateX(6px)',
+                      boxShadow: `0 4px 15px ${softTeal}20`,
+                    }}
+                    transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
                     cursor="pointer"
                   >
-                    <Flex justify="space-between" align="start" mb={2}>
+                    <Flex justify="space-between" align="start" mb={3}>
                       <Box flex={1}>
-                        <HStack mb={1}>
-                          <Text fontWeight="semibold" color="purple.900">{app.grantTitle}</Text>
-                        </HStack>
-                        <Text fontSize="sm" color="purple.800">{app.organization}</Text>
+                        <Text fontWeight="bold" color={deepIndigo} mb={1} fontSize="md">
+                          {app.grantTitle}
+                        </Text>
+                        <Text fontSize="sm" color="gray.600">{app.organization}</Text>
                       </Box>
                       <Badge
                         colorScheme={
                           app.status === 'Approved' ? 'green' :
-                          app.status === 'Under Review' ? 'purple' :
-                          app.status === 'Submitted' ? 'purple' :
+                          app.status === 'Under Review' ? 'cyan' :
+                          app.status === 'Submitted' ? 'blue' :
                           app.status === 'Rejected' ? 'red' : 'gray'
                         }
+                        fontSize="xs"
+                        px={3}
+                        py={1}
+                        borderRadius="full"
+                        fontWeight="semibold"
                       >
                         {app.status}
                       </Badge>
                     </Flex>
-                    <Separator my={2} />
-                    <HStack justify="space-between">
-                      <HStack>
-                        <Text fontSize="sm" fontWeight="bold" color="green.600">
+                    <Separator my={3} />
+                    <Flex justify="space-between" align="center">
+                      <HStack gap={2}>
+                        <Icon as={FiDollarSign} boxSize={4} color="green.600" />
+                        <Text fontSize="md" fontWeight="bold" color="green.600">
                           {app.amount}
                         </Text>
                       </HStack>
-                      <HStack gap={1}>
-                        <Icon as={FiClock} boxSize={3} color="purple.600" />
-                        <Text fontSize="xs" color="purple.700">
+                      <HStack gap={2}>
+                        <Icon as={FiClock} boxSize={4} color={deepIndigo} />
+                        <Text fontSize="sm" color="gray.600" fontWeight="medium">
                           {new Date(app.deadline).toLocaleDateString()}
                         </Text>
                       </HStack>
-                    </HStack>
+                    </Flex>
                   </Box>
                 ))}
               </VStack>
             </Card.Body>
           </Card.Root>
 
-          {/* Upcoming Deadlines */}
-          <Card.Root>
-            <Card.Header>
+          {/* Upcoming Deadlines - Premium Card */}
+          <Card.Root
+            bg="white"
+            border="1px solid"
+            borderColor="gray.100"
+            borderRadius="2xl"
+            boxShadow="lg"
+          >
+            <Card.Header p={6} pb={4}>
               <Flex justify="space-between" align="center">
-                <Heading size="md" color="purple.900">Upcoming Deadlines</Heading>
+                <HStack gap={3}>
+                  <Flex
+                    w={10}
+                    h={10}
+                    bg="orange.100"
+                    borderRadius="lg"
+                    align="center"
+                    justify="center"
+                  >
+                    <Icon as={FiClock} boxSize={5} color="orange.500" />
+                  </Flex>
+                  <Heading size="md" color={deepIndigo}>Upcoming Deadlines</Heading>
+                </HStack>
                 <Button
                   size="sm"
                   variant="ghost"
+                  color={deepIndigo}
+                  _hover={{ bg: `${softTeal}10` }}
                   onClick={() => router.push('/compliance-tracker')}
                 >
                   View All
@@ -298,60 +525,80 @@ export default function DashboardPage() {
                 </Button>
               </Flex>
             </Card.Header>
-            <Card.Body>
+            <Card.Body p={6} pt={2}>
               <VStack gap={3} align="stretch">
                 {upcomingDeadlines.map((item) => (
                   <Box
                     key={item.id}
-                    p={4}
-                    border="1px"
-                    borderColor={item.status === 'Overdue' ? 'red.300' : 'gray.200'}
-                    bg={item.status === 'Overdue' ? 'red.50' : 'white'}
-                    borderRadius="md"
-                    borderLeft={item.status === 'Overdue' ? '4px' : '0'}
-                    borderLeftColor="red.500"
-                    _hover={{ shadow: 'md', transform: 'translateX(4px)' }}
-                    transition="all 0.2s"
+                    p={5}
+                    bg={item.status === 'Overdue' ? 'red.50' : 'gray.50'}
+                    border="2px solid"
+                    borderColor={item.status === 'Overdue' ? 'red.300' : 'gray.100'}
+                    borderRadius="xl"
+                    position="relative"
+                    _hover={{
+                      borderColor: item.status === 'Overdue' ? 'red.400' : softTeal,
+                      transform: 'translateX(6px)',
+                      boxShadow: item.status === 'Overdue' ? '0 4px 15px rgba(239, 68, 68, 0.2)' : `0 4px 15px ${softTeal}20`,
+                    }}
+                    transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
                     cursor="pointer"
                     onClick={() => router.push('/compliance-tracker')}
                   >
-                    <Flex justify="space-between" align="start" mb={2}>
-                      <Box flex={1}>
-                        <HStack mb={1}>
-                          {item.status === 'Overdue' && (
-                            <Icon as={FiAlertCircle} boxSize={4} color="red.500" />
-                          )}
-                          <Text fontWeight="semibold" fontSize="sm" color="purple.900">
+                    {item.status === 'Overdue' && (
+                      <Box
+                        position="absolute"
+                        top={0}
+                        left={0}
+                        bottom={0}
+                        w="4px"
+                        bg="red.500"
+                        borderLeftRadius="xl"
+                      />
+                    )}
+                    <Flex justify="space-between" align="start" mb={3}>
+                      <HStack gap={2} flex={1}>
+                        {item.status === 'Overdue' && (
+                          <Icon as={FiAlertCircle} boxSize={5} color="red.500" />
+                        )}
+                        <Box flex={1}>
+                          <Text fontWeight="bold" fontSize="md" color={item.status === 'Overdue' ? 'red.900' : deepIndigo} mb={1}>
                             {item.requirement}
                           </Text>
-                        </HStack>
-                        <Text fontSize="xs" color="purple.800">
-                          {item.grantName}
-                        </Text>
-                      </Box>
+                          <Text fontSize="sm" color="gray.600">
+                            {item.grantName}
+                          </Text>
+                        </Box>
+                      </HStack>
                       <Badge
                         colorScheme={
                           item.status === 'Overdue' ? 'red' :
                           item.priority === 'High' ? 'orange' :
                           item.priority === 'Medium' ? 'yellow' : 'gray'
                         }
-                        size="sm"
+                        fontSize="xs"
+                        px={3}
+                        py={1}
+                        borderRadius="full"
+                        fontWeight="semibold"
                       >
                         {item.priority}
                       </Badge>
                     </Flex>
-                    <Separator my={2} />
-                    <HStack gap={2} justify="space-between">
+                    <Separator my={3} />
+                    <Flex justify="space-between" align="center">
                       <HStack gap={2}>
-                        <Icon as={MdCalendarToday} boxSize={3} color={item.status === 'Overdue' ? 'red.600' : 'purple.600'} />
-                        <Text fontSize="xs" color={item.status === 'Overdue' ? 'red.700' : 'purple.800'} fontWeight="medium">
+                        <Icon as={MdCalendarToday} boxSize={4} color={item.status === 'Overdue' ? 'red.600' : deepIndigo} />
+                        <Text fontSize="sm" color={item.status === 'Overdue' ? 'red.700' : 'gray.600'} fontWeight="semibold">
                           {new Date(item.dueDate).toLocaleDateString()}
                         </Text>
                       </HStack>
                       {item.status === 'Overdue' && (
-                        <Badge colorScheme="red" size="xs">OVERDUE</Badge>
+                        <Badge colorScheme="red" fontSize="xs" px={2} py={0.5} fontWeight="bold">
+                          OVERDUE
+                        </Badge>
                       )}
-                    </HStack>
+                    </Flex>
                   </Box>
                 ))}
               </VStack>
@@ -359,126 +606,247 @@ export default function DashboardPage() {
           </Card.Root>
         </SimpleGrid>
 
-        {/* Quick Actions Grid */}
-        <Card.Root mb={8} bg="purple.50" borderColor="purple.200">
-          <Card.Header>
-            <Heading size="md" color="purple.900">Quick Actions</Heading>
+        {/* Quick Actions - Premium Grid */}
+        <Card.Root
+          mb={8}
+          bgGradient={`linear(135deg, ${deepIndigo}05, ${softTeal}05)`}
+          border="2px solid"
+          borderColor={`${softTeal}30`}
+          borderRadius="2xl"
+          overflow="hidden"
+        >
+          <Card.Header p={6}>
+            <HStack gap={3}>
+              <Flex
+                w={10}
+                h={10}
+                bgGradient={`linear(135deg, ${softTeal}, #4BC5CC)`}
+                borderRadius="lg"
+                align="center"
+                justify="center"
+              >
+                <Icon as={FiZap} boxSize={5} color="white" />
+              </Flex>
+              <Heading size="md" color={deepIndigo}>Your Genies - Quick Actions</Heading>
+            </HStack>
           </Card.Header>
-          <Card.Body>
+          <Card.Body p={6} pt={2}>
             <SimpleGrid columns={{ base: 2, md: 4 }} gap={4}>
               <Button
-                height="80px"
+                h="100px"
                 flexDirection="column"
-                gap={2}
-                variant="outline"
+                gap={3}
                 bg="white"
-                _hover={{ bg: 'purple.100', borderColor: 'purple.400' }}
+                border="2px solid"
+                borderColor="gray.200"
+                borderRadius="xl"
+                _hover={{
+                  borderColor: softTeal,
+                  transform: 'translateY(-4px)',
+                  boxShadow: `0 8px 20px ${softTeal}20`,
+                  bg: 'white',
+                }}
+                transition="all 0.3s"
                 onClick={() => router.push('/grant-search')}
               >
-                <Icon as={MdSearch} boxSize={6} color="purple.600" />
-                <Text fontSize="sm" color="purple.900">Search Grants</Text>
+                <Flex
+                  w={12}
+                  h={12}
+                  bg={`${softTeal}10`}
+                  borderRadius="xl"
+                  align="center"
+                  justify="center"
+                >
+                  <Icon as={MdSearch} boxSize={6} color={softTeal} />
+                </Flex>
+                <Text fontSize="sm" color={deepIndigo} fontWeight="semibold">Discover Grants</Text>
               </Button>
+
               <Button
-                height="80px"
+                h="100px"
                 flexDirection="column"
-                gap={2}
-                variant="outline"
+                gap={3}
                 bg="white"
-                _hover={{ bg: 'purple.100', borderColor: 'purple.400' }}
+                border="2px solid"
+                borderColor="gray.200"
+                borderRadius="xl"
+                _hover={{
+                  borderColor: softTeal,
+                  transform: 'translateY(-4px)',
+                  boxShadow: `0 8px 20px ${softTeal}20`,
+                  bg: 'white',
+                }}
+                transition="all 0.3s"
                 onClick={() => router.push('/grant-application')}
               >
-                <Icon as={MdAdd} boxSize={6} color="purple.600" />
-                <Text fontSize="sm" color="purple.900">New Application</Text>
+                <Flex
+                  w={12}
+                  h={12}
+                  bgGradient={`linear(135deg, ${softTeal}20, ${deepIndigo}10)`}
+                  borderRadius="xl"
+                  align="center"
+                  justify="center"
+                >
+                  <Icon as={MdAdd} boxSize={6} color={softTeal} />
+                </Flex>
+                <Text fontSize="sm" color={deepIndigo} fontWeight="semibold">Grant Writing Genie</Text>
               </Button>
+
               <Button
-                height="80px"
+                h="100px"
                 flexDirection="column"
-                gap={2}
-                variant="outline"
+                gap={3}
                 bg="white"
-                _hover={{ bg: 'purple.100', borderColor: 'purple.400' }}
+                border="2px solid"
+                borderColor="gray.200"
+                borderRadius="xl"
+                _hover={{
+                  borderColor: softTeal,
+                  transform: 'translateY(-4px)',
+                  boxShadow: `0 8px 20px ${softTeal}20`,
+                  bg: 'white',
+                }}
+                transition="all 0.3s"
                 onClick={() => router.push('/compliance-tracker')}
               >
-                <Icon as={MdCheckCircle} boxSize={6} color="purple.600" />
-                <Text fontSize="sm" color="purple.900">Track Compliance</Text>
+                <Flex
+                  w={12}
+                  h={12}
+                  bg="green.100"
+                  borderRadius="xl"
+                  align="center"
+                  justify="center"
+                >
+                  <Icon as={MdCheckCircle} boxSize={6} color="green.600" />
+                </Flex>
+                <Text fontSize="sm" color={deepIndigo} fontWeight="semibold">Track Compliance</Text>
               </Button>
+
               <Button
-                height="80px"
+                h="100px"
                 flexDirection="column"
-                gap={2}
-                variant="outline"
+                gap={3}
                 bg="white"
-                _hover={{ bg: 'purple.100', borderColor: 'purple.400' }}
+                border="2px solid"
+                borderColor="gray.200"
+                borderRadius="xl"
+                _hover={{
+                  borderColor: softTeal,
+                  transform: 'translateY(-4px)',
+                  boxShadow: `0 8px 20px ${softTeal}20`,
+                  bg: 'white',
+                }}
+                transition="all 0.3s"
                 onClick={() => router.push('/reporting')}
               >
-                <Icon as={MdTrendingUp} boxSize={6} color="purple.600" />
-                <Text fontSize="sm" color="purple.900">View Reports</Text>
+                <Flex
+                  w={12}
+                  h={12}
+                  bg={`${deepIndigo}10`}
+                  borderRadius="xl"
+                  align="center"
+                  justify="center"
+                >
+                  <Icon as={MdTrendingUp} boxSize={6} color={deepIndigo} />
+                </Flex>
+                <Text fontSize="sm" color={deepIndigo} fontWeight="semibold">View Reports</Text>
               </Button>
             </SimpleGrid>
           </Card.Body>
         </Card.Root>
 
-        {/* Recent Activity */}
-        <Card.Root>
-          <Card.Header>
+        {/* Recent Activity - Premium Timeline */}
+        <Card.Root
+          bg="white"
+          border="1px solid"
+          borderColor="gray.100"
+          borderRadius="2xl"
+          boxShadow="lg"
+        >
+          <Card.Header p={6}>
             <Flex justify="space-between" align="center">
-              <Heading size="md" color="purple.900">Recent Activity</Heading>
+              <HStack gap={3}>
+                <Flex
+                  w={10}
+                  h={10}
+                  bg={`${deepIndigo}10`}
+                  borderRadius="lg"
+                  align="center"
+                  justify="center"
+                >
+                  <Icon as={MdNotifications} boxSize={5} color={deepIndigo} />
+                </Flex>
+                <Heading size="md" color={deepIndigo}>Recent Activity</Heading>
+              </HStack>
               <Button
                 size="sm"
                 variant="ghost"
+                color={deepIndigo}
+                _hover={{ bg: `${softTeal}10` }}
                 onClick={() => router.push('/notifications')}
               >
-                <Icon as={MdNotifications} mr={2} />
+                <Icon as={MdNotifications} />
                 View All
               </Button>
             </Flex>
           </Card.Header>
-          <Card.Body>
-            <VStack gap={3} align="stretch">
+          <Card.Body p={6} pt={2}>
+            <VStack gap={0} align="stretch">
               {mockRecentActivity.map((activity, index) => (
                 <Box key={activity.id}>
-                  <HStack
-                    p={3}
-                    borderRadius="md"
-                    justify="space-between"
-                    _hover={{ bg: 'purple.50' }}
+                  <Flex
+                    p={4}
+                    borderRadius="lg"
+                    gap={4}
+                    _hover={{ bg: `${softTeal}05` }}
                     transition="all 0.2s"
+                    position="relative"
                   >
-                    <HStack gap={3} flex={1}>
-                      <Flex
-                        w={8}
-                        h={8}
+                    <Flex
+                      w={10}
+                      h={10}
+                      borderRadius="full"
+                      bg={
+                        activity.action.includes('Approved') ? 'green.100' :
+                        activity.action.includes('Submitted') ? `${softTeal}20` :
+                        activity.action.includes('Completed') ? `${deepIndigo}10` : 'gray.100'
+                      }
+                      align="center"
+                      justify="center"
+                      flexShrink={0}
+                      border="3px solid"
+                      borderColor="white"
+                      boxShadow="0 2px 8px rgba(0,0,0,0.1)"
+                    >
+                      <Box
+                        w={3}
+                        h={3}
                         borderRadius="full"
                         bg={
-                          activity.action.includes('Approved') ? 'green.100' :
-                          activity.action.includes('Submitted') ? 'purple.100' :
-                          activity.action.includes('Completed') ? 'purple.100' : 'gray.100'
+                          activity.action.includes('Approved') ? 'green.500' :
+                          activity.action.includes('Submitted') ? softTeal :
+                          activity.action.includes('Completed') ? deepIndigo : 'gray.400'
                         }
-                        align="center"
-                        justify="center"
-                      >
-                        <Box
-                          w={2}
-                          h={2}
-                          borderRadius="full"
-                          bg={
-                            activity.action.includes('Approved') ? 'green.500' :
-                            activity.action.includes('Submitted') ? 'purple.500' :
-                            activity.action.includes('Completed') ? 'purple.500' : 'gray.400'
-                          }
-                        />
-                      </Flex>
+                      />
+                    </Flex>
+                    <Flex flex={1} justify="space-between" align="center" gap={4}>
                       <Box flex={1}>
-                        <Text fontSize="sm" fontWeight="medium" color="purple.900">{activity.action}</Text>
-                        <Text fontSize="xs" color="purple.700">{activity.grant}</Text>
+                        <Text fontSize="md" fontWeight="semibold" color={deepIndigo} mb={1}>
+                          {activity.action}
+                        </Text>
+                        <Text fontSize="sm" color="gray.600">{activity.grant}</Text>
                       </Box>
-                    </HStack>
-                    <VStack gap={0} align="end">
-                      <Text fontSize="xs" color="purple.700" fontWeight="medium">{activity.user}</Text>
-                      <Text fontSize="xs" color="purple.600">{activity.timestamp}</Text>
-                    </VStack>
-                  </HStack>
-                  {index < mockRecentActivity.length - 1 && <Separator />}
+                      <VStack gap={0} align="end" flexShrink={0}>
+                        <Text fontSize="sm" color={deepIndigo} fontWeight="semibold">{activity.user}</Text>
+                        <Text fontSize="xs" color="gray.500">{activity.timestamp}</Text>
+                      </VStack>
+                    </Flex>
+                  </Flex>
+                  {index < mockRecentActivity.length - 1 && (
+                    <Box pl={9}>
+                      <Separator />
+                    </Box>
+                  )}
                 </Box>
               ))}
             </VStack>

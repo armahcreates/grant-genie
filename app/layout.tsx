@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Headspace Genie",
-  description: "AI-powered grant management for modern organizations",
+  title: "HeadspaceGenie.ai — Headspace for humans who lead",
+  description: "The AI Ecosystem for Mission-Driven Leaders. Built to give leaders back their headspace. AI that remembers your mission and automates with heart.",
 };
 
 export default function RootLayout({
