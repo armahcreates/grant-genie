@@ -23,6 +23,7 @@ import {
   Wrap,
 } from '@chakra-ui/react'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import {
   FiSearch,
   FiFilter,
@@ -36,10 +37,20 @@ import MainLayout from '@/components/layout/MainLayout'
 import { mockGrants, type Grant } from '@/lib/mockData'
 
 export default function GrantSearchPage() {
+  const router = useRouter()
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [fundingRange, setFundingRange] = useState([0, 500000])
   const [selectedFilters, setSelectedFilters] = useState<string[]>([])
+  const [bookmarked, setBookmarked] = useState<number[]>([])
+
+  const toggleBookmark = (grantId: number) => {
+    setBookmarked(prev =>
+      prev.includes(grantId)
+        ? prev.filter(id => id !== grantId)
+        : [...prev, grantId]
+    )
+  }
 
   // Filter grants based on search query and category
   const filteredGrants = mockGrants.filter((grant) => {
@@ -212,8 +223,8 @@ export default function GrantSearchPage() {
               <Card.Root
                 key={grant.id}
                 cursor="pointer"
-                _hover={{ bg: 'gray.50' }}
-                transition="all 0.2s"
+                _hover={{ bg: 'purple.50', transform: 'translateY(-2px)', boxShadow: 'lg' }}
+                transition="all 0.3s"
               >
                 <Card.Body>
                   <VStack gap={4} align="stretch">
@@ -299,10 +310,11 @@ export default function GrantSearchPage() {
                       <VStack gap={2} ml={4}>
                         <IconButton
                           aria-label="Bookmark grant"
-                          variant="ghost"
+                          variant={bookmarked.includes(grant.id) ? 'solid' : 'ghost'}
                           colorScheme="purple"
+                          onClick={() => toggleBookmark(grant.id)}
                         >
-                          <Icon as={FiBookmark} />
+                          <Icon as={FiBookmark} fill={bookmarked.includes(grant.id) ? 'currentColor' : 'none'} />
                         </IconButton>
                       </VStack>
                     </Flex>
@@ -310,10 +322,14 @@ export default function GrantSearchPage() {
                     <Separator />
 
                     <HStack justify="flex-end" gap={3}>
-                      <Button variant="outline" size="sm">
+                      <Button variant="outline" size="sm" colorScheme="purple">
                         View Details
                       </Button>
-                      <Button colorScheme="purple" size="sm">
+                      <Button
+                        colorScheme="purple"
+                        size="sm"
+                        onClick={() => router.push('/grant-application')}
+                      >
                         Start Application
                       </Button>
                     </HStack>

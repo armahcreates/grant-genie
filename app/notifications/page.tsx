@@ -133,7 +133,8 @@ export default function NotificationsPage() {
                     key={notification.id}
                     borderLeft="4px solid"
                     borderLeftColor={`${getNotificationColor(notification.type)}.500`}
-                    _hover={{ bg: 'gray.50' }}
+                    _hover={{ bg: 'purple.50', transform: 'translateX(4px)' }}
+                    transition="all 0.2s"
                     cursor="pointer"
                   >
                     <Card.Body>
@@ -185,7 +186,8 @@ export default function NotificationsPage() {
                     key={notification.id}
                     borderLeft="4px solid"
                     borderLeftColor={`${getNotificationColor(notification.type)}.500`}
-                    _hover={{ bg: 'gray.50' }}
+                    _hover={{ bg: 'purple.50', transform: 'translateX(4px)' }}
+                    transition="all 0.2s"
                     cursor="pointer"
                   >
                     <Card.Body>
