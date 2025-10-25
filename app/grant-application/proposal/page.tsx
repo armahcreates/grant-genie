@@ -49,8 +49,8 @@ export default function GrantProposalPage() {
       await generateProposal({
         projectName: formData.projectName,
         funderName: formData.funderName,
-        fundingAmount: formData.grantAmount,
-        deadline: formData.fundingDeadline,
+        fundingAmount: formData.fundingAmount,
+        deadline: formData.deadline,
         rfpText: formData.rfpText,
         teachingMaterials: formData.teachingMaterials,
       })
@@ -178,7 +178,7 @@ export default function GrantProposalPage() {
                   <Card.Body p={8}>
                     {isGenerating ? (
                       <VStack gap={6} py={12} align="center">
-                        <Spinner size="xl" color="purple.600" thickness="4px" />
+                        <Spinner size="xl" color="purple.600" />
                         <VStack gap={2}>
                           <Heading size="lg" color="purple.900">
                             Generating Your Grant Proposal
@@ -257,7 +257,7 @@ export default function GrantProposalPage() {
                       variant="outline"
                       colorScheme="purple"
                       onClick={handleRegenerate}
-                      isDisabled={isGenerating}
+                      disabled={isGenerating}
                     >
                       <Icon as={FiRefreshCw} mr={2} />
                       Regenerate

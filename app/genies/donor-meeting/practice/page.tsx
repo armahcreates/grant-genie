@@ -297,12 +297,12 @@ export default function DonorMeetingPracticePage() {
                               handleSendMessage()
                             }
                           }}
-                          isDisabled={isProcessing}
+                          disabled={isProcessing}
                         />
                         <Button
                           colorScheme="purple"
                           onClick={handleSendMessage}
-                          isDisabled={isProcessing || !userMessage.trim()}
+                          disabled={isProcessing || !userMessage.trim()}
                         >
                           <Icon as={FiSend} mr={2} />
                           {isProcessing ? 'Sending...' : 'Send'}

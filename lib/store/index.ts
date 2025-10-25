@@ -115,8 +115,13 @@ interface DonorGenieState {
   sessionConfig: {
     donorProfile: string
     donorType: string
+    warmthLevel?: string
     warmthFactor: string
+    practiceMode?: string
     practiceFormat: string
+    objections?: string
+    anticipatedObjections?: string[]
+    useKnowledgeBase?: boolean
   }
   conversationHistory: Array<{ role: 'user' | 'assistant'; content: string }>
   coachingTips: string[]

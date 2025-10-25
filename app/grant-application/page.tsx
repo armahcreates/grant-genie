@@ -115,7 +115,7 @@ export default function GrantGeniePage() {
                         placeholder="Or paste foundation's request for proposals, guidelines, and strategic priorities..."
                         rows={6}
                         value={formData.rfpText}
-                        onChange={(e) => setFormData(prev => ({ ...prev, rfpText: e.target.value }))}
+                        onChange={(e) => setFormData({ rfpText: e.target.value })}
                       />
                       <Text fontSize="xs" color="purple.600">
                         (Paste the content or describe in text box)
@@ -164,7 +164,7 @@ export default function GrantGeniePage() {
                         placeholder="Uploaded grants, reports, or narratives that shows HOW you write. Paste here or upload above..."
                         rows={6}
                         value={formData.teachingMaterials}
-                        onChange={(e) => setFormData(prev => ({ ...prev, teachingMaterials: e.target.value }))}
+                        onChange={(e) => setFormData({ teachingMaterials: e.target.value })}
                       />
                     </VStack>
                   </Card.Body>
@@ -237,7 +237,7 @@ export default function GrantGeniePage() {
                         <Input
                           placeholder="Enter project name"
                           value={formData.projectName}
-                          onChange={(e) => setFormData(prev => ({ ...prev, projectName: e.target.value }))}
+                          onChange={(e) => setFormData({ projectName: e.target.value })}
                         />
                       </VStack>
 
@@ -249,7 +249,7 @@ export default function GrantGeniePage() {
                         <Input
                           placeholder="Optional"
                           value={formData.funderName}
-                          onChange={(e) => setFormData(prev => ({ ...prev, funderName: e.target.value }))}
+                          onChange={(e) => setFormData({ funderName: e.target.value })}
                         />
                       </VStack>
 
@@ -258,34 +258,10 @@ export default function GrantGeniePage() {
                         <Text fontWeight="semibold" color="purple.900">
                           Funding Deadline
                         </Text>
-                        <select
-                          style={{
-                            width: '100%',
-                            padding: '0.5rem',
-                            borderRadius: '0.375rem',
-                            border: '1px solid #E2E8F0',
-                          }}
-                          value={formData.fundingDeadline}
-                          onChange={(e) => setFormData(prev => ({ ...prev, fundingDeadline: e.target.value }))}
-                        >
-                          <option value="">Any category</option>
-                          <option value="immediate">Immediate (Within 30 days)</option>
-                          <option value="1-3months">1-3 months</option>
-                          <option value="3-6months">3-6 months</option>
-                          <option value="6-12months">6-12 months</option>
-                          <option value="1year+">1 year+</option>
-                        </select>
-                      </VStack>
-
-                      {/* Focus Area or Keywords */}
-                      <VStack align="start" gap={2}>
-                        <Text fontWeight="semibold" color="purple.900">
-                          Focus Area or Keywords
-                        </Text>
                         <Input
-                          placeholder="e.g., Education, Youth Development"
-                          value={formData.focusArea}
-                          onChange={(e) => setFormData(prev => ({ ...prev, focusArea: e.target.value }))}
+                          type="date"
+                          value={formData.deadline}
+                          onChange={(e) => setFormData({ deadline: e.target.value })}
                         />
                       </VStack>
 
@@ -296,8 +272,8 @@ export default function GrantGeniePage() {
                         </Text>
                         <Input
                           placeholder="$50,000"
-                          value={formData.grantAmount}
-                          onChange={(e) => setFormData(prev => ({ ...prev, grantAmount: e.target.value }))}
+                          value={formData.fundingAmount}
+                          onChange={(e) => setFormData({ fundingAmount: e.target.value })}
                         />
                       </VStack>
                     </VStack>
@@ -369,7 +345,7 @@ export default function GrantGeniePage() {
                 colorScheme="purple"
                 px={12}
                 onClick={handleGenerate}
-                isDisabled={isGenerating}
+                disabled={isGenerating}
               >
                 {isGenerating ? (
                   <>
