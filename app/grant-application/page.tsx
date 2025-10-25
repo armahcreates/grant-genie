@@ -5,9 +5,7 @@ import {
   Container,
   Heading,
   Text,
-  Field,
   Input,
-  Textarea,
   Button,
   VStack,
   HStack,
@@ -15,735 +13,389 @@ import {
   Icon,
   Card,
   Badge,
-  Flex,
-  IconButton,
-  Progress,
+  Textarea,
 } from '@chakra-ui/react'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import {
-  FiZap,
+  FiUpload,
   FiFileText,
-  FiEdit3,
-  FiCheck,
-  FiRefreshCw,
-  FiTrendingUp,
-  FiClock,
-  FiTarget,
-  FiSave,
-  FiDownload,
-  FiInfo,
+  FiArrowRight,
+  FiLoader,
 } from 'react-icons/fi'
 import MainLayout from '@/components/layout/MainLayout'
 
-export default function GrantWritingGeniePage() {
-  const [currentSection, setCurrentSection] = useState(0)
-  const [aiAssisting, setAiAssisting] = useState(false)
+export default function GrantGeniePage() {
+  const router = useRouter()
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [error, setError] = useState('')
+  const [formData, setFormData] = useState({
+    rfpText: '',
+    teachingMaterials: '',
+    projectName: '',
+    funderName: '',
+    fundingDeadline: '',
+    focusArea: '',
+    grantAmount: '',
+  })
 
-  // Color palette
-  const deepIndigo = '#3C3B6E'
-  const softTeal = '#5CE1E6'
+  const handleGenerate = async () => {
+    // Basic validation
+    if (!formData.projectName || !formData.funderName) {
+      setError('Project Name and Funder Name are required')
+      return
+    }
 
-  const sections = [
-    { id: 'overview', title: 'Project Overview', icon: FiFileText, progress: 80 },
-    { id: 'narrative', title: 'Project Narrative', icon: FiEdit3, progress: 60 },
-    { id: 'budget', title: 'Budget & Justification', icon: FiTrendingUp, progress: 40 },
-    { id: 'impact', title: 'Impact & Evaluation', icon: FiTarget, progress: 20 },
-    { id: 'timeline', title: 'Timeline & Milestones', icon: FiClock, progress: 0 },
-  ]
+    setIsGenerating(true)
+    setError('')
 
-  const handleAiSuggest = () => {
-    setAiAssisting(true)
-    // Simulate AI processing
-    setTimeout(() => setAiAssisting(false), 2000)
+    try {
+      // Store form data in sessionStorage for the proposal page
+      sessionStorage.setItem('grantFormData', JSON.stringify(formData))
+
+      // Navigate to proposal page which will generate the content
+      router.push('/grant-application/proposal')
+    } catch (err) {
+      setError('Failed to start generation. Please try again.')
+      setIsGenerating(false)
+    }
   }
 
   return (
     <MainLayout>
-      <Container maxW="container.xl" py={8}>
-        <VStack gap={8} align="stretch">
-          {/* Header */}
-          <Box>
-            <HStack gap={3} mb={3}>
-              <Flex
-                w={12}
-                h={12}
-                bgGradient={`linear(135deg, ${deepIndigo}, ${softTeal})`}
-                borderRadius="xl"
-                align="center"
-                justify="center"
-                boxShadow={`0 4px 15px ${softTeal}30`}
-              >
-                <Icon as={FiZap} color="white" boxSize={6} />
-              </Flex>
-              <VStack align="start" gap={0}>
-                <Heading size="lg" color={deepIndigo}>
-                  Grant Writing Genie 🪶
+      <Box minH="100vh" bg="purple.50">
+        <Container maxW="container.xl" py={8}>
+          <VStack gap={8} align="stretch">
+            {/* Header */}
+            <HStack justify="space-between">
+              <VStack align="start" gap={1}>
+                <Heading size="xl" color="purple.900">
+                  Grant Genie
                 </Heading>
-                <Text color="gray.600" fontSize="sm">
-                  Your AI partner for compelling grant proposals
+                <Text color="purple.700">
+                  Make it yours and collaborate
                 </Text>
               </VStack>
+              <Badge colorScheme="purple" fontSize="sm" px={3} py={1}>
+                Step 1 of 1
+              </Badge>
             </HStack>
 
-            <HStack gap={3} flexWrap="wrap">
-              <Badge
-                bg={`${softTeal}20`}
-                color={deepIndigo}
-                px={3}
-                py={1}
-                borderRadius="full"
-                fontSize="xs"
-                fontWeight="semibold"
-              >
-                Draft in Progress
-              </Badge>
-              <Badge
-                bg="green.50"
-                color="green.700"
-                px={3}
-                py={1}
-                borderRadius="full"
-                fontSize="xs"
-                fontWeight="semibold"
-              >
-                Auto-saved 2 mins ago
-              </Badge>
-              <Text fontSize="sm" color="gray.500">
-                Last edited by you
-              </Text>
-            </HStack>
-          </Box>
-
-          {/* Progress Bar */}
-          <Card.Root
-            bgGradient={`linear(135deg, ${deepIndigo}05, ${softTeal}05)`}
-            border="1px solid"
-            borderColor={`${softTeal}30`}
-          >
-            <Card.Body p={6}>
-              <VStack gap={4}>
-                <HStack justify="space-between" w="full">
-                  <VStack align="start" gap={1}>
-                    <Text fontWeight="semibold" color={deepIndigo}>
-                      Overall Progress
+            <SimpleGrid columns={{ base: 1, lg: 2 }} gap={8}>
+              {/* Left Column - Upload & Teaching */}
+              <VStack gap={6} align="stretch">
+                {/* Upload Grant Materials */}
+                <Card.Root>
+                  <Card.Header>
+                    <Heading size="md" color="purple.900">
+                      📄 Upload Grant Materials
+                    </Heading>
+                    <Text fontSize="sm" color="purple.700" mt={2}>
+                      Upload RFP or Guidelines, or paste the content in text box
                     </Text>
-                    <Text fontSize="sm" color="gray.600">
-                      You're making great progress! Keep going.
-                    </Text>
-                  </VStack>
-                  <Heading size="2xl" color={softTeal}>
-                    45%
-                  </Heading>
-                </HStack>
-                <Progress.Root value={45} w="full" h={3} borderRadius="full">
-                  <Progress.Track bg="gray.100">
-                    <Progress.Range bgGradient={`linear(to-r, ${deepIndigo}, ${softTeal})`} />
-                  </Progress.Track>
-                </Progress.Root>
-              </VStack>
-            </Card.Body>
-          </Card.Root>
-
-          {/* Main Content Grid */}
-          <SimpleGrid columns={{ base: 1, lg: 12 }} gap={8}>
-            {/* Sidebar - Section Navigation */}
-            <VStack gap={4} gridColumn={{ lg: 'span 4' }} align="stretch">
-              <Text fontWeight="semibold" color={deepIndigo} fontSize="sm" textTransform="uppercase" letterSpacing="wide">
-                Grant Sections
-              </Text>
-
-              {sections.map((section, index) => (
-                <Card.Root
-                  key={section.id}
-                  cursor="pointer"
-                  border="2px solid"
-                  borderColor={currentSection === index ? softTeal : 'gray.200'}
-                  bg={currentSection === index ? `${softTeal}05` : 'white'}
-                  _hover={{
-                    borderColor: softTeal,
-                    transform: 'translateX(4px)',
-                  }}
-                  transition="all 0.2s"
-                  onClick={() => setCurrentSection(index)}
-                >
-                  <Card.Body p={4}>
-                    <HStack justify="space-between">
-                      <HStack gap={3}>
-                        <Flex
-                          w={10}
-                          h={10}
-                          bg={currentSection === index ? `${softTeal}20` : 'gray.50'}
-                          borderRadius="lg"
-                          align="center"
-                          justify="center"
-                        >
-                          <Icon
-                            as={section.icon}
-                            boxSize={5}
-                            color={currentSection === index ? softTeal : 'gray.500'}
-                          />
-                        </Flex>
-                        <VStack align="start" gap={0}>
-                          <Text
-                            fontWeight={currentSection === index ? 'bold' : 'medium'}
-                            color={currentSection === index ? deepIndigo : 'gray.700'}
-                            fontSize="sm"
-                          >
-                            {section.title}
+                  </Card.Header>
+                  <Card.Body>
+                    <VStack gap={4} align="stretch">
+                      {/* Upload Area */}
+                      <Box
+                        p={8}
+                        border="2px dashed"
+                        borderColor="purple.300"
+                        borderRadius="lg"
+                        bg="purple.50"
+                        cursor="pointer"
+                        textAlign="center"
+                        _hover={{ borderColor: 'purple.400', bg: 'purple.100' }}
+                        transition="all 0.2s"
+                      >
+                        <VStack gap={3}>
+                          <Icon as={FiUpload} boxSize={10} color="purple.600" />
+                          <Text color="purple.900" fontWeight="medium">
+                            Drop RFP or Guidelines here
                           </Text>
-                          <Text fontSize="xs" color="gray.500">
-                            {section.progress}% complete
+                          <Text fontSize="sm" color="purple.600">
+                            Or paste the content in text box
                           </Text>
                         </VStack>
-                      </HStack>
-                      {section.progress === 100 && (
-                        <Icon as={FiCheck} color="green.500" boxSize={5} />
-                      )}
-                    </HStack>
-                    <Progress.Root value={section.progress} mt={3} h={2} borderRadius="full">
-                      <Progress.Track bg="gray.100">
-                        <Progress.Range bg={softTeal} />
-                      </Progress.Track>
-                    </Progress.Root>
+                      </Box>
+
+                      {/* Text Input Alternative */}
+                      <Textarea
+                        placeholder="Or paste foundation's request for proposals, guidelines, and strategic priorities..."
+                        rows={6}
+                        value={formData.rfpText}
+                        onChange={(e) => setFormData(prev => ({ ...prev, rfpText: e.target.value }))}
+                      />
+                      <Text fontSize="xs" color="purple.600">
+                        (Paste the content or describe in text box)
+                      </Text>
+                    </VStack>
                   </Card.Body>
                 </Card.Root>
-              ))}
 
-              {/* AI Assistant Panel */}
-              <Card.Root
-                bgGradient={`linear(135deg, ${deepIndigo}, #2D2C5A)`}
-                color="white"
-                mt={4}
-              >
-                <Card.Body p={6}>
-                  <VStack gap={4} align="start">
-                    <HStack gap={2}>
-                      <Icon as={FiInfo} boxSize={6} color={softTeal} />
-                      <Text fontWeight="bold" fontSize="lg">
-                        AI Writing Tips
-                      </Text>
-                    </HStack>
-                    <Text fontSize="sm" lineHeight="tall" color="gray.200">
-                      • Use specific metrics and data to strengthen your narrative
+                {/* Teach the Grant Genie */}
+                <Card.Root>
+                  <Card.Header>
+                    <Heading size="md" color="purple.900">
+                      💡 Teach the Grant Genie
+                    </Heading>
+                    <Text fontSize="sm" color="purple.700" mt={2}>
+                      Upload your own past grants and teach the Genie HOW you write
                     </Text>
-                    <Text fontSize="sm" lineHeight="tall" color="gray.200">
-                      • Align your language with the funder's mission
-                    </Text>
-                    <Text fontSize="sm" lineHeight="tall" color="gray.200">
-                      • Show clear cause-and-effect relationships
-                    </Text>
-                    <Button
-                      size="sm"
-                      bg={softTeal}
-                      color="white"
-                      w="full"
-                      _hover={{ bg: '#4BC5CC' }}
-                    >
-                      Get More Tips
-                    </Button>
-                  </VStack>
-                </Card.Body>
-              </Card.Root>
-            </VStack>
-
-            {/* Main Editor Area */}
-            <VStack gap={6} gridColumn={{ lg: 'span 8' }} align="stretch">
-              {/* Editor Header */}
-              <HStack justify="space-between" flexWrap="wrap" gap={4}>
-                <VStack align="start" gap={1}>
-                  <Heading size="md" color={deepIndigo}>
-                    {sections[currentSection].title}
-                  </Heading>
-                  <Text fontSize="sm" color="gray.600">
-                    Let the Genie help you craft a compelling narrative
-                  </Text>
-                </VStack>
-                <HStack gap={2}>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    borderColor="gray.300"
-                  >
-                    <Icon as={FiSave} />
-                    Save Draft
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    borderColor="gray.300"
-                  >
-                    <Icon as={FiDownload} />
-                    Export
-                  </Button>
-                </HStack>
-              </HStack>
-
-              {/* AI Action Bar */}
-              <Card.Root bg={`${deepIndigo}05`} border="1px solid" borderColor={`${softTeal}30`}>
-                <Card.Body p={4}>
-                  <HStack gap={3} flexWrap="wrap">
-                    <Text fontSize="sm" fontWeight="semibold" color={deepIndigo}>
-                      AI Actions:
-                    </Text>
-                    <Button
-                      size="sm"
-                      bg={softTeal}
-                      color="white"
-                      onClick={handleAiSuggest}
-                      loading={aiAssisting}
-                      _hover={{ bg: '#4BC5CC' }}
-                    >
-                      <Icon as={FiZap} />
-                      AI Suggest
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      borderColor={softTeal}
-                      color={deepIndigo}
-                    >
-                      <Icon as={FiRefreshCw} />
-                      Rephrase
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      borderColor={softTeal}
-                      color={deepIndigo}
-                    >
-                      <Icon as={FiTrendingUp} />
-                      Enhance
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      borderColor={softTeal}
-                      color={deepIndigo}
-                    >
-                      <Icon as={FiCheck} />
-                      Tone Check
-                    </Button>
-                  </HStack>
-                </Card.Body>
-              </Card.Root>
-
-              {/* Dynamic Content Based on Section */}
-              {currentSection === 0 && (
-                <VStack gap={6} align="stretch">
-                  <Card.Root>
-                    <Card.Body p={6}>
-                      <VStack gap={6} align="stretch">
-                        <Field.Root>
-                          <Field.Label color={deepIndigo} fontWeight="semibold" fontSize="md">
-                            Project Title
-                          </Field.Label>
-                          <Input
-                            placeholder="Enter a compelling project title..."
-                            size="lg"
-                            _focus={{ borderColor: softTeal }}
-                          />
-                          <Text fontSize="xs" color="gray.500" mt={2}>
-                            💡 Tip: Make it action-oriented and specific
+                  </Card.Header>
+                  <Card.Body>
+                    <VStack gap={4} align="stretch">
+                      {/* Upload Area */}
+                      <Box
+                        p={8}
+                        border="2px dashed"
+                        borderColor="purple.300"
+                        borderRadius="lg"
+                        bg="white"
+                        cursor="pointer"
+                        textAlign="center"
+                        _hover={{ borderColor: 'purple.400', bg: 'purple.50' }}
+                        transition="all 0.2s"
+                      >
+                        <VStack gap={3}>
+                          <Icon as={FiFileText} boxSize={10} color="purple.600" />
+                          <Text color="purple.900" fontWeight="medium">
+                            Upload grants, reports, or narratives
                           </Text>
-                        </Field.Root>
-
-                        <Field.Root>
-                          <Field.Label color={deepIndigo} fontWeight="semibold" fontSize="md">
-                            Organization Name
-                          </Field.Label>
-                          <Input
-                            placeholder="Your organization's name"
-                            size="lg"
-                            _focus={{ borderColor: softTeal }}
-                          />
-                        </Field.Root>
-
-                        <SimpleGrid columns={{ base: 1, md: 2 }} gap={6}>
-                          <Field.Root>
-                            <Field.Label color={deepIndigo} fontWeight="semibold" fontSize="md">
-                              Grant Category
-                            </Field.Label>
-                            <Input
-                              placeholder="e.g., Education, Healthcare"
-                              _focus={{ borderColor: softTeal }}
-                            />
-                          </Field.Root>
-
-                          <Field.Root>
-                            <Field.Label color={deepIndigo} fontWeight="semibold" fontSize="md">
-                              Funding Amount Requested
-                            </Field.Label>
-                            <Input
-                              placeholder="$0"
-                              type="number"
-                              _focus={{ borderColor: softTeal }}
-                            />
-                          </Field.Root>
-                        </SimpleGrid>
-
-                        <Field.Root>
-                          <Field.Label color={deepIndigo} fontWeight="semibold" fontSize="md">
-                            Executive Summary
-                          </Field.Label>
-                          <Textarea
-                            placeholder="Start writing your executive summary, or ask the AI to help you draft it..."
-                            rows={6}
-                            _focus={{ borderColor: softTeal }}
-                          />
-                          <HStack mt={2} gap={2}>
-                            <Button
-                              size="xs"
-                              variant="ghost"
-                              color={softTeal}
-                            >
-                              <Icon as={FiZap} />
-                              AI Draft
-                            </Button>
-                            <Text fontSize="xs" color="gray.400">•</Text>
-                            <Text fontSize="xs" color="gray.500">
-                              0 / 500 words recommended
-                            </Text>
-                          </HStack>
-                        </Field.Root>
-                      </VStack>
-                    </Card.Body>
-                  </Card.Root>
-
-                  {/* AI Suggestions Card */}
-                  <Card.Root border="2px solid" borderColor={`${softTeal}40`} bg={`${softTeal}05`}>
-                    <Card.Body p={6}>
-                      <VStack gap={4} align="start">
-                        <HStack gap={2}>
-                          <Icon as={FiInfo} color={softTeal} boxSize={5} />
-                          <Text fontWeight="bold" color={deepIndigo}>
-                            AI Suggestion
-                          </Text>
-                        </HStack>
-                        <Text color="gray.700" lineHeight="tall">
-                          Based on your organization's mission, I recommend emphasizing the community impact in your executive summary. Would you like me to help draft language that highlights how this project serves underrepresented populations?
-                        </Text>
-                        <HStack gap={3}>
-                          <Button
-                            size="sm"
-                            bg={softTeal}
-                            color="white"
-                            _hover={{ bg: '#4BC5CC' }}
-                          >
-                            Apply Suggestion
-                          </Button>
-                          <Button size="sm" variant="outline" borderColor="gray.300">
-                            Dismiss
-                          </Button>
-                        </HStack>
-                      </VStack>
-                    </Card.Body>
-                  </Card.Root>
-                </VStack>
-              )}
-
-              {currentSection === 1 && (
-                <VStack gap={6} align="stretch">
-                  <Card.Root>
-                    <Card.Body p={6}>
-                      <VStack gap={6} align="stretch">
-                        <Field.Root>
-                          <Field.Label color={deepIndigo} fontWeight="semibold" fontSize="md">
-                            Problem Statement
-                          </Field.Label>
-                          <Textarea
-                            placeholder="Describe the problem your project addresses..."
-                            rows={8}
-                            _focus={{ borderColor: softTeal }}
-                          />
-                          <HStack mt={2} justify="space-between">
-                            <HStack gap={2}>
-                              <Button
-                                size="xs"
-                                variant="ghost"
-                                color={softTeal}
-                              >
-                                <Icon as={FiZap} />
-                                Strengthen with Data
-                              </Button>
-                              <Button
-                                size="xs"
-                                variant="ghost"
-                                color={softTeal}
-                              >
-                                <Icon as={FiRefreshCw} />
-                                Rephrase
-                              </Button>
-                            </HStack>
-                            <Text fontSize="xs" color="gray.500">
-                              156 / 800 words
-                            </Text>
-                          </HStack>
-                        </Field.Root>
-
-                        <Field.Root>
-                          <Field.Label color={deepIndigo} fontWeight="semibold" fontSize="md">
-                            Proposed Solution
-                          </Field.Label>
-                          <Textarea
-                            placeholder="Explain how your project will solve the problem..."
-                            rows={8}
-                            _focus={{ borderColor: softTeal }}
-                          />
-                        </Field.Root>
-
-                        <Field.Root>
-                          <Field.Label color={deepIndigo} fontWeight="semibold" fontSize="md">
-                            Innovation & Approach
-                          </Field.Label>
-                          <Textarea
-                            placeholder="What makes your approach unique and effective?"
-                            rows={6}
-                            _focus={{ borderColor: softTeal }}
-                          />
-                        </Field.Root>
-                      </VStack>
-                    </Card.Body>
-                  </Card.Root>
-
-                  {/* Tone Analysis Card */}
-                  <Card.Root border="1px solid" borderColor="green.200" bg="green.50">
-                    <Card.Body p={6}>
-                      <HStack gap={3}>
-                        <Icon as={FiCheck} color="green.600" boxSize={5} />
-                        <VStack align="start" gap={1} flex={1}>
-                          <Text fontWeight="bold" color="green.800">
-                            Tone Analysis: Excellent Match
-                          </Text>
-                          <Text fontSize="sm" color="green.700">
-                            Your writing style aligns well with the funder's values. The narrative is clear, empathetic, and data-driven.
+                          <Text fontSize="sm" color="purple.600">
+                            that shows HOW you write
                           </Text>
                         </VStack>
-                      </HStack>
-                    </Card.Body>
-                  </Card.Root>
-                </VStack>
-              )}
+                      </Box>
 
-              {currentSection === 2 && (
-                <VStack gap={6} align="stretch">
-                  <Card.Root>
-                    <Card.Body p={6}>
-                      <VStack gap={6} align="stretch">
-                        <Text color={deepIndigo} fontWeight="semibold">
-                          Budget Breakdown
+                      {/* Text Input Alternative */}
+                      <Textarea
+                        placeholder="Uploaded grants, reports, or narratives that shows HOW you write. Paste here or upload above..."
+                        rows={6}
+                        value={formData.teachingMaterials}
+                        onChange={(e) => setFormData(prev => ({ ...prev, teachingMaterials: e.target.value }))}
+                      />
+                    </VStack>
+                  </Card.Body>
+                </Card.Root>
+
+                {/* Knowledge Capture */}
+                <Card.Root bg="purple.50" border="1px solid" borderColor="purple.200">
+                  <Card.Header>
+                    <Heading size="sm" color="purple.900">
+                      📚 Knowledge Capture
+                    </Heading>
+                  </Card.Header>
+                  <Card.Body>
+                    <Text fontSize="sm" color="purple.700" lineHeight="tall">
+                      Grant the proposal will use all the context to learn your writing style and the funder's priorities. Share as much as you can OR AVOID guidance and opt to control your grant style.
+                    </Text>
+                  </Card.Body>
+                </Card.Root>
+
+                {/* Talk to the Genie */}
+                <Card.Root bg="purple.50" border="1px solid" borderColor="purple.200">
+                  <Card.Header>
+                    <Heading size="sm" color="purple.900">
+                      💬 Talk to the Genie
+                    </Heading>
+                  </Card.Header>
+                  <Card.Body>
+                    <VStack gap={3} align="stretch">
+                      <Text fontSize="sm" color="purple.700">
+                        Ask one reflective or question to the Genie to customize:
+                      </Text>
+                      <Box
+                        p={3}
+                        bg="white"
+                        borderRadius="lg"
+                        border="1px solid"
+                        borderColor="purple.200"
+                      >
+                        <Text fontSize="sm" color="purple.900" fontStyle="italic">
+                          e.g., "How can I incorporate data-driven evidence into my problem statement?"
                         </Text>
+                      </Box>
+                      <Textarea
+                        placeholder="Remember that Smith Foundation prefers concise strategic metrics over general statements..."
+                        rows={3}
+                      />
+                    </VStack>
+                  </Card.Body>
+                </Card.Root>
+              </VStack>
 
-                        <SimpleGrid columns={{ base: 1, md: 2 }} gap={6}>
-                          <Field.Root>
-                            <Field.Label color={deepIndigo} fontSize="sm">
-                              Personnel Costs
-                            </Field.Label>
-                            <Input
-                              placeholder="$0"
-                              type="number"
-                              _focus={{ borderColor: softTeal }}
-                            />
-                          </Field.Root>
+              {/* Right Column - Project Context */}
+              <VStack gap={6} align="stretch">
+                <Card.Root>
+                  <Card.Header>
+                    <Heading size="md" color="purple.900">
+                      🎯 Project Context Fields
+                    </Heading>
+                    <Text fontSize="sm" color="purple.700" mt={2}>
+                      Provide the essential details for your grant proposal
+                    </Text>
+                  </Card.Header>
+                  <Card.Body>
+                    <VStack gap={6} align="stretch">
+                      {/* Project/Program Name */}
+                      <VStack align="start" gap={2}>
+                        <Text fontWeight="semibold" color="purple.900">
+                          Project/Program Name
+                        </Text>
+                        <Input
+                          placeholder="Enter project name"
+                          value={formData.projectName}
+                          onChange={(e) => setFormData(prev => ({ ...prev, projectName: e.target.value }))}
+                        />
+                      </VStack>
 
-                          <Field.Root>
-                            <Field.Label color={deepIndigo} fontSize="sm">
-                              Equipment & Supplies
-                            </Field.Label>
-                            <Input
-                              placeholder="$0"
-                              type="number"
-                              _focus={{ borderColor: softTeal }}
-                            />
-                          </Field.Root>
+                      {/* Funder Name */}
+                      <VStack align="start" gap={2}>
+                        <Text fontWeight="semibold" color="purple.900">
+                          Funder Name
+                        </Text>
+                        <Input
+                          placeholder="Optional"
+                          value={formData.funderName}
+                          onChange={(e) => setFormData(prev => ({ ...prev, funderName: e.target.value }))}
+                        />
+                      </VStack>
 
-                          <Field.Root>
-                            <Field.Label color={deepIndigo} fontSize="sm">
-                              Travel & Training
-                            </Field.Label>
-                            <Input
-                              placeholder="$0"
-                              type="number"
-                              _focus={{ borderColor: softTeal }}
-                            />
-                          </Field.Root>
-
-                          <Field.Root>
-                            <Field.Label color={deepIndigo} fontSize="sm">
-                              Indirect Costs
-                            </Field.Label>
-                            <Input
-                              placeholder="$0"
-                              type="number"
-                              _focus={{ borderColor: softTeal }}
-                            />
-                          </Field.Root>
-                        </SimpleGrid>
-
-                        <Box
-                          p={4}
-                          bg={`${softTeal}10`}
-                          borderRadius="lg"
-                          border="1px solid"
-                          borderColor={`${softTeal}30`}
+                      {/* Funding Deadline */}
+                      <VStack align="start" gap={2}>
+                        <Text fontWeight="semibold" color="purple.900">
+                          Funding Deadline
+                        </Text>
+                        <select
+                          style={{
+                            width: '100%',
+                            padding: '0.5rem',
+                            borderRadius: '0.375rem',
+                            border: '1px solid #E2E8F0',
+                          }}
+                          value={formData.fundingDeadline}
+                          onChange={(e) => setFormData(prev => ({ ...prev, fundingDeadline: e.target.value }))}
                         >
-                          <HStack justify="space-between">
-                            <Text fontWeight="bold" color={deepIndigo}>
-                              Total Budget
-                            </Text>
-                            <Heading size="lg" color={softTeal}>
-                              $0
-                            </Heading>
-                          </HStack>
-                        </Box>
-
-                        <Field.Root>
-                          <Field.Label color={deepIndigo} fontWeight="semibold" fontSize="md">
-                            Budget Justification
-                          </Field.Label>
-                          <Textarea
-                            placeholder="Explain how each budget category supports your project goals..."
-                            rows={8}
-                            _focus={{ borderColor: softTeal }}
-                          />
-                          <HStack mt={2}>
-                            <Button
-                              size="xs"
-                              variant="ghost"
-                              color={softTeal}
-                            >
-                              <Icon as={FiZap} />
-                              AI Generate Justification
-                            </Button>
-                          </HStack>
-                        </Field.Root>
+                          <option value="">Any category</option>
+                          <option value="immediate">Immediate (Within 30 days)</option>
+                          <option value="1-3months">1-3 months</option>
+                          <option value="3-6months">3-6 months</option>
+                          <option value="6-12months">6-12 months</option>
+                          <option value="1year+">1 year+</option>
+                        </select>
                       </VStack>
-                    </Card.Body>
-                  </Card.Root>
-                </VStack>
-              )}
 
-              {currentSection === 3 && (
-                <VStack gap={6} align="stretch">
-                  <Card.Root>
-                    <Card.Body p={6}>
-                      <VStack gap={6} align="stretch">
-                        <Field.Root>
-                          <Field.Label color={deepIndigo} fontWeight="semibold" fontSize="md">
-                            Expected Outcomes
-                          </Field.Label>
-                          <Textarea
-                            placeholder="Describe the measurable outcomes you expect to achieve..."
-                            rows={6}
-                            _focus={{ borderColor: softTeal }}
-                          />
-                        </Field.Root>
-
-                        <Field.Root>
-                          <Field.Label color={deepIndigo} fontWeight="semibold" fontSize="md">
-                            Evaluation Methods
-                          </Field.Label>
-                          <Textarea
-                            placeholder="How will you measure success and track progress?"
-                            rows={6}
-                            _focus={{ borderColor: softTeal }}
-                          />
-                        </Field.Root>
-
-                        <Field.Root>
-                          <Field.Label color={deepIndigo} fontWeight="semibold" fontSize="md">
-                            Long-term Sustainability
-                          </Field.Label>
-                          <Textarea
-                            placeholder="Explain how the project will continue beyond the grant period..."
-                            rows={6}
-                            _focus={{ borderColor: softTeal }}
-                          />
-                        </Field.Root>
+                      {/* Focus Area or Keywords */}
+                      <VStack align="start" gap={2}>
+                        <Text fontWeight="semibold" color="purple.900">
+                          Focus Area or Keywords
+                        </Text>
+                        <Input
+                          placeholder="e.g., Education, Youth Development"
+                          value={formData.focusArea}
+                          onChange={(e) => setFormData(prev => ({ ...prev, focusArea: e.target.value }))}
+                        />
                       </VStack>
-                    </Card.Body>
-                  </Card.Root>
-                </VStack>
-              )}
 
-              {currentSection === 4 && (
-                <VStack gap={6} align="stretch">
-                  <Card.Root>
-                    <Card.Body p={6}>
-                      <VStack gap={6} align="stretch">
-                        <SimpleGrid columns={{ base: 1, md: 2 }} gap={6}>
-                          <Field.Root>
-                            <Field.Label color={deepIndigo} fontWeight="semibold">
-                              Project Start Date
-                            </Field.Label>
-                            <Input
-                              type="date"
-                              _focus={{ borderColor: softTeal }}
-                            />
-                          </Field.Root>
-
-                          <Field.Root>
-                            <Field.Label color={deepIndigo} fontWeight="semibold">
-                              Project End Date
-                            </Field.Label>
-                            <Input
-                              type="date"
-                              _focus={{ borderColor: softTeal }}
-                            />
-                          </Field.Root>
-                        </SimpleGrid>
-
-                        <Field.Root>
-                          <Field.Label color={deepIndigo} fontWeight="semibold" fontSize="md">
-                            Key Milestones & Timeline
-                          </Field.Label>
-                          <Textarea
-                            placeholder="List major milestones and when they'll be achieved..."
-                            rows={8}
-                            _focus={{ borderColor: softTeal }}
-                          />
-                          <HStack mt={2}>
-                            <Button
-                              size="xs"
-                              variant="ghost"
-                              color={softTeal}
-                            >
-                              <Icon as={FiZap} />
-                              Generate Timeline
-                            </Button>
-                          </HStack>
-                        </Field.Root>
+                      {/* Estimated Grant Amount */}
+                      <VStack align="start" gap={2}>
+                        <Text fontWeight="semibold" color="purple.900">
+                          Estimated Grant Amount
+                        </Text>
+                        <Input
+                          placeholder="$50,000"
+                          value={formData.grantAmount}
+                          onChange={(e) => setFormData(prev => ({ ...prev, grantAmount: e.target.value }))}
+                        />
                       </VStack>
-                    </Card.Body>
-                  </Card.Root>
-                </VStack>
-              )}
+                    </VStack>
+                  </Card.Body>
+                </Card.Root>
 
-              {/* Navigation Buttons */}
-              <HStack justify="space-between" pt={4}>
-                <Button
-                  variant="outline"
-                  borderColor="gray.300"
-                  disabled={currentSection === 0}
-                  onClick={() => setCurrentSection(currentSection - 1)}
-                >
-                  Previous Section
-                </Button>
-                <Button
-                  bgGradient={`linear(to-r, ${softTeal}, #4BC5CC)`}
-                  color="white"
-                  onClick={() => currentSection < sections.length - 1 && setCurrentSection(currentSection + 1)}
-                  _hover={{
-                    bgGradient: `linear(to-r, #4BC5CC, ${softTeal})`,
-                    transform: 'translateY(-2px)',
-                  }}
-                >
-                  {currentSection === sections.length - 1 ? 'Complete Draft' : 'Next Section'}
-                </Button>
-              </HStack>
-            </VStack>
-          </SimpleGrid>
-        </VStack>
-      </Container>
+                {/* Input Summary Preview */}
+                <Card.Root bg="purple.50" border="1px solid" borderColor="purple.200">
+                  <Card.Header>
+                    <Heading size="sm" color="purple.900">
+                      📋 Input Summary
+                    </Heading>
+                  </Card.Header>
+                  <Card.Body>
+                    <VStack gap={3} align="stretch">
+                      <Box>
+                        <Text fontSize="xs" color="purple.600" mb={1}>
+                          Grant Materials
+                        </Text>
+                        <Text fontSize="sm" color="purple.900">
+                          {formData.rfpText ? 'RFP content provided' : 'Not provided yet'}
+                        </Text>
+                      </Box>
+                      <Box>
+                        <Text fontSize="xs" color="purple.600" mb={1}>
+                          Teaching Materials
+                        </Text>
+                        <Text fontSize="sm" color="purple.900">
+                          {formData.teachingMaterials ? 'Writing samples provided' : 'Not provided yet'}
+                        </Text>
+                      </Box>
+                      <Box>
+                        <Text fontSize="xs" color="purple.600" mb={1}>
+                          Project Name
+                        </Text>
+                        <Text fontSize="sm" color="purple.900">
+                          {formData.projectName || 'Not entered'}
+                        </Text>
+                      </Box>
+                      <Box>
+                        <Text fontSize="xs" color="purple.600" mb={1}>
+                          Funder
+                        </Text>
+                        <Text fontSize="sm" color="purple.900">
+                          {formData.funderName || 'Not specified'}
+                        </Text>
+                      </Box>
+                    </VStack>
+                  </Card.Body>
+                </Card.Root>
+              </VStack>
+            </SimpleGrid>
+
+            {/* Error Message */}
+            {error && (
+              <Card.Root bg="red.50" border="1px solid" borderColor="red.300">
+                <Card.Body>
+                  <Text color="red.700" fontWeight="medium">
+                    {error}
+                  </Text>
+                </Card.Body>
+              </Card.Root>
+            )}
+
+            {/* Generate Button */}
+            <HStack justify="center" pt={4}>
+              <Button
+                size="lg"
+                colorScheme="purple"
+                px={12}
+                onClick={handleGenerate}
+                isDisabled={isGenerating}
+              >
+                {isGenerating ? (
+                  <>
+                    <Icon as={FiLoader} className="animate-spin" mr={2} />
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    Generate Draft
+                    <Icon as={FiArrowRight} ml={2} />
+                  </>
+                )}
+              </Button>
+            </HStack>
+          </VStack>
+        </Container>
+      </Box>
     </MainLayout>
   )
 }
