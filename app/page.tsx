@@ -36,8 +36,6 @@ import {
   FiStar,
 } from 'react-icons/fi'
 import { useRouter } from 'next/navigation'
-import LoginModal from '@/components/auth/LoginModal'
-import SignupModal from '@/components/auth/SignupModal'
 
 // Animation keyframes
 const float = keyframes`
@@ -79,8 +77,6 @@ const pulse = keyframes`
 
 export default function LandingPage() {
   const router = useRouter()
-  const [loginModalOpen, setLoginModalOpen] = useState(false)
-  const [signupModalOpen, setSignupModalOpen] = useState(false)
   const [scrollY, setScrollY] = useState(0)
 
   useEffect(() => {
@@ -257,7 +253,7 @@ export default function LandingPage() {
             <HStack gap={{ base: 2, md: 4 }}>
               <Button
                 variant="ghost"
-                onClick={() => setLoginModalOpen(true)}
+                onClick={() => router.push('/auth/signin')}
                 color={deepIndigo}
                 fontWeight="semibold"
                 size={{ base: 'sm', md: 'md' }}
@@ -269,7 +265,7 @@ export default function LandingPage() {
               <Button
                 bgGradient={`linear(to-r, ${softTeal}, #4BC5CC)`}
                 color="white"
-                onClick={() => setSignupModalOpen(true)}
+                onClick={() => router.push('/auth/signup')}
                 size={{ base: 'sm', md: 'md' }}
                 px={{ base: 4, md: 6 }}
                 fontWeight="semibold"
@@ -371,7 +367,7 @@ export default function LandingPage() {
                 py={{ base: 6, md: 8 }}
                 fontSize={{ base: 'md', md: 'lg' }}
                 fontWeight="semibold"
-                onClick={() => setSignupModalOpen(true)}
+                onClick={() => router.push('/auth/signup')}
                 _hover={{
                   bgGradient: `linear(to-r, #4BC5CC, ${softTeal})`,
                   transform: 'translateY(-3px)',
@@ -428,22 +424,22 @@ export default function LandingPage() {
           </VStack>
 
           {/* Hero Image with Glassmorphism */}
-          <Box mt={20} maxW="6xl" mx="auto">
+          <Box mt={{ base: 12, md: 20 }} maxW="6xl" mx="auto" px={{ base: 4, md: 0 }}>
             <Box
               position="relative"
-              borderRadius="3xl"
+              borderRadius={{ base: '2xl', md: '3xl' }}
               overflow="hidden"
               boxShadow="0 25px 60px rgba(0,0,0,0.4)"
               border="1px solid"
               borderColor="whiteAlpha.200"
               bg="whiteAlpha.100"
               backdropFilter="blur(10px)"
-              p={3}
+              p={{ base: 2, md: 3 }}
               transform={`translateY(${scrollY * 0.1}px)`}
               transition="transform 0.1s"
             >
               <Box
-                borderRadius="2xl"
+                borderRadius={{ base: 'xl', md: '2xl' }}
                 overflow="hidden"
                 position="relative"
                 _before={{
@@ -466,12 +462,12 @@ export default function LandingPage() {
           </Box>
 
           {/* Animated Genie constellation */}
-          <Box mt={20}>
-            <SimpleGrid columns={{ base: 2, md: 5 }} gap={6} maxW="6xl" mx="auto">
+          <Box mt={{ base: 12, md: 20 }} px={{ base: 4, md: 0 }}>
+            <SimpleGrid columns={{ base: 2, sm: 3, md: 5 }} gap={{ base: 4, md: 6 }} maxW="6xl" mx="auto">
               {genies.map((genie, index) => (
                 <VStack
                   key={index}
-                  p={6}
+                  p={{ base: 4, md: 6 }}
                   borderRadius="2xl"
                   bg="whiteAlpha.100"
                   backdropFilter="blur(10px)"
@@ -479,7 +475,7 @@ export default function LandingPage() {
                   borderColor="whiteAlpha.200"
                   _hover={{
                     bg: 'whiteAlpha.200',
-                    transform: 'translateY(-8px) scale(1.05)',
+                    transform: { base: 'translateY(-4px)', md: 'translateY(-8px) scale(1.05)' },
                     borderColor: softTeal,
                     boxShadow: `0 20px 40px rgba(92, 225, 230, 0.3)`,
                   }}
@@ -488,8 +484,8 @@ export default function LandingPage() {
                   animation={`${float} ${3 + index * 0.5}s ease-in-out infinite`}
                   boxShadow="0 8px 25px rgba(0,0,0,0.2)"
                 >
-                  <Text fontSize="4xl" mb={2}>{genie.emoji}</Text>
-                  <Text fontSize="sm" fontWeight="semibold" textAlign="center" lineHeight="short">
+                  <Text fontSize={{ base: '3xl', md: '4xl' }} mb={2}>{genie.emoji}</Text>
+                  <Text fontSize={{ base: 'xs', md: 'sm' }} fontWeight="semibold" textAlign="center" lineHeight="short">
                     {genie.name.replace(' Genie', '').replace(' Coach', '').replace(' Builder', '')}
                   </Text>
                 </VStack>
@@ -526,14 +522,14 @@ export default function LandingPage() {
       </Box>
 
       {/* 2. THE PROBLEM */}
-      <Box py={24} bg="white" position="relative">
-        <Container maxW="container.xl">
-          <VStack gap={16} textAlign="center">
-            <VStack gap={8} maxW="4xl" mx="auto">
+      <Box py={{ base: 16, md: 24 }} bg="white" position="relative">
+        <Container maxW="container.xl" px={{ base: 4, md: 6 }}>
+          <VStack gap={{ base: 12, md: 16 }} textAlign="center">
+            <VStack gap={{ base: 6, md: 8 }} maxW="4xl" mx="auto">
               <Badge
                 colorScheme="red"
-                fontSize="sm"
-                px={4}
+                fontSize={{ base: 'xs', md: 'sm' }}
+                px={{ base: 3, md: 4 }}
                 py={2}
                 borderRadius="full"
                 textTransform="none"
@@ -541,25 +537,27 @@ export default function LandingPage() {
                 The Problem
               </Badge>
               <Heading
-                size={{ base: '2xl', md: '3xl' }}
+                size={{ base: 'xl', md: '2xl', lg: '3xl' }}
                 color={deepIndigo}
                 lineHeight="1.2"
                 letterSpacing="-0.02em"
+                px={{ base: 4, md: 0 }}
               >
                 Most leaders don't need another tool.
               </Heading>
-              <Text fontSize={{ base: 'lg', md: 'xl' }} color={deepIndigo} lineHeight="tall">
+              <Text fontSize={{ base: 'md', md: 'lg', lg: 'xl' }} color={deepIndigo} lineHeight="tall" px={{ base: 4, md: 0 }}>
                 Mission-driven leaders are drowning in noise: endless grant deadlines, donor emails, unposted newsletters, untracked applicants — and no time to breathe.
               </Text>
               <Box
-                p={6}
+                p={{ base: 5, md: 6 }}
                 bg="gray.50"
                 borderLeft="4px solid"
                 borderColor={softTeal}
                 borderRadius="lg"
                 maxW="3xl"
+                mx={{ base: 4, md: 'auto' }}
               >
-                <Text fontSize={{ base: 'lg', md: 'xl' }} color={deepIndigo} fontWeight="semibold" lineHeight="tall">
+                <Text fontSize={{ base: 'md', md: 'lg', lg: 'xl' }} color={deepIndigo} fontWeight="semibold" lineHeight="tall">
                   You didn't start this work to manage spreadsheets and sentences.
                   <br />
                   You started it to change lives.
@@ -570,18 +568,19 @@ export default function LandingPage() {
             {/* Stat card */}
             <Box
               bg="white"
-              p={8}
+              p={{ base: 6, md: 8 }}
               borderRadius="2xl"
               boxShadow="0 20px 40px rgba(0,0,0,0.15)"
               border="2px solid"
               borderColor={softTeal}
               backdropFilter="blur(10px)"
               maxW="md"
-              mx="auto"
+              mx={{ base: 4, md: 'auto' }}
+              w="full"
             >
               <VStack gap={3}>
                 <Text fontSize={{ base: '3xl', md: '4xl' }} fontWeight="bold" color={deepIndigo}>73%</Text>
-                <Text fontSize="md" color={deepIndigo} textAlign="center">
+                <Text fontSize={{ base: 'sm', md: 'md' }} color={deepIndigo} textAlign="center">
                   of nonprofit leaders report burnout from administrative work
                 </Text>
               </VStack>
@@ -591,15 +590,15 @@ export default function LandingPage() {
       </Box>
 
       {/* 3. THE HEADSPACEGENIE SOLUTION */}
-      <Box py={24} background="linear-gradient(to bottom right, #F8F9FF, white)" position="relative">
-        <Container maxW="container.xl">
-          <VStack gap={16}>
-            <VStack gap={6} textAlign="center" maxW="4xl">
+      <Box py={{ base: 16, md: 24 }} background="linear-gradient(to bottom right, #F8F9FF, white)" position="relative">
+        <Container maxW="container.xl" px={{ base: 4, md: 6 }}>
+          <VStack gap={{ base: 12, md: 16 }}>
+            <VStack gap={{ base: 4, md: 6 }} textAlign="center" maxW="4xl" mx="auto">
               <Badge
                 bg={`${deepIndigo}20`}
                 color={deepIndigo}
-                fontSize="sm"
-                px={4}
+                fontSize={{ base: 'xs', md: 'sm' }}
+                px={{ base: 3, md: 4 }}
                 py={2}
                 borderRadius="full"
                 textTransform="none"
@@ -608,19 +607,20 @@ export default function LandingPage() {
                 The Solution
               </Badge>
               <Heading
-                size="3xl"
+                size={{ base: 'xl', md: '2xl', lg: '3xl' }}
                 color={deepIndigo}
                 lineHeight="1.2"
                 letterSpacing="-0.02em"
+                px={{ base: 2, md: 0 }}
               >
                 HeadspaceGenie gives you back what leadership takes away
               </Heading>
-              <Text fontSize="xl" color={deepIndigo} maxW="2xl">
+              <Text fontSize={{ base: 'md', md: 'lg', lg: 'xl' }} color={deepIndigo} maxW="2xl">
                 Clarity, creativity, and time.
               </Text>
             </VStack>
 
-            <SimpleGrid columns={{ base: 1, md: 3 }} gap={8} w="full">
+            <SimpleGrid columns={{ base: 1, md: 3 }} gap={{ base: 6, md: 8 }} w="full">
               {[
                 { icon: FiClock, title: 'Clarity', desc: 'See what matters most. Filter noise, focus your energy, make confident decisions.' },
                 { icon: FiMessageCircle, title: 'Consistency', desc: 'Communicate with ease. Every message, pitch, and post sounds like you.' },
@@ -677,15 +677,15 @@ export default function LandingPage() {
       </Box>
 
       {/* 4. MEET YOUR GENIES */}
-      <Box py={24} bg="white">
-        <Container maxW="container.xl">
-          <VStack gap={16}>
-            <VStack gap={6} textAlign="center" maxW="4xl">
+      <Box py={{ base: 16, md: 24 }} bg="white">
+        <Container maxW="container.xl" px={{ base: 4, md: 6 }}>
+          <VStack gap={{ base: 12, md: 16 }}>
+            <VStack gap={{ base: 4, md: 6 }} textAlign="center" maxW="4xl" mx="auto">
               <Badge
                 bg={`${softTeal}20`}
                 color={deepIndigo}
-                fontSize="sm"
-                px={4}
+                fontSize={{ base: 'xs', md: 'sm' }}
+                px={{ base: 3, md: 4 }}
                 py={2}
                 borderRadius="full"
                 textTransform="none"
@@ -694,14 +694,14 @@ export default function LandingPage() {
                 Your AI Ecosystem
               </Badge>
               <Heading
-                size="3xl"
+                size={{ base: 'xl', md: '2xl', lg: '3xl' }}
                 color={deepIndigo}
                 lineHeight="1.2"
                 letterSpacing="-0.02em"
               >
                 Meet Your Genies
               </Heading>
-              <Text fontSize="xl" color={deepIndigo} maxW="2xl">
+              <Text fontSize={{ base: 'md', md: 'lg', lg: 'xl' }} color={deepIndigo} maxW="2xl">
                 Each Genie is a living, trainable companion that grows with you.
               </Text>
             </VStack>
@@ -790,15 +790,16 @@ export default function LandingPage() {
             </VStack>
 
             <Box
-              mt={8}
-              p={10}
+              mt={{ base: 6, md: 8 }}
+              p={{ base: 6, md: 10 }}
               bgGradient={`linear(135deg, ${deepIndigo}05, ${softTeal}05)`}
               borderRadius="2xl"
               textAlign="center"
               border="2px solid"
               borderColor={`${softTeal}30`}
+              mx={{ base: 4, md: 0 }}
             >
-              <Text fontSize="2xl" color={deepIndigo} fontWeight="semibold" lineHeight="tall">
+              <Text fontSize={{ base: 'lg', md: 'xl', lg: '2xl' }} color={deepIndigo} fontWeight="semibold" lineHeight="tall">
                 Together, they form your AI Headquarters — a workspace that reflects your mission, voice, and rhythm.
               </Text>
             </Box>
@@ -807,15 +808,15 @@ export default function LandingPage() {
       </Box>
 
       {/* 5. THE HEADSPACE ROI */}
-      <Box py={24} background="linear-gradient(to bottom right, #F8F9FF, white)">
-        <Container maxW="container.xl">
-          <VStack gap={16}>
-            <VStack gap={6} textAlign="center" maxW="4xl">
+      <Box py={{ base: 16, md: 24 }} background="linear-gradient(to bottom right, #F8F9FF, white)">
+        <Container maxW="container.xl" px={{ base: 4, md: 6 }}>
+          <VStack gap={{ base: 12, md: 16 }}>
+            <VStack gap={{ base: 4, md: 6 }} textAlign="center" maxW="4xl" mx="auto">
               <Badge
                 bg={`${deepIndigo}20`}
                 color={deepIndigo}
-                fontSize="sm"
-                px={4}
+                fontSize={{ base: 'xs', md: 'sm' }}
+                px={{ base: 3, md: 4 }}
                 py={2}
                 borderRadius="full"
                 textTransform="none"
@@ -824,19 +825,19 @@ export default function LandingPage() {
                 Impact
               </Badge>
               <Heading
-                size="3xl"
+                size={{ base: 'xl', md: '2xl', lg: '3xl' }}
                 color={deepIndigo}
                 lineHeight="1.2"
                 letterSpacing="-0.02em"
               >
                 The Headspace ROI
               </Heading>
-              <Text fontSize="xl" color={deepIndigo}>
+              <Text fontSize={{ base: 'md', md: 'lg', lg: 'xl' }} color={deepIndigo}>
                 We measure success differently.
               </Text>
             </VStack>
 
-            <SimpleGrid columns={{ base: 1, sm: 2, md: 3, lg: 5 }} gap={6}>
+            <SimpleGrid columns={{ base: 1, sm: 2, lg: 5 }} gap={{ base: 6, md: 8 }}>
               {roiItems.map((item, index) => (
                 <Card.Root
                   key={index}
@@ -878,15 +879,15 @@ export default function LandingPage() {
       </Box>
 
       {/* 6. WHY HEADSPACEGENIE.AI IS DIFFERENT */}
-      <Box py={24} background="linear-gradient(to bottom right, #F8F9FF, white)">
-        <Container maxW="container.xl">
-          <VStack gap={16}>
-            <VStack gap={6} textAlign="center" maxW="4xl">
+      <Box py={{ base: 16, md: 24 }} background="linear-gradient(to bottom right, #F8F9FF, white)">
+        <Container maxW="container.xl" px={{ base: 4, md: 6 }}>
+          <VStack gap={{ base: 12, md: 16 }}>
+            <VStack gap={{ base: 4, md: 6 }} textAlign="center" maxW="4xl" mx="auto">
               <Badge
                 bg={`${deepIndigo}20`}
                 color={deepIndigo}
-                fontSize="sm"
-                px={4}
+                fontSize={{ base: 'xs', md: 'sm' }}
+                px={{ base: 3, md: 4 }}
                 py={2}
                 borderRadius="full"
                 textTransform="none"
@@ -895,7 +896,7 @@ export default function LandingPage() {
                 Why Choose Us
               </Badge>
               <Heading
-                size="3xl"
+                size={{ base: 'xl', md: '2xl', lg: '3xl' }}
                 color={deepIndigo}
                 lineHeight="1.2"
                 letterSpacing="-0.02em"
@@ -904,7 +905,7 @@ export default function LandingPage() {
               </Heading>
             </VStack>
 
-            <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap={8}>
+            <SimpleGrid columns={{ base: 1, lg: 3 }} gap={{ base: 6, md: 8 }}>
               {differentiators.map((item, index) => (
                 <Card.Root
                   key={index}
@@ -943,15 +944,15 @@ export default function LandingPage() {
       </Box>
 
       {/* 7. HOW IT WORKS */}
-      <Box py={24} background={`linear-gradient(to bottom right, ${deepIndigo}, #2D2C5A)`} color="white" position="relative" overflow="hidden">
-        <Container maxW="container.xl" position="relative" zIndex={1}>
-          <VStack gap={16}>
-            <VStack gap={6} textAlign="center">
+      <Box py={{ base: 16, md: 24 }} background={`linear-gradient(to bottom right, ${deepIndigo}, #2D2C5A)`} color="white" position="relative" overflow="hidden">
+        <Container maxW="container.xl" position="relative" zIndex={1} px={{ base: 4, md: 6 }}>
+          <VStack gap={{ base: 12, md: 16 }}>
+            <VStack gap={{ base: 4, md: 6 }} textAlign="center">
               <Badge
                 bg="whiteAlpha.200"
                 color="white"
-                fontSize="sm"
-                px={4}
+                fontSize={{ base: 'xs', md: 'sm' }}
+                px={{ base: 3, md: 4 }}
                 py={2}
                 borderRadius="full"
                 textTransform="none"
@@ -959,15 +960,15 @@ export default function LandingPage() {
               >
                 Get Started
               </Badge>
-              <Heading size="3xl" color="white" letterSpacing="-0.02em">
+              <Heading size={{ base: 'xl', md: '2xl', lg: '3xl' }} color="white" letterSpacing="-0.02em">
                 How It Works
               </Heading>
-              <Text fontSize="xl" color="gray.300" maxW="2xl">
+              <Text fontSize={{ base: 'md', md: 'lg', lg: 'xl' }} color="gray.300" maxW="2xl">
                 Simple steps to transform your workflow
               </Text>
             </VStack>
 
-            <SimpleGrid columns={{ base: 1, sm: 2, lg: 4 }} gap={8}>
+            <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} gap={{ base: 6, md: 8 }}>
               {[
                 { step: '1', title: 'Start', description: 'Choose your first Genie.' },
                 { step: '2', title: 'Train', description: 'Upload writing samples, values, or workflows.' },
@@ -1038,15 +1039,15 @@ export default function LandingPage() {
       </Box>
 
       {/* 8. PRICING & TIERS */}
-      <Box py={28} bg="white">
-        <Container maxW="container.xl">
-          <VStack gap={16}>
-            <VStack gap={6} textAlign="center">
+      <Box py={{ base: 16, md: 28 }} bg="white">
+        <Container maxW="container.xl" px={{ base: 4, md: 6 }}>
+          <VStack gap={{ base: 12, md: 16 }}>
+            <VStack gap={{ base: 4, md: 6 }} textAlign="center">
               <Badge
                 bg={`${softTeal}20`}
                 color={deepIndigo}
-                fontSize="sm"
-                px={4}
+                fontSize={{ base: 'xs', md: 'sm' }}
+                px={{ base: 3, md: 4 }}
                 py={2}
                 borderRadius="full"
                 textTransform="none"
@@ -1055,18 +1056,18 @@ export default function LandingPage() {
                 Pricing
               </Badge>
               <Heading
-                size="3xl"
+                size={{ base: 'xl', md: '2xl', lg: '3xl' }}
                 color={deepIndigo}
                 letterSpacing="-0.02em"
               >
                 Simple, Transparent Pricing
               </Heading>
-              <Text fontSize="xl" color={deepIndigo} maxW="2xl">
+              <Text fontSize={{ base: 'md', md: 'lg', lg: 'xl' }} color={deepIndigo} maxW="2xl">
                 Start your free trial — no credit card required.
               </Text>
             </VStack>
 
-            <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} gap={8} w="full">
+            <SimpleGrid columns={{ base: 1, lg: 4 }} gap={{ base: 6, md: 8 }} w="full">
               {pricingPlans.map((plan, index) => (
                 <Card.Root
                   key={index}
@@ -1140,7 +1141,7 @@ export default function LandingPage() {
                         bg={plan.highlighted ? `linear-gradient(135deg, ${softTeal}, #4BC5CC)` : 'gray.100'}
                         bgGradient={plan.highlighted ? `linear(135deg, ${softTeal}, #4BC5CC)` : undefined}
                         color={plan.highlighted ? 'white' : deepIndigo}
-                        onClick={() => setSignupModalOpen(true)}
+                        onClick={() => router.push('/auth/signup')}
                         w="full"
                         py={6}
                         fontWeight="semibold"
@@ -1180,14 +1181,14 @@ export default function LandingPage() {
 
       {/* 9. THE INVITATION / CTA */}
       <Box
-        py={28}
+        py={{ base: 16, md: 28 }}
         background={`linear-gradient(to bottom right, ${deepIndigo}, #2D2C5A, #1a1a3e)`}
         color="white"
         position="relative"
         overflow="hidden"
       >
-        <Container maxW="container.xl" position="relative" zIndex={1}>
-          <VStack gap={{ base: 8, md: 10 }} textAlign="center" px={{ base: 4, md: 0 }}>
+        <Container maxW="container.xl" position="relative" zIndex={1} px={{ base: 4, md: 6 }}>
+          <VStack gap={{ base: 6, md: 10 }} textAlign="center">
             <Heading
               size={{ base: '2xl', sm: '3xl', md: '4xl' }}
               maxW="5xl"
@@ -1220,7 +1221,7 @@ export default function LandingPage() {
                 py={{ base: 6, md: 8 }}
                 fontSize={{ base: 'md', md: 'xl' }}
                 fontWeight="semibold"
-                onClick={() => setSignupModalOpen(true)}
+                onClick={() => router.push('/auth/signup')}
                 _hover={{
                   bgGradient: `linear(to-r, #4BC5CC, ${softTeal})`,
                   transform: 'translateY(-4px)',
@@ -1303,9 +1304,9 @@ export default function LandingPage() {
       </Box>
 
       {/* 10. FOOTER */}
-      <Box bg="gray.900" color="gray.400" py={20}>
-        <Container maxW="container.xl">
-          <SimpleGrid columns={{ base: 1, md: 4 }} gap={12} mb={16} textAlign={{ base: 'center', md: 'left' }}>
+      <Box bg="gray.900" color="gray.400" py={{ base: 12, md: 20 }}>
+        <Container maxW="container.xl" px={{ base: 4, md: 6 }}>
+          <SimpleGrid columns={{ base: 1, sm: 2, lg: 4 }} gap={{ base: 8, md: 12 }} mb={{ base: 12, md: 16 }} textAlign={{ base: 'center', sm: 'left' }}>
             <VStack align={{ base: 'center', md: 'start' }} gap={6}>
               <HStack gap={3}>
                 <Box
@@ -1396,23 +1397,6 @@ export default function LandingPage() {
         </Container>
       </Box>
 
-      {/* Modals */}
-      <LoginModal
-        isOpen={loginModalOpen}
-        onClose={() => setLoginModalOpen(false)}
-        onSwitchToSignup={() => {
-          setLoginModalOpen(false)
-          setSignupModalOpen(true)
-        }}
-      />
-      <SignupModal
-        isOpen={signupModalOpen}
-        onClose={() => setSignupModalOpen(false)}
-        onSwitchToLogin={() => {
-          setSignupModalOpen(false)
-          setLoginModalOpen(true)
-        }}
-      />
     </Box>
   )
 }
