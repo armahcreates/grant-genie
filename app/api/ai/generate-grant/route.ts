@@ -50,9 +50,18 @@ Make it compelling, data-driven, and aligned with the funder's priorities.`
     // Get the grant writing agent
     const agent = mastra.getAgent('grantWriting')
 
-    // Generate the proposal with streaming
-    const stream = await agent.generate(prompt, {
-      stream: true,
+    // Generate the proposal
+    const result = await agent.generate(prompt)
+
+    // Create a text stream for the response
+    const encoder = new TextEncoder()
+    const stream = new ReadableStream({
+      async start(controller) {
+        // @ts-ignore - result might have text property
+        const text = result.text || result.toString()
+        controller.enqueue(encoder.encode(text))
+        controller.close()
+      },
     })
 
     // Return streaming response

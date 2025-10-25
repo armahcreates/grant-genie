@@ -5,6 +5,8 @@ import { Provider } from "@/components/ui/provider";
 import { QueryProvider } from "@/lib/query/provider";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { StackProvider } from "@stackframe/stack";
+import { stackServerApp } from "@/lib/stack";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,9 +31,11 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
-        <QueryProvider>
-          <Provider>{children}</Provider>
-        </QueryProvider>
+        <StackProvider app={stackServerApp}>
+          <QueryProvider>
+            <Provider>{children}</Provider>
+          </QueryProvider>
+        </StackProvider>
         <Analytics />
         <SpeedInsights />
       </body>

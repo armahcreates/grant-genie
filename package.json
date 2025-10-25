@@ -22,6 +22,7 @@
     "@mastra/core": "^0.23.1",
     "@neondatabase/serverless": "^1.0.2",
     "@sinclair/typebox": "^0.34.41",
+    "@stackframe/stack": "^2.8.46",
     "@tanstack/react-query": "^5.90.5",
     "@vercel/analytics": "^1.5.0",
     "@vercel/blob": "^2.0.0",

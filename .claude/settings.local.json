@@ -22,7 +22,8 @@
       "Bash(npm run db:push:*)",
       "Bash(npm run db:migrate:*)",
       "Bash(tsx:*)",
-      "Bash(npx tsx:*)"
+      "Bash(npx tsx:*)",
+      "Bash(perl:*)"
     ],
     "deny": [],
     "ask": []

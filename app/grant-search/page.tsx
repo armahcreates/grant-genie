@@ -42,9 +42,9 @@ export default function GrantSearchPage() {
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [fundingRange, setFundingRange] = useState([0, 500000])
   const [selectedFilters, setSelectedFilters] = useState<string[]>([])
-  const [bookmarked, setBookmarked] = useState<number[]>([])
+  const [bookmarked, setBookmarked] = useState<string[]>([])
 
-  const toggleBookmark = (grantId: number) => {
+  const toggleBookmark = (grantId: string) => {
     setBookmarked(prev =>
       prev.includes(grantId)
         ? prev.filter(id => id !== grantId)

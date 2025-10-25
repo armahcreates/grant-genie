@@ -1,32 +1,24 @@
 'use client'
 
-import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { useAuth } from '@/contexts/AuthContext'
+import { useUser } from '@stackframe/stack'
 import { Box, Spinner, VStack } from '@chakra-ui/react'
 
 export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, isLoading } = useAuth()
-  const router = useRouter()
+  const user = useUser()
 
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      router.push('/landing')
+  if (!user) {
+    // Redirect to signin page
+    if (typeof window !== 'undefined') {
+      window.location.href = '/auth/signin'
     }
-  }, [isAuthenticated, isLoading, router])
 
-  if (isLoading) {
     return (
-      <Box minH="100vh" display="flex" alignItems="center" justifyContent="center">
+      <Box minH="100vh" display="flex" alignItems="center" justifyContent="center" bg="purple.50">
         <VStack gap={4}>
-          <Spinner size="xl" color="blue.500" borderWidth="4px" />
+          <Spinner size="xl" colorPalette="purple" borderWidth="4px" />
         </VStack>
       </Box>
     )
-  }
-
-  if (!isAuthenticated) {
-    return null
   }
 
   return <>{children}</>

@@ -15,6 +15,14 @@ import {
   MenuSeparator,
   Button,
   HStack,
+  IconButton,
+  DrawerRoot,
+  DrawerBackdrop,
+  DrawerTrigger,
+  DrawerContent,
+  DrawerHeader,
+  DrawerBody,
+  DrawerCloseTrigger,
 } from '@chakra-ui/react'
 import { IconType } from 'react-icons'
 import {
@@ -29,10 +37,12 @@ import {
   MdHelp,
   MdLogout,
   MdPerson,
+  MdMenu,
 } from 'react-icons/md'
 import NextLink from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { useAuth } from '@/contexts/AuthContext'
+import { useUser } from '@stackframe/stack'
+import { useState } from 'react'
 
 interface NavItemProps {
   icon: IconType
@@ -78,63 +88,81 @@ const NavItem = ({ icon, children, href, isActive }: NavItemProps) => {
   )
 }
 
-export default function Sidebar() {
+const SidebarContent = ({ onClose }: { onClose?: () => void }) => {
   const pathname = usePathname()
   const router = useRouter()
-  const { user, logout } = useAuth()
+  const user = useUser()
 
-  const handleLogout = () => {
-    logout()
+  const handleLogout = async () => {
+    await user?.signOut()
     router.push('/')
+  }
+
+  const handleNavClick = () => {
+    onClose?.()
   }
 
   return (
     <Box
       bg="white"
-      borderRight="1px"
+      borderRight={{ base: 'none', md: '1px' }}
       borderColor="gray.200"
-      w={{ base: 'full', md: '240px' }}
-      h="100vh"
-      position="fixed"
-      left={0}
-      top={0}
+      h="full"
       display="flex"
       flexDirection="column"
     >
       <Flex h="20" alignItems="center" mx="4" justifyContent="center">
-        <Text fontSize="2xl" fontWeight="bold" color="purple.600">
+        <Text fontSize={{ base: 'xl', md: '2xl' }} fontWeight="bold" color="purple.600">
           Headspace Genie
         </Text>
       </Flex>
 
       <VStack gap={1} align="stretch" flex={1} overflowY="auto" pb={4}>
-        <NavItem icon={MdDashboard} href="/dashboard" isActive={pathname === '/dashboard'}>
-          Dashboard
-        </NavItem>
-        <NavItem icon={MdSearch} href="/grant-search" isActive={pathname === '/grant-search'}>
-          Grant Search
-        </NavItem>
-        <NavItem icon={MdDescription} href="/grant-application" isActive={pathname === '/grant-application'}>
-          Grant Application
-        </NavItem>
-        <NavItem icon={MdChecklist} href="/compliance-tracker" isActive={pathname === '/compliance-tracker'}>
-          Compliance Tracker
-        </NavItem>
-        <NavItem icon={MdBarChart} href="/reporting" isActive={pathname === '/reporting'}>
-          Reporting
-        </NavItem>
-        <NavItem icon={MdNotifications} href="/notifications" isActive={pathname === '/notifications'}>
-          Notifications
-        </NavItem>
-        <NavItem icon={MdLibraryBooks} href="/resources" isActive={pathname === '/resources'}>
-          Resources
-        </NavItem>
-        <NavItem icon={MdHelp} href="/support" isActive={pathname === '/support'}>
-          Support
-        </NavItem>
-        <NavItem icon={MdSettings} href="/profile" isActive={pathname === '/profile'}>
-          Settings
-        </NavItem>
+        <Box onClick={handleNavClick}>
+          <NavItem icon={MdDashboard} href="/dashboard" isActive={pathname === '/dashboard'}>
+            Dashboard
+          </NavItem>
+        </Box>
+        <Box onClick={handleNavClick}>
+          <NavItem icon={MdSearch} href="/grant-search" isActive={pathname === '/grant-search'}>
+            Grant Search
+          </NavItem>
+        </Box>
+        <Box onClick={handleNavClick}>
+          <NavItem icon={MdDescription} href="/grant-application" isActive={pathname === '/grant-application'}>
+            Grant Application
+          </NavItem>
+        </Box>
+        <Box onClick={handleNavClick}>
+          <NavItem icon={MdChecklist} href="/compliance-tracker" isActive={pathname === '/compliance-tracker'}>
+            Compliance Tracker
+          </NavItem>
+        </Box>
+        <Box onClick={handleNavClick}>
+          <NavItem icon={MdBarChart} href="/reporting" isActive={pathname === '/reporting'}>
+            Reporting
+          </NavItem>
+        </Box>
+        <Box onClick={handleNavClick}>
+          <NavItem icon={MdNotifications} href="/notifications" isActive={pathname === '/notifications'}>
+            Notifications
+          </NavItem>
+        </Box>
+        <Box onClick={handleNavClick}>
+          <NavItem icon={MdLibraryBooks} href="/resources" isActive={pathname === '/resources'}>
+            Resources
+          </NavItem>
+        </Box>
+        <Box onClick={handleNavClick}>
+          <NavItem icon={MdHelp} href="/support" isActive={pathname === '/support'}>
+            Support
+          </NavItem>
+        </Box>
+        <Box onClick={handleNavClick}>
+          <NavItem icon={MdSettings} href="/profile" isActive={pathname === '/profile'}>
+            Settings
+          </NavItem>
+        </Box>
       </VStack>
 
       {/* User Profile Section */}
@@ -153,21 +181,23 @@ export default function Sidebar() {
             >
               <HStack gap={3}>
                 <Avatar.Root size="sm" bg="purple.600">
-                  <Avatar.Fallback>{(user?.name || 'User').substring(0, 2).toUpperCase()}</Avatar.Fallback>
+                  <Avatar.Fallback>
+                    {(user?.displayName || 'U').substring(0, 2).toUpperCase()}
+                  </Avatar.Fallback>
                 </Avatar.Root>
                 <VStack align="start" gap={0} flex={1}>
                   <Text fontSize="sm" fontWeight="semibold" lineClamp={1}>
-                    {user?.name || 'Guest User'}
+                    {user?.displayName || 'User'}
                   </Text>
                   <Text fontSize="xs" color="gray.500" lineClamp={1}>
-                    {user?.organization || 'No organization'}
+                    {user?.primaryEmail || 'No email'}
                   </Text>
                 </VStack>
               </HStack>
             </Button>
           </MenuTrigger>
           <MenuContent>
-            <MenuItem value="profile" onClick={() => router.push('/profile')}>
+            <MenuItem value="profile" onClick={() => { router.push('/profile'); onClose?.() }}>
               <Icon as={MdPerson} />
               Profile Settings
             </MenuItem>
@@ -180,5 +210,66 @@ export default function Sidebar() {
         </MenuRoot>
       </Box>
     </Box>
+  )
+}
+
+export default function Sidebar() {
+  const [isOpen, setIsOpen] = useState(false)
+
+  return (
+    <>
+      {/* Mobile Header with Hamburger */}
+      <Box
+        display={{ base: 'block', md: 'none' }}
+        position="fixed"
+        top={0}
+        left={0}
+        right={0}
+        bg="white"
+        borderBottom="1px"
+        borderColor="gray.200"
+        zIndex={10}
+        px={4}
+        py={3}
+      >
+        <Flex justify="space-between" align="center">
+          <Text fontSize="xl" fontWeight="bold" color="purple.600">
+            Headspace Genie
+          </Text>
+          <DrawerRoot open={isOpen} onOpenChange={(e) => setIsOpen(e.open)} placement="start">
+            <DrawerBackdrop />
+            <DrawerTrigger asChild>
+              <IconButton
+                aria-label="Open menu"
+                variant="ghost"
+                colorPalette="purple"
+              >
+                <Icon as={MdMenu} boxSize={6} />
+              </IconButton>
+            </DrawerTrigger>
+            <DrawerContent>
+              <DrawerHeader>
+                <DrawerCloseTrigger />
+              </DrawerHeader>
+              <DrawerBody p={0}>
+                <SidebarContent onClose={() => setIsOpen(false)} />
+              </DrawerBody>
+            </DrawerContent>
+          </DrawerRoot>
+        </Flex>
+      </Box>
+
+      {/* Desktop Sidebar */}
+      <Box
+        display={{ base: 'none', md: 'block' }}
+        w="240px"
+        h="100vh"
+        position="fixed"
+        left={0}
+        top={0}
+      >
+        <SidebarContent />
+      </Box>
+    </>
   )
 }

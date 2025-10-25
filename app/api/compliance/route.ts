@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/db'
 import { complianceItems, activityLog } from '@/db/schema'
-import { desc, eq } from 'drizzle-orm'
+import { desc, eq, and } from 'drizzle-orm'
 
 // GET /api/compliance - List all compliance items for a user
 export async function GET(request: NextRequest) {
@@ -14,18 +14,17 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'User ID is required' }, { status: 400 })
     }
 
-    let query = db
-      .select()
-      .from(complianceItems)
-      .where(eq(complianceItems.userId, userId))
-      .orderBy(desc(complianceItems.dueDate))
-
-    // Filter by status if provided
+    // Build where conditions
+    const conditions = [eq(complianceItems.userId, userId)]
     if (status) {
-      query = query.where(eq(complianceItems.status, status))
+      conditions.push(eq(complianceItems.status, status))
     }
 
-    const items = await query
+    const items = await db
+      .select()
+      .from(complianceItems)
+      .where(and(...conditions))
+      .orderBy(desc(complianceItems.dueDate))
 
     return NextResponse.json({ items })
   } catch (error) {

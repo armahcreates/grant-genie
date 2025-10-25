@@ -193,18 +193,8 @@ export default function DashboardPage() {
                 border="2px solid"
                 borderColor="red.400"
                 borderRadius="2xl"
-                animation="pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite"
-                sx={{
-                  '@keyframes pulse': {
-                    '0%, 100%': {
-                      boxShadow: '0 0 0 0 rgba(239, 68, 68, 0.7)',
-                    },
-                    '50%': {
-                      boxShadow: '0 0 0 10px rgba(239, 68, 68, 0)',
-                    },
-                  },
-                }}
-              >
+                >
+
                 <Card.Body p={{ base: 4, md: 5 }}>
                   <HStack gap={4} flexWrap={{ base: 'wrap', md: 'nowrap' }}>
                     <Flex
@@ -263,20 +253,8 @@ export default function DashboardPage() {
             borderRadius="2xl"
             overflow="hidden"
             position="relative"
-            animation={isLoading ? 'none' : 'fadeInUp 0.6s ease-out 0.1s both'}
-            sx={{
-              '@keyframes fadeInUp': {
-                from: {
-                  opacity: 0,
-                  transform: 'translateY(30px)',
-                },
-                to: {
-                  opacity: 1,
-                  transform: 'translateY(0)',
-                },
-              },
-            }}
           >
+
             <Box
               position="absolute"
               top={0}
@@ -332,19 +310,6 @@ export default function DashboardPage() {
             borderRadius="2xl"
             position="relative"
             overflow="hidden"
-            animation={isLoading ? 'none' : 'fadeInUp 0.6s ease-out 0.2s both'}
-            sx={{
-              '@keyframes fadeInUp': {
-                from: {
-                  opacity: 0,
-                  transform: 'translateY(30px)',
-                },
-                to: {
-                  opacity: 1,
-                  transform: 'translateY(0)',
-                },
-              },
-            }}
             _before={{
               content: '""',
               position: 'absolute',
@@ -417,20 +382,8 @@ export default function DashboardPage() {
             borderRadius="2xl"
             position="relative"
             overflow="hidden"
-            animation={isLoading ? 'none' : 'fadeInUp 0.6s ease-out 0.3s both'}
-            sx={{
-              '@keyframes fadeInUp': {
-                from: {
-                  opacity: 0,
-                  transform: 'translateY(30px)',
-                },
-                to: {
-                  opacity: 1,
-                  transform: 'translateY(0)',
-                },
-              },
-            }}
           >
+
             {mockDashboardStats.upcomingDeadlines > 5 && (
               <Box
                 position="absolute"
@@ -488,20 +441,8 @@ export default function DashboardPage() {
             borderRadius="2xl"
             position="relative"
             overflow="hidden"
-            animation={isLoading ? 'none' : 'fadeInUp 0.6s ease-out 0.4s both'}
-            sx={{
-              '@keyframes fadeInUp': {
-                from: {
-                  opacity: 0,
-                  transform: 'translateY(30px)',
-                },
-                to: {
-                  opacity: 1,
-                  transform: 'translateY(0)',
-                },
-              },
-            }}
           >
+
             <Card.Body p={{ base: 5, md: 6 }} position="relative" zIndex={1}>
               <VStack gap={4} align="stretch">
                 <HStack justify="space-between">
@@ -553,20 +494,8 @@ export default function DashboardPage() {
             borderColor="purple.100"
             borderRadius="2xl"
             boxShadow="lg"
-            animation={isLoading ? 'none' : 'fadeInUp 0.6s ease-out 0.5s both'}
-            sx={{
-              '@keyframes fadeInUp': {
-                from: {
-                  opacity: 0,
-                  transform: 'translateY(30px)',
-                },
-                to: {
-                  opacity: 1,
-                  transform: 'translateY(0)',
-                },
-              },
-            }}
           >
+
             <Card.Header p={{ base: 5, md: 6 }} pb={4}>
               <Flex justify="space-between" align="center" gap={3} flexWrap="wrap">
                 <HStack gap={3}>
@@ -621,12 +550,12 @@ export default function DashboardPage() {
                           color={deepIndigo}
                           mb={1}
                           fontSize={{ base: 'sm', md: 'md' }}
-                          noOfLines={2}
+                          
                           lineHeight="1.4"
                         >
                           {app.grantTitle}
                         </Text>
-                        <Text fontSize="sm" color="purple.700" noOfLines={1}>
+                        <Text fontSize="sm" color="purple.700" >
                           {app.organization}
                         </Text>
                       </Box>
@@ -674,20 +603,8 @@ export default function DashboardPage() {
             borderColor="purple.100"
             borderRadius="2xl"
             boxShadow="lg"
-            animation={isLoading ? 'none' : 'fadeInUp 0.6s ease-out 0.6s both'}
-            sx={{
-              '@keyframes fadeInUp': {
-                from: {
-                  opacity: 0,
-                  transform: 'translateY(30px)',
-                },
-                to: {
-                  opacity: 1,
-                  transform: 'translateY(0)',
-                },
-              },
-            }}
           >
+
             <Card.Header p={{ base: 5, md: 6 }} pb={4}>
               <Flex justify="space-between" align="center" gap={3} flexWrap="wrap">
                 <HStack gap={3}>
@@ -758,12 +675,12 @@ export default function DashboardPage() {
                             fontSize={{ base: 'sm', md: 'md' }}
                             color={item.status === 'Overdue' ? 'red.900' : deepIndigo}
                             mb={1}
-                            noOfLines={2}
+                            
                             lineHeight="1.4"
                           >
                             {item.requirement}
                           </Text>
-                          <Text fontSize="sm" color="purple.700" noOfLines={1}>
+                          <Text fontSize="sm" color="purple.700" >
                             {item.grantName}
                           </Text>
                         </Box>
@@ -812,20 +729,8 @@ export default function DashboardPage() {
           borderColor={`${softTeal}30`}
           borderRadius="2xl"
           overflow="hidden"
-          animation={isLoading ? 'none' : 'fadeInUp 0.6s ease-out 0.7s both'}
-          sx={{
-            '@keyframes fadeInUp': {
-              from: {
-                opacity: 0,
-                transform: 'translateY(30px)',
-              },
-              to: {
-                opacity: 1,
-                transform: 'translateY(0)',
-              },
-            },
-          }}
         >
+
           <Card.Header p={{ base: 5, md: 6 }}>
             <HStack gap={3}>
               <Flex
@@ -1081,20 +986,8 @@ export default function DashboardPage() {
           borderColor="purple.100"
           borderRadius="2xl"
           boxShadow="lg"
-          animation={isLoading ? 'none' : 'fadeInUp 0.6s ease-out 0.8s both'}
-          sx={{
-            '@keyframes fadeInUp': {
-              from: {
-                opacity: 0,
-                transform: 'translateY(30px)',
-              },
-              to: {
-                opacity: 1,
-                transform: 'translateY(0)',
-              },
-            },
-          }}
         >
+
           <Card.Header p={{ base: 5, md: 6 }}>
             <Flex justify="space-between" align="center" gap={3} flexWrap="wrap">
               <HStack gap={3}>
@@ -1169,11 +1062,11 @@ export default function DashboardPage() {
                           fontWeight="semibold"
                           color={deepIndigo}
                           mb={1}
-                          noOfLines={1}
+                          
                         >
                           {activity.action}
                         </Text>
-                        <Text fontSize="sm" color="purple.700" noOfLines={1}>
+                        <Text fontSize="sm" color="purple.700" >
                           {activity.grant}
                         </Text>
                       </Box>
