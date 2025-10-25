@@ -13,8 +13,9 @@ import {
   Progress,
   Icon,
   SimpleGrid,
+  Spinner,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@stackframe/stack";
 import {
@@ -25,7 +26,7 @@ import {
   FiArrowRight,
 } from "react-icons/fi";
 
-export default function OnboardingPage() {
+function OnboardingContent() {
   const router = useRouter();
   const user = useUser({ or: "redirect" });
   const [step, setStep] = useState(1);
@@ -342,5 +343,24 @@ export default function OnboardingPage() {
         </VStack>
       </Container>
     </Box>
+  );
+}
+
+function LoadingFallback() {
+  return (
+    <Box minH="100vh" bg="purple.50" display="flex" alignItems="center" justifyContent="center">
+      <VStack gap={4}>
+        <Spinner size="xl" colorPalette="purple" borderWidth="4px" />
+        <Text color="purple.700">Loading...</Text>
+      </VStack>
+    </Box>
+  );
+}
+
+export default function OnboardingPage() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <OnboardingContent />
+    </Suspense>
   );
 }

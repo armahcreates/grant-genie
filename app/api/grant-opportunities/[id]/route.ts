@@ -6,10 +6,11 @@ import { eq } from 'drizzle-orm'
 // GET /api/grant-opportunities/[id] - Get a specific grant opportunity
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const opportunityId = parseInt(params.id)
+    const { id } = await params
+    const opportunityId = parseInt(id)
 
     if (isNaN(opportunityId)) {
       return NextResponse.json({ error: 'Invalid opportunity ID' }, { status: 400 })
@@ -38,10 +39,11 @@ export async function GET(
 // PUT /api/grant-opportunities/[id] - Update a grant opportunity
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const opportunityId = parseInt(params.id)
+    const { id } = await params
+    const opportunityId = parseInt(id)
     const body = await request.json()
 
     if (isNaN(opportunityId)) {
@@ -83,10 +85,11 @@ export async function PUT(
 // DELETE /api/grant-opportunities/[id] - Delete a grant opportunity
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const opportunityId = parseInt(params.id)
+    const { id } = await params
+    const opportunityId = parseInt(id)
 
     if (isNaN(opportunityId)) {
       return NextResponse.json({ error: 'Invalid opportunity ID' }, { status: 400 })

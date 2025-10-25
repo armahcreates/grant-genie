@@ -94,7 +94,7 @@ export default function DonorMeetingPracticePage() {
               <Card.Root>
                 <Card.Header>
                   <Heading size="sm" color="purple.900">
-                    📝 Reduction
+                    Reduction
                   </Heading>
                 </Card.Header>
                 <Card.Body>
@@ -143,7 +143,7 @@ export default function DonorMeetingPracticePage() {
               <Card.Root bg="purple.50" border="2px solid" borderColor="purple.200">
                 <Card.Header>
                   <Heading size="sm" color="purple.900">
-                    💬 Talk to the Genie
+                    Talk to the Genie
                   </Heading>
                 </Card.Header>
                 <Card.Body>
@@ -219,7 +219,7 @@ export default function DonorMeetingPracticePage() {
                 <Card.Root>
                   <Card.Header>
                     <Heading size="sm" color="purple.900">
-                      🔍 Search Summary
+                      Search Summary
                     </Heading>
                   </Card.Header>
                   <Card.Body>

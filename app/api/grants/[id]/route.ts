@@ -6,10 +6,11 @@ import { eq } from 'drizzle-orm'
 // GET /api/grants/[id] - Get a specific grant
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const grantId = parseInt(params.id)
+    const { id } = await params
+    const grantId = parseInt(id)
 
     if (isNaN(grantId)) {
       return NextResponse.json({ error: 'Invalid grant ID' }, { status: 400 })
@@ -35,10 +36,11 @@ export async function GET(
 // PUT /api/grants/[id] - Update a grant
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const grantId = parseInt(params.id)
+    const { id } = await params
+    const grantId = parseInt(id)
     const body = await request.json()
 
     if (isNaN(grantId)) {
@@ -86,10 +88,11 @@ export async function PUT(
 // DELETE /api/grants/[id] - Delete a grant
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const grantId = parseInt(params.id)
+    const { id } = await params
+    const grantId = parseInt(id)
 
     if (isNaN(grantId)) {
       return NextResponse.json({ error: 'Invalid grant ID' }, { status: 400 })

@@ -79,7 +79,7 @@ export default function GrantGeniePage() {
                 <Card.Root>
                   <Card.Header>
                     <Heading size="md" color="purple.900">
-                      📄 Upload Grant Materials
+                      Upload Grant Materials
                     </Heading>
                     <Text fontSize="sm" color="purple.700" mt={2}>
                       Upload RFP or Guidelines, or paste the content in text box
@@ -128,7 +128,7 @@ export default function GrantGeniePage() {
                 <Card.Root>
                   <Card.Header>
                     <Heading size="md" color="purple.900">
-                      💡 Teach the Grant Genie
+                      Teach the Grant Genie
                     </Heading>
                     <Text fontSize="sm" color="purple.700" mt={2}>
                       Upload your own past grants and teach the Genie HOW you write
@@ -174,7 +174,7 @@ export default function GrantGeniePage() {
                 <Card.Root bg="purple.50" border="1px solid" borderColor="purple.200">
                   <Card.Header>
                     <Heading size="sm" color="purple.900">
-                      📚 Knowledge Capture
+                      Knowledge Capture
                     </Heading>
                   </Card.Header>
                   <Card.Body>
@@ -188,7 +188,7 @@ export default function GrantGeniePage() {
                 <Card.Root bg="purple.50" border="1px solid" borderColor="purple.200">
                   <Card.Header>
                     <Heading size="sm" color="purple.900">
-                      💬 Talk to the Genie
+                      Talk to the Genie
                     </Heading>
                   </Card.Header>
                   <Card.Body>
@@ -221,7 +221,7 @@ export default function GrantGeniePage() {
                 <Card.Root>
                   <Card.Header>
                     <Heading size="md" color="purple.900">
-                      🎯 Project Context Fields
+                      Project Context Fields
                     </Heading>
                     <Text fontSize="sm" color="purple.700" mt={2}>
                       Provide the essential details for your grant proposal
@@ -284,7 +284,7 @@ export default function GrantGeniePage() {
                 <Card.Root bg="purple.50" border="1px solid" borderColor="purple.200">
                   <Card.Header>
                     <Heading size="sm" color="purple.900">
-                      📋 Input Summary
+                      Input Summary
                     </Heading>
                   </Card.Header>
                   <Card.Body>

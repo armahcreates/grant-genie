@@ -111,7 +111,7 @@ export default function GrantProposalPage() {
                 <Card.Root>
                   <Card.Header>
                     <Heading size="sm" color="purple.900">
-                      📝 Reflection
+                      Reflection
                     </Heading>
                   </Card.Header>
                   <Card.Body>
@@ -124,7 +124,7 @@ export default function GrantProposalPage() {
                 <Card.Root bg="purple.50" border="1px solid" borderColor="purple.200">
                   <Card.Header>
                     <Heading size="sm" color="purple.900">
-                      💡 Knowledge Capture
+                      Knowledge Capture
                     </Heading>
                   </Card.Header>
                   <Card.Body>
@@ -137,7 +137,7 @@ export default function GrantProposalPage() {
                 <Card.Root bg="purple.50" border="1px solid" borderColor="purple.200">
                   <Card.Header>
                     <Heading size="sm" color="purple.900">
-                      💬 Talk to the Genie
+                      Talk to the Genie
                     </Heading>
                   </Card.Header>
                   <Card.Body>

@@ -1,8 +1,6 @@
 import { NextRequest } from 'next/server'
 import { mastra } from '@/lib/mastra'
 
-export const runtime = 'edge'
-
 // POST /api/ai/generate-grant - Generate grant proposal using Grant Writing Agent
 export async function POST(request: NextRequest) {
   try {
