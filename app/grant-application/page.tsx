@@ -24,20 +24,13 @@ import {
   FiLoader,
 } from 'react-icons/fi'
 import MainLayout from '@/components/layout/MainLayout'
+import { useGrantGenieStore } from '@/lib/store'
 
 export default function GrantGeniePage() {
   const router = useRouter()
   const [isGenerating, setIsGenerating] = useState(false)
   const [error, setError] = useState('')
-  const [formData, setFormData] = useState({
-    rfpText: '',
-    teachingMaterials: '',
-    projectName: '',
-    funderName: '',
-    fundingDeadline: '',
-    focusArea: '',
-    grantAmount: '',
-  })
+  const { formData, setFormData } = useGrantGenieStore()
 
   const handleGenerate = async () => {
     // Basic validation
@@ -50,10 +43,8 @@ export default function GrantGeniePage() {
     setError('')
 
     try {
-      // Store form data in sessionStorage for the proposal page
-      sessionStorage.setItem('grantFormData', JSON.stringify(formData))
-
       // Navigate to proposal page which will generate the content
+      // Form data is already in Zustand store with persistence
       router.push('/grant-application/proposal')
     } catch (err) {
       setError('Failed to start generation. Please try again.')

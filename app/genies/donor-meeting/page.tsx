@@ -17,34 +17,26 @@ import {
   Flex,
   SimpleGrid,
 } from '@chakra-ui/react'
-import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { FiUpload, FiX, FiArrowRight } from 'react-icons/fi'
 import { Checkbox } from '@/components/ui/checkbox'
+import { useDonorGenieStore } from '@/lib/store'
 
 export default function DonorMeetingGeniePage() {
   const router = useRouter()
-  const [formData, setFormData] = useState({
-    genieProfile: '',
-    donorType: '',
-    warmthFactor: '',
-    anticipatedObjections: [] as string[],
-    practiceFormat: 'two-way',
-    googleInputs: false,
-  })
+  const { sessionConfig, setSessionConfig } = useDonorGenieStore()
 
   const handleObjectionToggle = (objection: string) => {
-    setFormData(prev => ({
-      ...prev,
-      anticipatedObjections: prev.anticipatedObjections.includes(objection)
-        ? prev.anticipatedObjections.filter(o => o !== objection)
-        : [...prev.anticipatedObjections, objection]
-    }))
+    setSessionConfig({
+      anticipatedObjections: sessionConfig.anticipatedObjections?.includes(objection)
+        ? sessionConfig.anticipatedObjections.filter(o => o !== objection)
+        : [...(sessionConfig.anticipatedObjections || []), objection]
+    })
   }
 
   const handleStartPractice = () => {
-    // Navigate to practice session summary
-    router.push('/genies/donor-meeting/summary')
+    // Navigate to practice session
+    router.push('/genies/donor-meeting/practice')
   }
 
   return (
@@ -87,8 +79,8 @@ export default function DonorMeetingGeniePage() {
                     <Textarea
                       placeholder="e.g., Their LinkedIn, an interview about the donor, a funder research, or past interactions"
                       rows={4}
-                      value={formData.genieProfile}
-                      onChange={(e) => setFormData(prev => ({ ...prev, genieProfile: e.target.value }))}
+                      value={sessionConfig.donorProfile}
+                      onChange={(e) => setSessionConfig({ donorProfile: e.target.value })}
                     />
                     <Text fontSize="xs" color="purple.600">
                       Links or copy-pasted text, actual files, or screenshots or images.
@@ -107,14 +99,14 @@ export default function DonorMeetingGeniePage() {
                         borderRadius: '0.375rem',
                         border: '1px solid #E2E8F0',
                       }}
-                      value={formData.donorType}
-                      onChange={(e) => setFormData(prev => ({ ...prev, donorType: e.target.value }))}
+                      value={sessionConfig.donorType}
+                      onChange={(e) => setSessionConfig({ donorType: e.target.value as any })}
                     >
                       <option value="">Select donor type...</option>
-                      <option value="major-individual">Major Individual</option>
-                      <option value="foundation">Foundation</option>
-                      <option value="corporate">Corporate</option>
-                      <option value="planned-giving">Planned Giving</option>
+                      <option value="Individual">Major Individual</option>
+                      <option value="Foundation">Foundation</option>
+                      <option value="Corporate">Corporate</option>
+                      <option value="Planned Giving">Planned Giving</option>
                     </select>
                   </VStack>
 
@@ -125,8 +117,8 @@ export default function DonorMeetingGeniePage() {
                     </Text>
                     <Input
                       placeholder="What do you sense of them (practical or enthusiastic)?"
-                      value={formData.warmthFactor}
-                      onChange={(e) => setFormData(prev => ({ ...prev, warmthFactor: e.target.value }))}
+                      value={sessionConfig.warmthLevel || ''}
+                      onChange={(e) => setSessionConfig({ warmthLevel: e.target.value })}
                     />
                     <Text fontSize="xs" color="purple.600">
                       (e.g., "down to earth, story-focused; OR more cerebral and ROI-focused")
@@ -144,8 +136,8 @@ export default function DonorMeetingGeniePage() {
                     <Textarea
                       placeholder="e.g., They love our programs locally but are hesitant about the expansion"
                       rows={3}
-                      value={formData.genieProfile}
-                      onChange={(e) => setFormData(prev => ({ ...prev, genieProfile: e.target.value }))}
+                      value={sessionConfig.objections || ''}
+                      onChange={(e) => setSessionConfig({ objections: e.target.value })}
                     />
                   </VStack>
 
@@ -157,28 +149,28 @@ export default function DonorMeetingGeniePage() {
                     <Stack gap={2}>
                       <HStack>
                         <Checkbox
-                          checked={formData.anticipatedObjections.includes('major')}
+                          checked={sessionConfig.anticipatedObjections?.includes('major')}
                           onCheckedChange={() => handleObjectionToggle('major')}
                         />
                         <Text fontSize="sm">Major</Text>
                       </HStack>
                       <HStack>
                         <Checkbox
-                          checked={formData.anticipatedObjections.includes('planned')}
+                          checked={sessionConfig.anticipatedObjections?.includes('planned')}
                           onCheckedChange={() => handleObjectionToggle('planned')}
                         />
                         <Text fontSize="sm">Planned</Text>
                       </HStack>
                       <HStack>
                         <Checkbox
-                          checked={formData.anticipatedObjections.includes('build')}
+                          checked={sessionConfig.anticipatedObjections?.includes('build')}
                           onCheckedChange={() => handleObjectionToggle('build')}
                         />
                         <Text fontSize="sm">Build</Text>
                       </HStack>
                       <HStack>
                         <Checkbox
-                          checked={formData.anticipatedObjections.includes('sustain')}
+                          checked={sessionConfig.anticipatedObjections?.includes('sustain')}
                           onCheckedChange={() => handleObjectionToggle('sustain')}
                         />
                         <Text fontSize="sm">Sustain</Text>
@@ -196,9 +188,9 @@ export default function DonorMeetingGeniePage() {
                         <input
                           type="radio"
                           name="practiceFormat"
-                          value="two-way"
-                          checked={formData.practiceFormat === 'two-way'}
-                          onChange={(e) => setFormData(prev => ({ ...prev, practiceFormat: e.target.value }))}
+                          value="conversation"
+                          checked={sessionConfig.practiceMode === 'conversation'}
+                          onChange={(e) => setSessionConfig({ practiceMode: 'conversation' })}
                         />
                         <Text fontSize="sm">Two-way conversation</Text>
                       </HStack>
@@ -206,9 +198,9 @@ export default function DonorMeetingGeniePage() {
                         <input
                           type="radio"
                           name="practiceFormat"
-                          value="elevator"
-                          checked={formData.practiceFormat === 'elevator'}
-                          onChange={(e) => setFormData(prev => ({ ...prev, practiceFormat: e.target.value }))}
+                          value="pitch"
+                          checked={sessionConfig.practiceMode === 'pitch'}
+                          onChange={(e) => setSessionConfig({ practiceMode: 'pitch' })}
                         />
                         <Text fontSize="sm">Elevator pitch</Text>
                       </HStack>
@@ -216,9 +208,9 @@ export default function DonorMeetingGeniePage() {
                         <input
                           type="radio"
                           name="practiceFormat"
-                          value="objection"
-                          checked={formData.practiceFormat === 'objection'}
-                          onChange={(e) => setFormData(prev => ({ ...prev, practiceFormat: e.target.value }))}
+                          value="objection-handling"
+                          checked={sessionConfig.practiceMode === 'objection-handling'}
+                          onChange={(e) => setSessionConfig({ practiceMode: 'objection-handling' })}
                         />
                         <Text fontSize="sm">Objection handling only</Text>
                       </HStack>
@@ -228,8 +220,8 @@ export default function DonorMeetingGeniePage() {
                   {/* Google My Inputs */}
                   <HStack>
                     <Checkbox
-                      checked={formData.googleInputs}
-                      onCheckedChange={(checked) => setFormData(prev => ({ ...prev, googleInputs: !!checked.checked }))}
+                      checked={sessionConfig.useKnowledgeBase}
+                      onCheckedChange={(checked) => setSessionConfig({ useKnowledgeBase: !!checked.checked })}
                     />
                     <Text fontSize="sm" color="purple.700">
                       Google My Inputs (e.g., context about philanthropic values, past donor objection sheets, development notes)
@@ -297,7 +289,7 @@ export default function DonorMeetingGeniePage() {
                       Donor Profile Preview
                     </Text>
                     <Text fontSize="sm" color="purple.900">
-                      {formData.donorType || 'Select a donor type to see preview'}
+                      {sessionConfig.donorType || 'Select a donor type to see preview'}
                     </Text>
                   </Box>
 
@@ -312,13 +304,13 @@ export default function DonorMeetingGeniePage() {
                       Practice Format
                     </Text>
                     <Text fontSize="sm" color="purple.900">
-                      {formData.practiceFormat === 'two-way' && 'Two-way conversation'}
-                      {formData.practiceFormat === 'elevator' && 'Elevator pitch'}
-                      {formData.practiceFormat === 'objection' && 'Objection handling only'}
+                      {sessionConfig.practiceMode === 'conversation' && 'Two-way conversation'}
+                      {sessionConfig.practiceMode === 'pitch' && 'Elevator pitch'}
+                      {sessionConfig.practiceMode === 'objection-handling' && 'Objection handling only'}
                     </Text>
                   </Box>
 
-                  {formData.warmthFactor && (
+                  {sessionConfig.warmthLevel && (
                     <Box
                       p={4}
                       bg="white"
@@ -330,7 +322,7 @@ export default function DonorMeetingGeniePage() {
                         Warmth Factor
                       </Text>
                       <Text fontSize="sm" color="purple.900">
-                        {formData.warmthFactor}
+                        {sessionConfig.warmthLevel}
                       </Text>
                     </Box>
                   )}

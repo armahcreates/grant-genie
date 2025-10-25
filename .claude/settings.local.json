@@ -14,7 +14,15 @@
       "Bash(git push:*)",
       "WebFetch(domain:chakra-ui.com)",
       "Bash(cat:*)",
-      "Bash(npm uninstall:*)"
+      "Bash(npm uninstall:*)",
+      "Bash(npm run dev)",
+      "Read(//Users/blacktechgenius/Desktop/**)",
+      "WebFetch(domain:mastra.ai)",
+      "Bash(npm run db:generate:*)",
+      "Bash(npm run db:push:*)",
+      "Bash(npm run db:migrate:*)",
+      "Bash(tsx:*)",
+      "Bash(npx tsx:*)"
     ],
     "deny": [],
     "ask": []

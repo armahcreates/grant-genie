@@ -1,52 +1,76 @@
+import { NextRequest } from 'next/server'
 import { mastra } from '@/lib/mastra'
 
-// export const runtime = 'edge' // Disabled for Mastra compatibility
+export const runtime = 'edge'
 
-export async function POST(req: Request) {
+// POST /api/ai/generate-grant - Generate grant proposal using Grant Writing Agent
+export async function POST(request: NextRequest) {
   try {
+    const body = await request.json()
     const {
-      rfpText,
-      teachingMaterials,
       projectName,
       funderName,
-      focusArea,
-      grantAmount
-    } = await req.json()
+      fundingAmount,
+      deadline,
+      rfpText,
+      teachingMaterials,
+    } = body
 
-    const userPrompt = `Generate a compelling grant proposal based on the following information:
+    if (!projectName || !funderName) {
+      return new Response(
+        JSON.stringify({ error: 'projectName and funderName are required' }),
+        {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      )
+    }
 
-Project Name: ${projectName || 'Not specified'}
-Funder: ${funderName || 'Not specified'}
-Focus Area: ${focusArea || 'Not specified'}
-Grant Amount: ${grantAmount || 'Not specified'}
+    // Build the prompt for the grant writing agent
+    const prompt = `Generate a comprehensive grant proposal for the following project:
 
-RFP/Guidelines:
-${rfpText || 'No RFP provided'}
+Project Name: ${projectName}
+Funder: ${funderName}
+${fundingAmount ? `Funding Amount Requested: ${fundingAmount}` : ''}
+${deadline ? `Deadline: ${deadline}` : ''}
 
-Writing Style Reference (use this to match the organization's voice):
-${teachingMaterials || 'No reference materials provided'}
+${rfpText ? `RFP/Grant Guidelines:\n${rfpText}\n` : ''}
 
-Please generate a complete grant proposal with these sections:
+${teachingMaterials ? `Organization Background & Writing Style:\n${teachingMaterials}\n` : ''}
+
+Please generate a complete grant proposal following best practices for nonprofit grant writing. Include:
 1. Executive Summary
 2. Statement of Need
 3. Program Description
-4. Expected Outcomes
+4. Expected Outcomes and Impact
 5. Budget Summary
 
-Format the response with clear headings and professional nonprofit language.`
+Make it compelling, data-driven, and aligned with the funder's priorities.`
 
+    // Get the grant writing agent
     const agent = mastra.getAgent('grantWriting')
 
-    const stream = await agent.stream(
-      [{ role: 'user', content: userPrompt }],
+    // Generate the proposal with streaming
+    const stream = await agent.generate(prompt, {
+      stream: true,
+    })
+
+    // Return streaming response
+    return new Response(stream, {
+      headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        Connection: 'keep-alive',
+      },
+    })
+  } catch (error) {
+    console.error('Error generating grant proposal:', error)
+    return new Response(
+      JSON.stringify({ error: 'Failed to generate grant proposal' }),
       {
-        format: 'aisdk',
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
       }
     )
-
-    return stream.toUIMessageStreamResponse()
-  } catch (error) {
-    console.error('Error generating grant:', error)
-    return new Response('Error generating grant proposal', { status: 500 })
   }
 }

@@ -105,14 +105,14 @@ export function useDonorMeetingAgent(options: UseDonorMeetingAgentOptions = {}) 
         addMessage(userMessage)
         options.onMessage?.(userMessage)
 
-        const response = await fetch('/api/ai/donor-meeting', {
+        const response = await fetch('/api/ai/donor-practice', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            message,
-            sessionConfig,
+            ...sessionConfig,
+            messages: [{ role: 'user', content: message }],
           }),
         })
 

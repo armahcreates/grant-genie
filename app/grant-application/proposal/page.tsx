@@ -15,7 +15,7 @@ import {
   Spinner,
 } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
 import {
   FiShare2,
   FiDownload,
@@ -23,69 +23,44 @@ import {
   FiRefreshCw,
 } from 'react-icons/fi'
 import MainLayout from '@/components/layout/MainLayout'
+import { useGrantGenieStore } from '@/lib/store'
+import { useGrantWritingAgent } from '@/lib/agents'
 
 export default function GrantProposalPage() {
   const router = useRouter()
-  const [isGenerating, setIsGenerating] = useState(true)
-  const [proposalContent, setProposalContent] = useState('')
-  const [formData, setFormData] = useState<any>(null)
-  const [error, setError] = useState('')
+  const { formData, proposalContent, isGenerating } = useGrantGenieStore()
+  const { generateProposal, error } = useGrantWritingAgent()
 
   useEffect(() => {
-    const loadedFormData = sessionStorage.getItem('grantFormData')
-    if (!loadedFormData) {
+    // Check if we have form data, if not redirect back
+    if (!formData.projectName || !formData.funderName) {
       router.push('/grant-application')
       return
     }
 
-    const parsed = JSON.parse(loadedFormData)
-    setFormData(parsed)
-    generateProposal(parsed)
+    // Only generate if we don't have content yet
+    if (!proposalContent && !isGenerating) {
+      handleGenerate()
+    }
   }, [])
 
-  const generateProposal = async (data: any) => {
-    setIsGenerating(true)
-    setError('')
-
+  const handleGenerate = async () => {
     try {
-      const response = await fetch('/api/ai/generate-grant', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
+      await generateProposal({
+        projectName: formData.projectName,
+        funderName: formData.funderName,
+        fundingAmount: formData.grantAmount,
+        deadline: formData.fundingDeadline,
+        rfpText: formData.rfpText,
+        teachingMaterials: formData.teachingMaterials,
       })
-
-      if (!response.ok) {
-        throw new Error('Failed to generate proposal')
-      }
-
-      const reader = response.body?.getReader()
-      const decoder = new TextDecoder()
-      let content = ''
-
-      if (reader) {
-        while (true) {
-          const { done, value } = await reader.read()
-          if (done) break
-
-          const chunk = decoder.decode(value)
-          content += chunk
-          setProposalContent(content)
-        }
-      }
-
-      setIsGenerating(false)
     } catch (err) {
-      setError('Failed to generate proposal. Please try again.')
-      setIsGenerating(false)
+      console.error('Error generating proposal:', err)
     }
   }
 
   const handleRegenerate = () => {
-    if (formData) {
-      generateProposal(formData)
-    }
+    handleGenerate()
   }
 
   return (

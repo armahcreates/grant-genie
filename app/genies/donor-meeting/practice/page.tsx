@@ -27,35 +27,34 @@ import {
   FiMessageCircle,
 } from 'react-icons/fi'
 import { Checkbox } from '@/components/ui/checkbox'
+import { useDonorGenieStore } from '@/lib/store'
+import { useDonorMeetingAgent } from '@/lib/agents'
 
 export default function DonorMeetingPracticePage() {
   const router = useRouter()
   const [userMessage, setUserMessage] = useState('')
   const [captureNotes, setCaptureNotes] = useState(false)
 
-  const conversation = [
-    {
-      id: 1,
-      speaker: 'Robert Chen',
-      role: 'Donor',
-      message: "Thanks for coming by today. I've been following your work for some time now, and I'm excited to learn more about this new initiative.",
-      timestamp: '2:30 PM',
-    },
-    {
-      id: 2,
-      speaker: 'You',
-      role: 'Sarah',
-      message: "Thank you so much for making time, Robert. I really appreciate your interest in our work. Let me start by sharing what we're most excited about...",
-      timestamp: '2:31 PM',
-    },
-  ]
+  const { sessionConfig, conversationHistory, coachingTips, score } = useDonorGenieStore()
+  const { sendMessage, endSession, isProcessing } = useDonorMeetingAgent()
+
+  const handleSendMessage = async () => {
+    if (!userMessage.trim()) return
+
+    try {
+      await sendMessage(userMessage)
+      setUserMessage('')
+    } catch (error) {
+      console.error('Error sending message:', error)
+    }
+  }
 
   const donorContext = {
-    name: 'Robert Chen',
-    type: 'Major Individual',
-    relationship: 'High-net-worth individual',
-    priorGifts: '$25k annually',
-    focus: 'Youth education',
+    name: sessionConfig.donorProfile || 'Donor',
+    type: sessionConfig.donorType || 'Individual',
+    relationship: 'Practice Session',
+    priorGifts: 'N/A',
+    focus: sessionConfig.objections || 'General',
   }
 
   const practiceInsights = [
@@ -253,29 +252,37 @@ export default function DonorMeetingPracticePage() {
                   </Card.Header>
                   <Card.Body>
                     <VStack gap={4} align="stretch" maxH="400px" overflowY="auto">
-                      {conversation.map((msg) => (
-                        <Box
-                          key={msg.id}
-                          p={4}
-                          bg={msg.role === 'Donor' ? 'white' : 'purple.50'}
-                          borderRadius="lg"
-                          border="1px solid"
-                          borderColor={msg.role === 'Donor' ? 'purple.200' : 'purple.200'}
-                        >
-                          <HStack mb={2} justify="space-between">
-                            <Badge
-                              colorScheme={msg.role === 'Donor' ? 'purple' : 'purple'}
-                              fontSize="xs"
-                            >
-                              {msg.speaker}
-                            </Badge>
-                            <Text fontSize="xs" color="purple.600">{msg.timestamp}</Text>
-                          </HStack>
-                          <Text fontSize="sm" color="purple.900" lineHeight="tall">
-                            {msg.message}
+                      {conversationHistory.length === 0 ? (
+                        <Box p={8} textAlign="center">
+                          <Text color="purple.600" fontSize="sm">
+                            Start the conversation by typing your message below
                           </Text>
                         </Box>
-                      ))}
+                      ) : (
+                        conversationHistory.map((msg, index) => (
+                          <Box
+                            key={index}
+                            p={4}
+                            bg={msg.role === 'assistant' ? 'white' : 'purple.50'}
+                            borderRadius="lg"
+                            border="1px solid"
+                            borderColor={msg.role === 'assistant' ? 'purple.200' : 'purple.200'}
+                          >
+                            <HStack mb={2} justify="space-between">
+                              <Badge
+                                colorScheme={msg.role === 'assistant' ? 'purple' : 'purple'}
+                                fontSize="xs"
+                              >
+                                {msg.role === 'assistant' ? 'Donor' : 'You'}
+                              </Badge>
+                              <Text fontSize="xs" color="purple.600">{new Date().toLocaleTimeString()}</Text>
+                            </HStack>
+                            <Text fontSize="sm" color="purple.900" lineHeight="tall">
+                              {msg.content}
+                            </Text>
+                          </Box>
+                        ))
+                      )}
                     </VStack>
 
                     {/* Message Input */}
@@ -286,18 +293,19 @@ export default function DonorMeetingPracticePage() {
                           value={userMessage}
                           onChange={(e) => setUserMessage(e.target.value)}
                           onKeyPress={(e) => {
-                            if (e.key === 'Enter') {
-                              // Handle send message
-                              setUserMessage('')
+                            if (e.key === 'Enter' && !isProcessing) {
+                              handleSendMessage()
                             }
                           }}
+                          isDisabled={isProcessing}
                         />
                         <Button
                           colorScheme="purple"
-                          onClick={() => setUserMessage('')}
+                          onClick={handleSendMessage}
+                          isDisabled={isProcessing || !userMessage.trim()}
                         >
                           <Icon as={FiSend} mr={2} />
-                          Send
+                          {isProcessing ? 'Sending...' : 'Send'}
                         </Button>
                       </HStack>
                     </Box>
