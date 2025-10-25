@@ -1,15 +1,11 @@
 'use client'
 
 import { Tooltip as ChakraTooltip } from '@chakra-ui/react'
+import * as RadixTooltip from '@radix-ui/react-tooltip'
 import { forwardRef } from 'react'
 
-export interface TooltipProviderProps {
-  children: React.ReactNode
-}
-
-export const TooltipProvider = ({ children }: TooltipProviderProps) => {
-  return <>{children}</>
-}
+// Re-export Radix UI TooltipProvider for Stack Auth compatibility
+export const TooltipProvider = RadixTooltip.Provider
 
 export interface TooltipProps {
   content: React.ReactNode
