@@ -14,3 +14,33 @@ body {
   padding: 0;
   min-height: 100vh;
 }
+
+
+/* Dark Mode Styles */
+:root {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f9fafb;
+  --bg-tertiary: #f3f4f6;
+  --text-primary: #111827;
+  --text-secondary: #6b7280;
+  --text-tertiary: #9ca3af;
+  --border-primary: #e5e7eb;
+  --border-secondary: #d1d5db;
+}
+
+.dark {
+  --bg-primary: #0F1419;
+  --bg-secondary: #1A1F2E;
+  --bg-tertiary: #252D3D;
+  --text-primary: #E8EAED;
+  --text-secondary: #B8BCC4;
+  --text-tertiary: #8B92A0;
+  --border-primary: #2A2F3D;
+  --border-secondary: #363D4F;
+}
+
+/* Apply dark mode background to body */
+.dark body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}

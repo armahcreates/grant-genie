@@ -13,10 +13,10 @@ import {
   Icon,
   Badge,
   Flex,
-  Image,
 } from '@chakra-ui/react'
+import Image from 'next/image'
 import { keyframes } from '@emotion/react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import {
   FiCheck,
   FiZap,
@@ -36,6 +36,8 @@ import {
   FiStar,
 } from 'react-icons/fi'
 import { useRouter } from 'next/navigation'
+import { useUser } from '@stackframe/stack'
+import { colors } from '@/theme/tokens'
 
 // Animation keyframes
 const float = keyframes`
@@ -75,9 +77,17 @@ const pulse = keyframes`
   50% { opacity: 0.5; }
 `
 
-export default function LandingPage() {
+function LandingPageContent() {
   const router = useRouter()
+  const user = useUser()
   const [scrollY, setScrollY] = useState(0)
+
+  // Redirect authenticated users to dashboard
+  useEffect(() => {
+    if (user) {
+      router.push('/dashboard')
+    }
+  }, [user, router])
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY)
@@ -85,9 +95,8 @@ export default function LandingPage() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  // Color palette
-  const deepIndigo = '#3C3B6E'
-  const softTeal = '#5CE1E6'
+  // Use centralized theme tokens
+  const { deepIndigo, softTeal, tealVariant, indigoVariant, indigoDark } = colors.brand
 
   const genies = [
     {
@@ -216,7 +225,7 @@ export default function LandingPage() {
       >
         <Container maxW="container.xl" py={4}>
           <Flex justify="space-between" align="center">
-            <HStack gap={3} cursor="pointer" _hover={{ transform: 'scale(1.02)' }} transition="all 0.2s">
+            <HStack gap={3} cursor="pointer" _hover={{ transform: 'scale(1.05)' }} transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)">
               <Box
                 w={{ base: 8, md: 10 }}
                 h={{ base: 8, md: 10 }}
@@ -257,8 +266,8 @@ export default function LandingPage() {
                 color={deepIndigo}
                 fontWeight="semibold"
                 size={{ base: 'sm', md: 'md' }}
-                _hover={{ bg: 'gray.50', transform: 'translateY(-2px)' }}
-                transition="all 0.2s"
+                _hover={{ bg: 'gray.50', transform: 'translateY(-4px)', boxShadow: 'md' }}
+                transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
               >
                 Log In
               </Button>
@@ -290,7 +299,7 @@ export default function LandingPage() {
       <Box
         pt={{ base: 24, md: 32 }}
         pb={{ base: 16, md: 24 }}
-        background={`linear-gradient(to bottom right, ${deepIndigo}, #2D2C5A, #1a1a3e)`}
+        background={`linear-gradient(to bottom right, ${deepIndigo}, ${indigoVariant}, ${indigoDark})`}
         position="relative"
         overflow="hidden"
         color="white"
@@ -361,7 +370,7 @@ export default function LandingPage() {
             <Flex gap={4} pt={6} direction={{ base: 'column', sm: 'row' }} w={{ base: 'full', sm: 'auto' }}>
               <Button
                 size={{ base: 'md', md: 'lg' }}
-                bgGradient={`linear(to-r, ${softTeal}, #4BC5CC)`}
+                bgGradient={`linear(to-r, ${softTeal}, ${tealVariant})`}
                 color="white"
                 px={{ base: 8, md: 10 }}
                 py={{ base: 6, md: 8 }}
@@ -369,7 +378,7 @@ export default function LandingPage() {
                 fontWeight="semibold"
                 onClick={() => router.push('/auth/signup')}
                 _hover={{
-                  bgGradient: `linear(to-r, #4BC5CC, ${softTeal})`,
+                  bgGradient: `linear(to-r, ${tealVariant}, ${softTeal})`,
                   transform: 'translateY(-3px)',
                   boxShadow: '0 15px 35px rgba(92, 225, 230, 0.5)'
                 }}
@@ -450,13 +459,16 @@ export default function LandingPage() {
                   zIndex: 1,
                 }}
               >
-                <Image
-                  src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=1400&h=800&fit=crop&q=90"
-                  alt="Team collaborating on mission-driven work"
-                  w="full"
-                  h="auto"
-                  objectFit="cover"
-                />
+                <Box position="relative" width="100%" height="500px">
+                  <Image
+                    src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=1400&h=800&fit=crop&q=90"
+                    alt="Team collaborating on mission-driven work"
+                    fill
+                    style={{ objectFit: 'cover' }}
+                    priority
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 1200px"
+                  />
+                </Box>
               </Box>
             </Box>
           </Box>
@@ -475,9 +487,9 @@ export default function LandingPage() {
                   borderColor="whiteAlpha.200"
                   _hover={{
                     bg: 'whiteAlpha.200',
-                    transform: { base: 'translateY(-4px)', md: 'translateY(-8px) scale(1.05)' },
+                    transform: { base: 'translateY(-6px) scale(1.03)', md: 'translateY(-12px) scale(1.08)' },
                     borderColor: softTeal,
-                    boxShadow: `0 20px 40px rgba(92, 225, 230, 0.3)`,
+                    boxShadow: `0 25px 50px rgba(92, 225, 230, 0.4)`,
                   }}
                   transition="all 0.4s cubic-bezier(0.4, 0, 0.2, 1)"
                   cursor="pointer"
@@ -993,7 +1005,7 @@ export default function LandingPage() {
                   <Flex
                     w={{ base: 16, md: 20 }}
                     h={{ base: 16, md: 20 }}
-                    bgGradient={`linear(135deg, ${softTeal}, #4BC5CC)`}
+                    bgGradient={`linear(135deg, ${softTeal}, ${tealVariant})`}
                     borderRadius="2xl"
                     align="center"
                     justify="center"
@@ -1138,8 +1150,8 @@ export default function LandingPage() {
 
                       <Button
                         size="lg"
-                        bg={plan.highlighted ? `linear-gradient(135deg, ${softTeal}, #4BC5CC)` : 'gray.100'}
-                        bgGradient={plan.highlighted ? `linear(135deg, ${softTeal}, #4BC5CC)` : undefined}
+                        bg={plan.highlighted ? `linear-gradient(135deg, ${softTeal}, ${tealVariant})` : 'gray.100'}
+                        bgGradient={plan.highlighted ? `linear(135deg, ${softTeal}, ${tealVariant})` : undefined}
                         color={plan.highlighted ? 'white' : deepIndigo}
                         onClick={() => router.push('/auth/signup')}
                         w="full"
@@ -1182,7 +1194,7 @@ export default function LandingPage() {
       {/* 9. THE INVITATION / CTA */}
       <Box
         py={{ base: 16, md: 28 }}
-        background={`linear-gradient(to bottom right, ${deepIndigo}, #2D2C5A, #1a1a3e)`}
+        background={`linear-gradient(to bottom right, ${deepIndigo}, ${indigoVariant}, ${indigoDark})`}
         color="white"
         position="relative"
         overflow="hidden"
@@ -1215,7 +1227,7 @@ export default function LandingPage() {
             <Flex gap={5} pt={6} direction={{ base: 'column', sm: 'row' }} w={{ base: 'full', sm: 'auto' }}>
               <Button
                 size={{ base: 'md', md: 'lg' }}
-                bgGradient={`linear(to-r, ${softTeal}, #4BC5CC)`}
+                bgGradient={`linear(to-r, ${softTeal}, ${tealVariant})`}
                 color="white"
                 px={{ base: 8, md: 12 }}
                 py={{ base: 6, md: 8 }}
@@ -1223,7 +1235,7 @@ export default function LandingPage() {
                 fontWeight="semibold"
                 onClick={() => router.push('/auth/signup')}
                 _hover={{
-                  bgGradient: `linear(to-r, #4BC5CC, ${softTeal})`,
+                  bgGradient: `linear(to-r, ${tealVariant}, ${softTeal})`,
                   transform: 'translateY(-4px)',
                   boxShadow: '0 20px 40px rgba(92, 225, 230, 0.5)'
                 }}
@@ -1398,5 +1410,13 @@ export default function LandingPage() {
       </Box>
 
     </Box>
+  )
+}
+
+export default function LandingPage() {
+  return (
+    <Suspense fallback={<Box minH="100vh" bg="white" />}>
+      <LandingPageContent />
+    </Suspense>
   )
 }

@@ -23,7 +23,9 @@
       "Bash(npm run db:migrate:*)",
       "Bash(tsx:*)",
       "Bash(npx tsx:*)",
-      "Bash(perl:*)"
+      "Bash(perl:*)",
+      "WebFetch(domain:docs.stack-auth.com)",
+      "Bash(curl:*)"
     ],
     "deny": [],
     "ask": []

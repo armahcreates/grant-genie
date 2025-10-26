@@ -1,8 +1,12 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import "./reduced-motion.css";
+import "./animations.css";
 import { Provider } from "@/components/ui/provider";
 import { QueryProvider } from "@/lib/query/provider";
+import { ToastProvider } from "@/components/ui/toaster";
+import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { StackProvider } from "@stackframe/stack";
@@ -31,11 +35,17 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
-        <StackProvider app={stackServerApp}>
-          <QueryProvider>
-            <Provider>{children}</Provider>
-          </QueryProvider>
-        </StackProvider>
+        <ErrorBoundary>
+          <StackProvider app={stackServerApp}>
+            <QueryProvider>
+              <Provider>
+                <ToastProvider>
+                  {children}
+                </ToastProvider>
+              </Provider>
+            </QueryProvider>
+          </StackProvider>
+        </ErrorBoundary>
         <Analytics />
         <SpeedInsights />
       </body>

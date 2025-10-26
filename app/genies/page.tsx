@@ -21,9 +21,11 @@ import {
   FiSettings,
   FiPlus,
 } from 'react-icons/fi'
+import { useAuth } from '@/contexts/AuthContext'
 
 export default function GeniesPage() {
   const router = useRouter()
+  const { user } = useAuth()
 
   const genies = [
     {
@@ -63,7 +65,7 @@ export default function GeniesPage() {
           {/* Header */}
           <VStack align="start" gap={2}>
             <Heading size="2xl" color="purple.900">
-              Welcome back, Sarah!
+              Welcome back, {user?.name || 'there'}!
             </Heading>
             <Text fontSize="lg" color="purple.700">
               Ready to make an impact today?
@@ -73,7 +75,7 @@ export default function GeniesPage() {
           {/* What would you help with today? */}
           <VStack align="start" gap={6}>
             <Heading size="lg" color="purple.900">
-              What would you help with today?
+              What would you like help with today?
             </Heading>
 
             <SimpleGrid columns={{ base: 1, md: 2 }} gap={6} w="full">
@@ -81,11 +83,26 @@ export default function GeniesPage() {
                 <Card.Root
                   key={genie.id}
                   cursor="pointer"
+                  tabIndex={0}
+                  role="button"
+                  aria-label={`${genie.title}: ${genie.description}`}
                   onClick={() => router.push(genie.href)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault()
+                      router.push(genie.href)
+                    }
+                  }}
                   _hover={{
-                    transform: 'translateY(-4px)',
-                    boxShadow: 'xl',
+                    transform: 'translateY(-6px) scale(1.02)',
+                    boxShadow: '2xl',
                     borderColor: 'purple.400',
+                  }}
+                  _focusVisible={{
+                    outline: '3px solid',
+                    outlineColor: 'purple.500',
+                    outlineOffset: '2px',
+                    transform: 'translateY(-4px)'
                   }}
                   transition="all 0.3s"
                   border="1px solid"
@@ -127,9 +144,24 @@ export default function GeniesPage() {
               borderColor="purple.300"
               bg="white"
               cursor="pointer"
+              tabIndex={0}
+              role="button"
+              aria-label="Create new custom genie assistant for your unique workflow"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  // Add navigation when feature is implemented
+                }
+              }}
               _hover={{
                 borderColor: 'purple.400',
                 bg: 'purple.50',
+              }}
+              _focusVisible={{
+                outline: '3px solid',
+                outlineColor: 'purple.500',
+                outlineOffset: '2px',
+                bg: 'purple.50'
               }}
               transition="all 0.3s"
             >

@@ -30,6 +30,7 @@ import {
 } from 'react-icons/fi'
 import MainLayout from '@/components/layout/MainLayout'
 import { mockGrantReports, mockFundingByCategory } from '@/lib/mockData'
+import { Breadcrumb } from '@/components/ui/Breadcrumb'
 
 export default function ReportingPage() {
   const recentGrants = mockGrantReports
@@ -39,6 +40,13 @@ export default function ReportingPage() {
     <MainLayout>
       <Container maxW="container.xl" py={8}>
         <VStack gap={8} align="stretch">
+          {/* Breadcrumb */}
+          <Breadcrumb
+            items={[
+              { label: 'Reporting & Analytics', isCurrentPage: true },
+            ]}
+          />
+
           {/* Header */}
           <HStack justify="space-between">
             <Box>

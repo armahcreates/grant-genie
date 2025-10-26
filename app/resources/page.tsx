@@ -165,10 +165,16 @@ export default function ResourcesPage() {
                     }}
                   />
                   <IconButton
-                    aria-label="Send message"
+                    aria-label="Send message to AI assistant"
                     size="sm"
                     colorScheme="blue"
                     onClick={handleSendMessage}
+                    _active={{ transform: 'scale(0.95)' }}
+                    _focusVisible={{
+                      outline: '3px solid',
+                      outlineColor: 'blue.500',
+                      outlineOffset: '2px'
+                    }}
                   >
                     <Icon as={FiSend} />
                   </IconButton>
@@ -302,9 +308,15 @@ export default function ResourcesPage() {
           {/* Pagination */}
           <Flex justify="center" align="center" gap={2}>
             <IconButton
-              aria-label="Previous page"
+              aria-label="Go to previous page of resources"
               variant="outline"
               size="sm"
+              _active={{ transform: 'scale(0.95)' }}
+              _focusVisible={{
+                outline: '3px solid',
+                outlineColor: 'purple.500',
+                outlineOffset: '2px'
+              }}
             >
               <Text>&lt;</Text>
             </IconButton>
@@ -312,9 +324,15 @@ export default function ResourcesPage() {
               8 / 12
             </Text>
             <IconButton
-              aria-label="Next page"
+              aria-label="Go to next page of resources"
               variant="outline"
               size="sm"
+              _active={{ transform: 'scale(0.95)' }}
+              _focusVisible={{
+                outline: '3px solid',
+                outlineColor: 'purple.500',
+                outlineOffset: '2px'
+              }}
             >
               <Text>&gt;</Text>
             </IconButton>

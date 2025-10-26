@@ -133,8 +133,8 @@ export default function NotificationsPage() {
                     key={notification.id}
                     borderLeft="4px solid"
                     borderLeftColor={`${getNotificationColor(notification.type)}.500`}
-                    _hover={{ bg: 'purple.50', transform: 'translateX(4px)' }}
-                    transition="all 0.2s"
+                    _hover={{ bg: 'purple.50', transform: 'translateX(8px) scale(1.02)', boxShadow: 'lg' }}
+                    transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
                     cursor="pointer"
                   >
                     <Card.Body>
@@ -162,7 +162,7 @@ export default function NotificationsPage() {
                           </Text>
                           <Box>
                             <Button size="sm" colorScheme="purple" variant="outline">
-                              View Details
+                              View Notification Details
                             </Button>
                           </Box>
                         </VStack>
@@ -186,8 +186,8 @@ export default function NotificationsPage() {
                     key={notification.id}
                     borderLeft="4px solid"
                     borderLeftColor={`${getNotificationColor(notification.type)}.500`}
-                    _hover={{ bg: 'purple.50', transform: 'translateX(4px)' }}
-                    transition="all 0.2s"
+                    _hover={{ bg: 'purple.50', transform: 'translateX(8px) scale(1.02)', boxShadow: 'lg' }}
+                    transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
                     cursor="pointer"
                   >
                     <Card.Body>
@@ -215,7 +215,7 @@ export default function NotificationsPage() {
                           </Text>
                           <Box>
                             <Button size="sm" colorScheme="purple" variant="outline">
-                              View Details
+                              View Notification Details
                             </Button>
                           </Box>
                         </VStack>

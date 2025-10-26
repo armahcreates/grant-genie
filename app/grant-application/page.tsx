@@ -14,40 +14,211 @@ import {
   Card,
   Badge,
   Textarea,
+  IconButton,
 } from '@chakra-ui/react'
-import { useState } from 'react'
+import { useState, useRef, DragEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   FiUpload,
   FiFileText,
   FiArrowRight,
   FiLoader,
+  FiX,
+  FiFile,
+  FiAlertCircle,
 } from 'react-icons/fi'
 import MainLayout from '@/components/layout/MainLayout'
 import { useGrantGenieStore } from '@/lib/store'
+import { useAppToast } from '@/lib/utils/toast'
+import { Breadcrumb } from '@/components/ui/Breadcrumb'
+
+// File type validation
+const ALLOWED_FILE_TYPES = {
+  'application/pdf': ['.pdf'],
+  'application/msword': ['.doc'],
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
+  'text/plain': ['.txt'],
+}
+const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
+
+interface UploadedFile {
+  file: File
+  id: string
+}
 
 export default function GrantGeniePage() {
   const router = useRouter()
+  const toast = useAppToast()
   const [isGenerating, setIsGenerating] = useState(false)
-  const [error, setError] = useState('')
+  const [errors, setErrors] = useState<Record<string, string>>({})
   const { formData, setFormData } = useGrantGenieStore()
+  
+  // File upload state
+  const [rfpFiles, setRfpFiles] = useState<UploadedFile[]>([])
+  const [teachingFiles, setTeachingFiles] = useState<UploadedFile[]>([])
+  const [isDraggingRfp, setIsDraggingRfp] = useState(false)
+  const [isDraggingTeaching, setIsDraggingTeaching] = useState(false)
+  
+  const rfpInputRef = useRef<HTMLInputElement>(null)
+  const teachingInputRef = useRef<HTMLInputElement>(null)
+
+  // File validation
+  const validateFile = (file: File): string | null => {
+    if (file.size > MAX_FILE_SIZE) {
+      return `File "${file.name}" is too large. Maximum size is 10MB.`
+    }
+    
+    const fileType = file.type
+    if (!Object.keys(ALLOWED_FILE_TYPES).includes(fileType)) {
+      return `File "${file.name}" has an unsupported format. Please upload PDF, DOC, DOCX, or TXT files.`
+    }
+    
+    return null
+  }
+
+  // Handle file selection
+  const handleFileSelect = (files: FileList | null, type: 'rfp' | 'teaching') => {
+    if (!files) return
+    
+    const newErrors = { ...errors }
+    delete newErrors[`${type}Files`]
+    
+    const validFiles: UploadedFile[] = []
+    
+    Array.from(files).forEach((file) => {
+      const error = validateFile(file)
+      if (error) {
+        newErrors[`${type}Files`] = error
+        toast.fileUploadError(error)
+      } else {
+        validFiles.push({
+          file,
+          id: `${Date.now()}-${Math.random()}`,
+        })
+      }
+    })
+    
+    setErrors(newErrors)
+    
+    if (type === 'rfp') {
+      setRfpFiles((prev) => [...prev, ...validFiles])
+    } else {
+      setTeachingFiles((prev) => [...prev, ...validFiles])
+    }
+    
+    // Show success toast for valid files
+    if (validFiles.length > 0) {
+      if (validFiles.length === 1) {
+        toast.fileUploadSuccess(validFiles[0].file.name)
+      } else {
+        toast.success(`${validFiles.length} files uploaded successfully`, 'Upload Complete')
+      }
+    }
+  }
+
+  // Handle drag and drop
+  const handleDragOver = (e: DragEvent<HTMLDivElement>, type: 'rfp' | 'teaching') => {
+    e.preventDefault()
+    if (type === 'rfp') {
+      setIsDraggingRfp(true)
+    } else {
+      setIsDraggingTeaching(true)
+    }
+  }
+
+  const handleDragLeave = (e: DragEvent<HTMLDivElement>, type: 'rfp' | 'teaching') => {
+    e.preventDefault()
+    if (type === 'rfp') {
+      setIsDraggingRfp(false)
+    } else {
+      setIsDraggingTeaching(false)
+    }
+  }
+
+  const handleDrop = (e: DragEvent<HTMLDivElement>, type: 'rfp' | 'teaching') => {
+    e.preventDefault()
+    if (type === 'rfp') {
+      setIsDraggingRfp(false)
+    } else {
+      setIsDraggingTeaching(false)
+    }
+    handleFileSelect(e.dataTransfer.files, type)
+  }
+
+  // Remove file
+  const removeFile = (id: string, type: 'rfp' | 'teaching') => {
+    if (type === 'rfp') {
+      setRfpFiles((prev) => prev.filter((f) => f.id !== id))
+    } else {
+      setTeachingFiles((prev) => prev.filter((f) => f.id !== id))
+    }
+  }
+
+  // Field validation
+  const validateField = (field: string, value: string): string | null => {
+    if (field === 'projectName' && !value.trim()) {
+      return 'Project/Program Name is required'
+    }
+    if (field === 'funderName' && !value.trim()) {
+      return 'Funder Name is required'
+    }
+    return null
+  }
+
+  // Handle field change with validation
+  const handleFieldChange = (field: string, value: string) => {
+    setFormData({ [field]: value })
+    
+    const error = validateField(field, value)
+    setErrors((prev) => {
+      const newErrors = { ...prev }
+      if (error) {
+        newErrors[field] = error
+      } else {
+        delete newErrors[field]
+      }
+      return newErrors
+    })
+  }
+
+  // Check if form is valid
+  const isFormValid = () => {
+    return (
+      formData.projectName?.trim() &&
+      formData.funderName?.trim() &&
+      Object.keys(errors).length === 0
+    )
+  }
 
   const handleGenerate = async () => {
-    // Basic validation
-    if (!formData.projectName || !formData.funderName) {
-      setError('Project Name and Funder Name are required')
+    // Validate all required fields
+    const newErrors: Record<string, string> = {}
+    
+    if (!formData.projectName?.trim()) {
+      newErrors.projectName = 'Project/Program Name is required'
+    }
+    if (!formData.funderName?.trim()) {
+      newErrors.funderName = 'Funder Name is required'
+    }
+    
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors)
+      toast.error('Please fill in all required fields', 'Validation Error')
       return
     }
 
     setIsGenerating(true)
-    setError('')
+    setErrors({})
 
     try {
       // Navigate to proposal page which will generate the content
       // Form data is already in Zustand store with persistence
+      toast.success('Generating your grant proposal...', 'Generation Started')
       router.push('/grant-application/proposal')
     } catch (err) {
-      setError('Failed to start generation. Please try again.')
+      const errorMessage = 'Failed to start generation. Please try again.'
+      setErrors({ submit: errorMessage })
+      toast.grantApplicationError(errorMessage)
       setIsGenerating(false)
     }
   }
@@ -57,6 +228,13 @@ export default function GrantGeniePage() {
       <Box minH="100vh" bg="purple.50">
         <Container maxW="container.xl" py={8}>
           <VStack gap={8} align="stretch">
+            {/* Breadcrumb */}
+            <Breadcrumb
+              items={[
+                { label: 'Grant Application', isCurrentPage: true },
+              ]}
+            />
+
             {/* Header */}
             <HStack justify="space-between">
               <VStack align="start" gap={1}>
@@ -88,16 +266,28 @@ export default function GrantGeniePage() {
                   <Card.Body>
                     <VStack gap={4} align="stretch">
                       {/* Upload Area */}
+                      <input
+                        ref={rfpInputRef}
+                        type="file"
+                        accept=".pdf,.doc,.docx,.txt"
+                        multiple
+                        hidden
+                        onChange={(e) => handleFileSelect(e.target.files, 'rfp')}
+                      />
                       <Box
                         p={8}
                         border="2px dashed"
-                        borderColor="purple.300"
+                        borderColor={isDraggingRfp ? 'purple.500' : errors.rfpFiles ? 'red.400' : 'purple.300'}
                         borderRadius="lg"
-                        bg="purple.50"
+                        bg={isDraggingRfp ? 'purple.100' : 'purple.50'}
                         cursor="pointer"
                         textAlign="center"
                         _hover={{ borderColor: 'purple.400', bg: 'purple.100' }}
                         transition="all 0.2s"
+                        onClick={() => rfpInputRef.current?.click()}
+                        onDragOver={(e) => handleDragOver(e, 'rfp')}
+                        onDragLeave={(e) => handleDragLeave(e, 'rfp')}
+                        onDrop={(e) => handleDrop(e, 'rfp')}
                       >
                         <VStack gap={3}>
                           <Icon as={FiUpload} boxSize={10} color="purple.600" />
@@ -105,10 +295,60 @@ export default function GrantGeniePage() {
                             Drop RFP or Guidelines here
                           </Text>
                           <Text fontSize="sm" color="purple.600">
-                            Or paste the content in text box
+                            Or click to browse (PDF, DOC, DOCX, TXT)
                           </Text>
                         </VStack>
                       </Box>
+
+                      {/* Error message */}
+                      {errors.rfpFiles && (
+                        <HStack gap={2} color="red.600" fontSize="sm">
+                          <Icon as={FiAlertCircle} />
+                          <Text>{errors.rfpFiles}</Text>
+                        </HStack>
+                      )}
+
+                      {/* Uploaded files list */}
+                      {rfpFiles.length > 0 && (
+                        <VStack gap={2} align="stretch">
+                          {rfpFiles.map((uploadedFile) => (
+                            <HStack
+                              key={uploadedFile.id}
+                              p={3}
+                              bg="white"
+                              borderRadius="md"
+                              border="1px solid"
+                              borderColor="purple.200"
+                              justify="space-between"
+                            >
+                              <HStack gap={2}>
+                                <Icon as={FiFile} color="purple.600" />
+                                <Text fontSize="sm" color="purple.900">
+                                  {uploadedFile.file.name}
+                                </Text>
+                                <Text fontSize="xs" color="purple.600">
+                                  ({(uploadedFile.file.size / 1024).toFixed(1)} KB)
+                                </Text>
+                              </HStack>
+                              <IconButton
+                                aria-label={`Remove file ${uploadedFile.file.name}`}
+                                size="sm"
+                                variant="ghost"
+                                colorScheme="red"
+                                onClick={() => removeFile(uploadedFile.id, 'rfp')}
+                                _active={{ transform: 'scale(0.95)' }}
+                                _focusVisible={{
+                                  outline: '3px solid',
+                                  outlineColor: 'red.500',
+                                  outlineOffset: '2px'
+                                }}
+                              >
+                                <Icon as={FiX} />
+                              </IconButton>
+                            </HStack>
+                          ))}
+                        </VStack>
+                      )}
 
                       {/* Text Input Alternative */}
                       <Textarea
@@ -137,16 +377,28 @@ export default function GrantGeniePage() {
                   <Card.Body>
                     <VStack gap={4} align="stretch">
                       {/* Upload Area */}
+                      <input
+                        ref={teachingInputRef}
+                        type="file"
+                        accept=".pdf,.doc,.docx,.txt"
+                        multiple
+                        hidden
+                        onChange={(e) => handleFileSelect(e.target.files, 'teaching')}
+                      />
                       <Box
                         p={8}
                         border="2px dashed"
-                        borderColor="purple.300"
+                        borderColor={isDraggingTeaching ? 'purple.500' : errors.teachingFiles ? 'red.400' : 'purple.300'}
                         borderRadius="lg"
-                        bg="white"
+                        bg={isDraggingTeaching ? 'purple.100' : 'white'}
                         cursor="pointer"
                         textAlign="center"
                         _hover={{ borderColor: 'purple.400', bg: 'purple.50' }}
                         transition="all 0.2s"
+                        onClick={() => teachingInputRef.current?.click()}
+                        onDragOver={(e) => handleDragOver(e, 'teaching')}
+                        onDragLeave={(e) => handleDragLeave(e, 'teaching')}
+                        onDrop={(e) => handleDrop(e, 'teaching')}
                       >
                         <VStack gap={3}>
                           <Icon as={FiFileText} boxSize={10} color="purple.600" />
@@ -154,10 +406,60 @@ export default function GrantGeniePage() {
                             Upload grants, reports, or narratives
                           </Text>
                           <Text fontSize="sm" color="purple.600">
-                            that shows HOW you write
+                            that shows HOW you write (PDF, DOC, DOCX, TXT)
                           </Text>
                         </VStack>
                       </Box>
+
+                      {/* Error message */}
+                      {errors.teachingFiles && (
+                        <HStack gap={2} color="red.600" fontSize="sm">
+                          <Icon as={FiAlertCircle} />
+                          <Text>{errors.teachingFiles}</Text>
+                        </HStack>
+                      )}
+
+                      {/* Uploaded files list */}
+                      {teachingFiles.length > 0 && (
+                        <VStack gap={2} align="stretch">
+                          {teachingFiles.map((uploadedFile) => (
+                            <HStack
+                              key={uploadedFile.id}
+                              p={3}
+                              bg="white"
+                              borderRadius="md"
+                              border="1px solid"
+                              borderColor="purple.200"
+                              justify="space-between"
+                            >
+                              <HStack gap={2}>
+                                <Icon as={FiFile} color="purple.600" />
+                                <Text fontSize="sm" color="purple.900">
+                                  {uploadedFile.file.name}
+                                </Text>
+                                <Text fontSize="xs" color="purple.600">
+                                  ({(uploadedFile.file.size / 1024).toFixed(1)} KB)
+                                </Text>
+                              </HStack>
+                              <IconButton
+                                aria-label={`Remove file ${uploadedFile.file.name}`}
+                                size="sm"
+                                variant="ghost"
+                                colorScheme="red"
+                                onClick={() => removeFile(uploadedFile.id, 'teaching')}
+                                _active={{ transform: 'scale(0.95)' }}
+                                _focusVisible={{
+                                  outline: '3px solid',
+                                  outlineColor: 'red.500',
+                                  outlineOffset: '2px'
+                                }}
+                              >
+                                <Icon as={FiX} />
+                              </IconButton>
+                            </HStack>
+                          ))}
+                        </VStack>
+                      )}
 
                       {/* Text Input Alternative */}
                       <Textarea
@@ -231,26 +533,54 @@ export default function GrantGeniePage() {
                     <VStack gap={6} align="stretch">
                       {/* Project/Program Name */}
                       <VStack align="start" gap={2}>
-                        <Text fontWeight="semibold" color="purple.900">
-                          Project/Program Name
-                        </Text>
+                        <HStack gap={1}>
+                          <Text fontWeight="semibold" color="purple.900">
+                            Project/Program Name
+                          </Text>
+                          <Text color="red.500">*</Text>
+                        </HStack>
                         <Input
                           placeholder="Enter project name"
-                          value={formData.projectName}
-                          onChange={(e) => setFormData({ projectName: e.target.value })}
+                          value={formData.projectName || ''}
+                          onChange={(e) => handleFieldChange('projectName', e.target.value)}
+                          borderColor={errors.projectName ? 'red.400' : undefined}
+                          _focus={{
+                            borderColor: errors.projectName ? 'red.500' : 'purple.500',
+                            boxShadow: errors.projectName ? '0 0 0 1px var(--chakra-colors-red-500)' : undefined,
+                          }}
                         />
+                        {errors.projectName && (
+                          <HStack gap={1} color="red.600" fontSize="sm">
+                            <Icon as={FiAlertCircle} boxSize={3} />
+                            <Text>{errors.projectName}</Text>
+                          </HStack>
+                        )}
                       </VStack>
 
                       {/* Funder Name */}
                       <VStack align="start" gap={2}>
-                        <Text fontWeight="semibold" color="purple.900">
-                          Funder Name
-                        </Text>
+                        <HStack gap={1}>
+                          <Text fontWeight="semibold" color="purple.900">
+                            Funder Name
+                          </Text>
+                          <Text color="red.500">*</Text>
+                        </HStack>
                         <Input
-                          placeholder="Optional"
-                          value={formData.funderName}
-                          onChange={(e) => setFormData({ funderName: e.target.value })}
+                          placeholder="Enter funder name"
+                          value={formData.funderName || ''}
+                          onChange={(e) => handleFieldChange('funderName', e.target.value)}
+                          borderColor={errors.funderName ? 'red.400' : undefined}
+                          _focus={{
+                            borderColor: errors.funderName ? 'red.500' : 'purple.500',
+                            boxShadow: errors.funderName ? '0 0 0 1px var(--chakra-colors-red-500)' : undefined,
+                          }}
                         />
+                        {errors.funderName && (
+                          <HStack gap={1} color="red.600" fontSize="sm">
+                            <Icon as={FiAlertCircle} boxSize={3} />
+                            <Text>{errors.funderName}</Text>
+                          </HStack>
+                        )}
                       </VStack>
 
                       {/* Funding Deadline */}
@@ -260,8 +590,8 @@ export default function GrantGeniePage() {
                         </Text>
                         <Input
                           type="date"
-                          value={formData.deadline}
-                          onChange={(e) => setFormData({ deadline: e.target.value })}
+                          value={formData.deadline || ''}
+                          onChange={(e) => handleFieldChange('deadline', e.target.value)}
                         />
                       </VStack>
 
@@ -272,8 +602,8 @@ export default function GrantGeniePage() {
                         </Text>
                         <Input
                           placeholder="$50,000"
-                          value={formData.fundingAmount}
-                          onChange={(e) => setFormData({ fundingAmount: e.target.value })}
+                          value={formData.fundingAmount || ''}
+                          onChange={(e) => handleFieldChange('fundingAmount', e.target.value)}
                         />
                       </VStack>
                     </VStack>
@@ -294,7 +624,11 @@ export default function GrantGeniePage() {
                           Grant Materials
                         </Text>
                         <Text fontSize="sm" color="purple.900">
-                          {formData.rfpText ? 'RFP content provided' : 'Not provided yet'}
+                          {rfpFiles.length > 0
+                            ? `${rfpFiles.length} file${rfpFiles.length > 1 ? 's' : ''} uploaded`
+                            : formData.rfpText
+                            ? 'RFP content provided'
+                            : 'Not provided yet'}
                         </Text>
                       </Box>
                       <Box>
@@ -302,7 +636,11 @@ export default function GrantGeniePage() {
                           Teaching Materials
                         </Text>
                         <Text fontSize="sm" color="purple.900">
-                          {formData.teachingMaterials ? 'Writing samples provided' : 'Not provided yet'}
+                          {teachingFiles.length > 0
+                            ? `${teachingFiles.length} file${teachingFiles.length > 1 ? 's' : ''} uploaded`
+                            : formData.teachingMaterials
+                            ? 'Writing samples provided'
+                            : 'Not provided yet'}
                         </Text>
                       </Box>
                       <Box>
@@ -328,12 +666,15 @@ export default function GrantGeniePage() {
             </SimpleGrid>
 
             {/* Error Message */}
-            {error && (
+            {errors.submit && (
               <Card.Root bg="red.50" border="1px solid" borderColor="red.300">
                 <Card.Body>
-                  <Text color="red.700" fontWeight="medium">
-                    {error}
-                  </Text>
+                  <HStack gap={2}>
+                    <Icon as={FiAlertCircle} color="red.700" />
+                    <Text color="red.700" fontWeight="medium">
+                      {errors.submit}
+                    </Text>
+                  </HStack>
                 </Card.Body>
               </Card.Root>
             )}
@@ -345,7 +686,15 @@ export default function GrantGeniePage() {
                 colorScheme="purple"
                 px={12}
                 onClick={handleGenerate}
-                disabled={isGenerating}
+                disabled={isGenerating || !isFormValid()}
+                opacity={!isFormValid() && !isGenerating ? 0.6 : 1}
+                cursor={!isFormValid() && !isGenerating ? 'not-allowed' : 'pointer'}
+                _active={{ transform: 'scale(0.98)' }}
+                _disabled={{
+                  opacity: 0.6,
+                  cursor: 'not-allowed',
+                  _hover: { bg: undefined }
+                }}
               >
                 {isGenerating ? (
                   <>

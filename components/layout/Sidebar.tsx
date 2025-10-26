@@ -23,7 +23,9 @@ import {
   DrawerHeader,
   DrawerBody,
   DrawerCloseTrigger,
+  Portal,
 } from '@chakra-ui/react'
+import { ColorModeToggle } from '@/components/ui/ColorModeToggle'
 import { IconType } from 'react-icons'
 import {
   MdDashboard,
@@ -43,6 +45,23 @@ import NextLink from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useUser } from '@stackframe/stack'
 import { useState } from 'react'
+/**
+ * TODO: Props Drilling Refactoring
+ * 
+ * Current Implementation:
+ * - Mobile menu state (isOpen/setIsOpen) is managed at the Sidebar component level
+ * - The state and handlers are passed down through SidebarContent via props
+ * - onClose callback is drilled through to child navigation items
+ * 
+ * Future Improvement:
+ * - Consider refactoring to use React Context for mobile menu state management
+ * - This would eliminate props drilling and make the state accessible throughout the component tree
+ * - Could create a SidebarContext that provides: { isOpen, onOpen, onClose, onToggle }
+ * - Would simplify component interfaces and make state management more scalable
+ * 
+ * Related: See COMPONENT_ARCHITECTURE.md for more architectural guidelines
+ */
+
 
 interface NavItemProps {
   icon: IconType
@@ -72,12 +91,19 @@ const NavItem = ({ icon, children, href, isActive }: NavItemProps) => {
           _hover={{
             bg: isActive ? 'purple.50' : 'gray.100',
           }}
+          _focusVisible={{
+            outline: '3px solid',
+            outlineColor: 'purple.500',
+            outlineOffset: '2px',
+            bg: isActive ? 'purple.50' : 'gray.100'
+          }}
           transition="all 0.2s"
         >
           <Icon
             mr="3"
             fontSize="20"
             as={icon}
+            aria-hidden="true"
           />
           <Text fontSize="sm" fontWeight={isActive ? 'semibold' : 'medium'}>
             {children}
@@ -111,10 +137,11 @@ const SidebarContent = ({ onClose }: { onClose?: () => void }) => {
       display="flex"
       flexDirection="column"
     >
-      <Flex h="20" alignItems="center" mx="4" justifyContent="center">
+      <Flex h="20" alignItems="center" mx="4" justifyContent="space-between">
         <Text fontSize={{ base: 'xl', md: '2xl' }} fontWeight="bold" color="purple.600">
           Headspace Genie
         </Text>
+        <ColorModeToggle />
       </Flex>
 
       <VStack gap={1} align="stretch" flex={1} overflowY="auto" pb={4}>
@@ -177,7 +204,13 @@ const SidebarContent = ({ onClose }: { onClose?: () => void }) => {
               variant="ghost"
               w="full"
               textAlign="left"
+              aria-label={`User menu for ${user?.displayName || 'User'}`}
               _hover={{ bg: 'gray.100' }}
+              _focusVisible={{
+                outline: '3px solid',
+                outlineColor: 'purple.500',
+                outlineOffset: '2px'
+              }}
             >
               <HStack gap={3}>
                 <Avatar.Root size="sm" bg="purple.600">
@@ -197,12 +230,28 @@ const SidebarContent = ({ onClose }: { onClose?: () => void }) => {
             </Button>
           </MenuTrigger>
           <MenuContent>
-            <MenuItem value="profile" onClick={() => { router.push('/profile'); onClose?.() }}>
+            <MenuItem
+              value="profile"
+              onClick={() => { router.push('/profile'); onClose?.() }}
+              _focusVisible={{
+                outline: '2px solid',
+                outlineColor: 'purple.500',
+                outlineOffset: '0px'
+              }}
+            >
               <Icon as={MdPerson} />
               Profile Settings
             </MenuItem>
             <MenuSeparator />
-            <MenuItem value="logout" onClick={handleLogout}>
+            <MenuItem
+              value="logout"
+              onClick={handleLogout}
+              _focusVisible={{
+                outline: '2px solid',
+                outlineColor: 'purple.500',
+                outlineOffset: '0px'
+              }}
+            >
               <Icon as={MdLogout} />
               Log Out
             </MenuItem>
@@ -236,25 +285,46 @@ export default function Sidebar() {
           <Text fontSize="xl" fontWeight="bold" color="purple.600">
             Headspace Genie
           </Text>
-          <DrawerRoot open={isOpen} onOpenChange={(e) => setIsOpen(e.open)} placement="start">
-            <DrawerBackdrop />
+          <DrawerRoot
+            open={isOpen}
+            onOpenChange={(e) => setIsOpen(e.open)}
+            placement="start"
+            trapFocus={true}
+            closeOnEscape={true}
+            closeOnInteractOutside={true}
+          >
+            <Portal>
+              <DrawerBackdrop />
+              <DrawerContent>
+                <DrawerHeader>
+                  <DrawerCloseTrigger
+                    aria-label="Close navigation menu"
+                    _focusVisible={{
+                      outline: '3px solid',
+                      outlineColor: 'purple.500',
+                      outlineOffset: '2px'
+                    }}
+                  />
+                </DrawerHeader>
+                <DrawerBody p={0}>
+                  <SidebarContent onClose={() => setIsOpen(false)} />
+                </DrawerBody>
+              </DrawerContent>
+            </Portal>
             <DrawerTrigger asChild>
               <IconButton
-                aria-label="Open menu"
+                aria-label="Open navigation menu"
                 variant="ghost"
                 colorPalette="purple"
+                _focusVisible={{
+                  outline: '3px solid',
+                  outlineColor: 'purple.500',
+                  outlineOffset: '2px'
+                }}
               >
                 <Icon as={MdMenu} boxSize={6} />
               </IconButton>
             </DrawerTrigger>
-            <DrawerContent>
-              <DrawerHeader>
-                <DrawerCloseTrigger />
-              </DrawerHeader>
-              <DrawerBody p={0}>
-                <SidebarContent onClose={() => setIsOpen(false)} />
-              </DrawerBody>
-            </DrawerContent>
           </DrawerRoot>
         </Flex>
       </Box>

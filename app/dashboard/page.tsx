@@ -17,15 +17,25 @@ import {
   Separator,
   Image,
 } from '@chakra-ui/react'
+// TODO: Icon Library Consolidation - Standardize on react-icons/fi (Feather Icons)
+// Currently mixing Material Design (md) and Feather (fi) icons
+// Target: Migrate all MdXxx icons to FiXxx equivalents for visual consistency
 import { MdDescription, MdTrendingUp, MdCheckCircle, MdPending, MdCalendarToday, MdSearch, MdAdd, MdNotifications } from 'react-icons/md'
 import { FiTrendingUp, FiArrowRight, FiClock, FiAlertCircle, FiZap, FiTarget, FiDollarSign, FiAward, FiUsers, FiMail, FiMessageCircle } from 'react-icons/fi'
 import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import MainLayout from '@/components/layout/MainLayout'
 import { mockApplications, mockCompliance, mockDashboardStats, mockRecentActivity } from '@/lib/mockData'
+import { DashboardStatsSkeleton, LoadingSkeleton } from '@/components/ui/LoadingSkeleton'
+import { NoApplicationsEmptyState, NoDeadlinesEmptyState } from '@/components/ui/EmptyState'
+import { useAppToast } from '@/lib/utils/toast'
+import { formatDate } from '@/lib/utils/dates'
+import { useAuth } from '@/contexts/AuthContext'
 
 export default function DashboardPage() {
   const router = useRouter()
+  const { user } = useAuth()
+  const toast = useAppToast()
   const [currentTime, setCurrentTime] = useState(new Date())
   const [isLoading, setIsLoading] = useState(true)
   const [animatedStats, setAnimatedStats] = useState({
@@ -77,9 +87,11 @@ export default function DashboardPage() {
     }
   }, [])
 
-  // Brand colors
+  // Use centralized theme tokens
   const deepIndigo = '#3C3B6E'
   const softTeal = '#5CE1E6'
+  // TODO: Migrate to: import { colors } from '@/theme/tokens'
+  // const { deepIndigo, softTeal } = colors.brand
 
   // Get recent applications (top 5)
   const recentApplications = mockApplications.slice(0, 5)
@@ -123,7 +135,7 @@ export default function DashboardPage() {
               <VStack align="start" gap={2}>
                 <HStack gap={3}>
                   <Text fontSize={{ base: 'md', md: 'lg' }} color="purple.200" fontWeight="medium">
-                    {getGreeting()}, Sarah
+                    {getGreeting()}, {user?.name || 'there'}
                   </Text>
                   <Text fontSize={{ base: '2xl', md: '3xl' }}>👋</Text>
                 </HStack>
@@ -147,7 +159,7 @@ export default function DashboardPage() {
 
               <HStack gap={3} flexWrap="wrap">
                 <Button
-                  size={{ base: 'md', md: 'lg' }}
+                  size="md"
                   variant="outline"
                   borderWidth="2px"
                   borderColor="whiteAlpha.400"
@@ -159,15 +171,21 @@ export default function DashboardPage() {
                     borderColor: softTeal,
                     transform: 'translateY(-2px)',
                   }}
+                  _focusVisible={{
+                    outline: '3px solid',
+                    outlineColor: softTeal,
+                    outlineOffset: '2px'
+                  }}
                   transition="all 0.3s"
                   onClick={() => router.push('/grant-search')}
+                  aria-label="Navigate to grant search to discover funding opportunities"
                 >
                   <Icon as={MdSearch} mr={2} />
                   <Text display={{ base: 'none', sm: 'inline' }}>Discover Grants</Text>
                   <Text display={{ base: 'inline', sm: 'none' }}>Discover</Text>
                 </Button>
                 <Button
-                  size={{ base: 'md', md: 'lg' }}
+                  size="lg"
                   bgGradient={`linear(to-r, ${softTeal}, #4BC5CC)`}
                   color="white"
                   _hover={{
@@ -175,9 +193,14 @@ export default function DashboardPage() {
                     transform: 'translateY(-2px)',
                     boxShadow: '0 10px 25px rgba(92, 225, 230, 0.4)'
                   }}
+                  _focusVisible={{
+                    outline: '3px solid white',
+                    outlineOffset: '2px'
+                  }}
                   transition="all 0.3s"
                   boxShadow="0 4px 15px rgba(92, 225, 230, 0.3)"
                   onClick={() => router.push('/grant-application')}
+                  aria-label="Start writing a new grant application"
                 >
                   <Icon as={FiZap} mr={2} />
                   Start Writing
@@ -217,12 +240,17 @@ export default function DashboardPage() {
                       </Text>
                     </Box>
                     <Button
-                      size={{ base: 'sm', md: 'md' }}
+                      size="md"
                       bg="red.500"
                       color="white"
                       _hover={{ bg: 'red.600', transform: 'scale(1.05)' }}
+                      _focusVisible={{
+                        outline: '3px solid white',
+                        outlineOffset: '2px'
+                      }}
                       onClick={() => router.push('/compliance-tracker')}
                       flexShrink={0}
+                      aria-label="View overdue compliance tasks"
                     >
                       View Tasks
                     </Button>
@@ -236,11 +264,19 @@ export default function DashboardPage() {
 
       <Container maxW="container.xl" py={8}>
         {/* Premium Stats Grid */}
+        {isLoading ? (
+          <Box mt={{ base: 0, md: -12 }} mb={8}>
+            <DashboardStatsSkeleton />
+          </Box>
+        ) : (
         <SimpleGrid columns={{ base: 1, sm: 2, lg: 4 }} gap={6} mb={8} mt={{ base: 0, md: -12 }} position="relative" zIndex={2}>
           {/* Active Grants Card */}
           <Card.Root
             bg="white"
             cursor="pointer"
+            tabIndex={0}
+            role="button"
+            aria-label="View active grants and applications"
             border="1px solid"
             borderColor="purple.100"
             _hover={{
@@ -248,8 +284,20 @@ export default function DashboardPage() {
               boxShadow: `0 20px 40px ${softTeal}20`,
               borderColor: softTeal,
             }}
+            _focusVisible={{
+              outline: '3px solid',
+              outlineColor: 'purple.500',
+              outlineOffset: '2px',
+              transform: 'translateY(-8px)'
+            }}
             transition="all 0.4s cubic-bezier(0.4, 0, 0.2, 1)"
             onClick={() => router.push('/grant-application')}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                router.push('/grant-application')
+              }
+            }}
             borderRadius="2xl"
             overflow="hidden"
             position="relative"
@@ -301,12 +349,26 @@ export default function DashboardPage() {
           <Card.Root
             bgGradient={`linear(135deg, ${softTeal}, #4BC5CC)`}
             cursor="pointer"
+            tabIndex={0}
+            role="button"
+            aria-label="View total funding and financial reports"
             _hover={{
               transform: 'translateY(-8px) scale(1.02)',
               boxShadow: `0 25px 50px ${softTeal}40`,
             }}
+            _focusVisible={{
+              outline: '3px solid white',
+              outlineOffset: '2px',
+              transform: 'translateY(-8px) scale(1.02)'
+            }}
             transition="all 0.4s cubic-bezier(0.4, 0, 0.2, 1)"
             onClick={() => router.push('/reporting')}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                router.push('/reporting')
+              }
+            }}
             borderRadius="2xl"
             position="relative"
             overflow="hidden"
@@ -370,6 +432,9 @@ export default function DashboardPage() {
           <Card.Root
             bg="white"
             cursor="pointer"
+            tabIndex={0}
+            role="button"
+            aria-label="View upcoming compliance deadlines"
             border="2px solid"
             borderColor={mockDashboardStats.upcomingDeadlines > 5 ? 'orange.300' : 'purple.100'}
             _hover={{
@@ -377,8 +442,20 @@ export default function DashboardPage() {
               boxShadow: '0 20px 40px rgba(251, 146, 60, 0.2)',
               borderColor: 'orange.400',
             }}
+            _focusVisible={{
+              outline: '3px solid',
+              outlineColor: 'orange.500',
+              outlineOffset: '2px',
+              transform: 'translateY(-8px)'
+            }}
             transition="all 0.4s cubic-bezier(0.4, 0, 0.2, 1)"
             onClick={() => router.push('/compliance-tracker')}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                router.push('/compliance-tracker')
+              }
+            }}
             borderRadius="2xl"
             position="relative"
             overflow="hidden"
@@ -432,12 +509,27 @@ export default function DashboardPage() {
           <Card.Root
             bgGradient={`linear(135deg, ${deepIndigo}, #2D2C5A)`}
             cursor="pointer"
+            tabIndex={0}
+            role="button"
+            aria-label="View compliance rate and tracking details"
             _hover={{
               transform: 'translateY(-8px) scale(1.02)',
               boxShadow: `0 25px 50px ${deepIndigo}60`,
             }}
+            _focusVisible={{
+              outline: '3px solid',
+              outlineColor: softTeal,
+              outlineOffset: '2px',
+              transform: 'translateY(-8px) scale(1.02)'
+            }}
             transition="all 0.4s cubic-bezier(0.4, 0, 0.2, 1)"
             onClick={() => router.push('/compliance-tracker')}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                router.push('/compliance-tracker')
+              }
+            }}
             borderRadius="2xl"
             position="relative"
             overflow="hidden"
@@ -484,6 +576,7 @@ export default function DashboardPage() {
             </Card.Body>
           </Card.Root>
         </SimpleGrid>
+        )}
 
         {/* Main Content Grid */}
         <SimpleGrid columns={{ base: 1, lg: 2 }} gap={8} mb={8}>
@@ -525,6 +618,11 @@ export default function DashboardPage() {
               </Flex>
             </Card.Header>
             <Card.Body p={{ base: 4, md: 6 }} pt={2}>
+              {isLoading ? (
+                <LoadingSkeleton variant="list" count={5} />
+              ) : recentApplications.length === 0 ? (
+                <NoApplicationsEmptyState onCreateNew={() => router.push('/grant-application')} />
+              ) : (
               <VStack gap={3} align="stretch">
                 {recentApplications.map((app) => (
                   <Box
@@ -534,14 +632,29 @@ export default function DashboardPage() {
                     border="1px"
                     borderColor="purple.100"
                     borderRadius="xl"
+                    tabIndex={0}
+                    role="button"
+                    aria-label={`View application: ${app.grantTitle}, status: ${app.status}`}
                     _hover={{
                       bg: `${softTeal}05`,
                       borderColor: softTeal,
                       transform: 'translateX(6px)',
                       boxShadow: `0 4px 15px ${softTeal}20`,
                     }}
+                    _focusVisible={{
+                      outline: '3px solid',
+                      outlineColor: 'purple.500',
+                      outlineOffset: '2px',
+                      bg: `${softTeal}05`
+                    }}
                     transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
                     cursor="pointer"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault()
+                        router.push('/grant-application')
+                      }
+                    }}
                   >
                     <Flex justify="space-between" align="start" mb={3} gap={3} flexDirection={{ base: 'column', sm: 'row' }}>
                       <Box flex={1} minW={0}>
@@ -555,7 +668,7 @@ export default function DashboardPage() {
                         >
                           {app.grantTitle}
                         </Text>
-                        <Text fontSize="sm" color="purple.700" >
+                        <Text fontSize="sm" color="purple.900" >
                           {app.organization}
                         </Text>
                       </Box>
@@ -585,14 +698,15 @@ export default function DashboardPage() {
                       </HStack>
                       <HStack gap={2}>
                         <Icon as={FiClock} boxSize={4} color={deepIndigo} />
-                        <Text fontSize="sm" color="purple.700" fontWeight="medium">
-                          {new Date(app.deadline).toLocaleDateString()}
+                        <Text fontSize="sm" color="purple.900" fontWeight="medium">
+                          {formatDate(app.deadline)}
                         </Text>
                       </HStack>
                     </Flex>
                   </Box>
                 ))}
               </VStack>
+              )}
             </Card.Body>
           </Card.Root>
 
@@ -634,6 +748,11 @@ export default function DashboardPage() {
               </Flex>
             </Card.Header>
             <Card.Body p={{ base: 4, md: 6 }} pt={2}>
+              {isLoading ? (
+                <LoadingSkeleton variant="list" count={5} />
+              ) : upcomingDeadlines.length === 0 ? (
+                <NoDeadlinesEmptyState />
+              ) : (
               <VStack gap={3} align="stretch">
                 {upcomingDeadlines.map((item) => (
                   <Box
@@ -644,14 +763,29 @@ export default function DashboardPage() {
                     borderColor={item.status === 'Overdue' ? 'red.300' : 'purple.100'}
                     borderRadius="xl"
                     position="relative"
+                    tabIndex={0}
+                    role="button"
+                    aria-label={`${item.status === 'Overdue' ? 'Overdue task' : 'Upcoming task'}: ${item.requirement} for ${item.grantName}, due ${formatDate(item.dueDate)}`}
                     _hover={{
                       borderColor: item.status === 'Overdue' ? 'red.400' : softTeal,
                       transform: 'translateX(6px)',
                       boxShadow: item.status === 'Overdue' ? '0 4px 15px rgba(239, 68, 68, 0.2)' : `0 4px 15px ${softTeal}20`,
                     }}
+                    _focusVisible={{
+                      outline: '3px solid',
+                      outlineColor: item.status === 'Overdue' ? 'red.500' : 'purple.500',
+                      outlineOffset: '2px',
+                      transform: 'translateX(6px)'
+                    }}
                     transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
                     cursor="pointer"
                     onClick={() => router.push('/compliance-tracker')}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault()
+                        router.push('/compliance-tracker')
+                      }
+                    }}
                   >
                     {item.status === 'Overdue' && (
                       <Box
@@ -680,7 +814,7 @@ export default function DashboardPage() {
                           >
                             {item.requirement}
                           </Text>
-                          <Text fontSize="sm" color="purple.700" >
+                          <Text fontSize="sm" color="purple.900" >
                             {item.grantName}
                           </Text>
                         </Box>
@@ -704,8 +838,8 @@ export default function DashboardPage() {
                     <Flex justify="space-between" align="center" flexWrap="wrap" gap={3}>
                       <HStack gap={2}>
                         <Icon as={MdCalendarToday} boxSize={4} color={item.status === 'Overdue' ? 'red.600' : deepIndigo} />
-                        <Text fontSize="sm" color={item.status === 'Overdue' ? 'red.700' : 'purple.700'} fontWeight="semibold">
-                          {new Date(item.dueDate).toLocaleDateString()}
+                        <Text fontSize="sm" color={item.status === 'Overdue' ? 'red.700' : 'purple.900'} fontWeight="semibold">
+                          {formatDate(item.dueDate)}
                         </Text>
                       </HStack>
                       {item.status === 'Overdue' && (
@@ -717,6 +851,7 @@ export default function DashboardPage() {
                   </Box>
                 ))}
               </VStack>
+              )}
             </Card.Body>
           </Card.Root>
         </SimpleGrid>

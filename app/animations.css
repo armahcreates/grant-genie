@@ -1,0 +1,84 @@
+/**
+ * Animation Performance Optimizations
+ * 
+ * Adds will-change property and GPU acceleration hints
+ * for smoother animations across the application.
+ */
+
+/* Card hover animations - optimize with will-change */
+[data-animate="card-hover"] {
+  will-change: transform, box-shadow;
+  backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Button transitions */
+button {
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* Drawer/Modal animations */
+[role="dialog"],
+[role="drawer"] {
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+
+/* Loading spinners */
+.animate-spin {
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* Fade animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-out;
+  will-change: opacity, transform;
+}
+
+/* Slide animations */
+@keyframes slideIn {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.slide-in {
+  animation: slideIn 0.3s ease-out;
+  will-change: transform;
+}
+
+/* Respect prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    will-change: auto !important;
+  }
+}
+
+/* Performance optimization for transforms */
+.gpu-accelerate {
+  transform: translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
