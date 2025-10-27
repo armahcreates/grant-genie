@@ -121,35 +121,30 @@ function LandingPageContent() {
   const genies = [
     {
       icon: FiFileText,
-      emoji: '🪶',
       name: 'Grant Genie',
       description: 'Writes, researches, and refines grants in your organization\'s authentic voice.',
       impact: 'Saves 20–30 hours per proposal and aligns tone with funders.',
     },
     {
       icon: FiMessageCircle,
-      emoji: '💬',
       name: 'Donor Conversation Coach',
       description: 'Role-plays fundraising meetings, refines your asks, and builds donor confidence.',
       impact: 'Elevates connection and storytelling.',
     },
     {
       icon: FiMail,
-      emoji: '📰',
       name: 'Newsletter & Content Genie',
       description: 'Drafts newsletters, volunteer follow-ups, and social posts in your tone.',
       impact: 'Keeps your community inspired and engaged.',
     },
     {
       icon: FiSettings,
-      emoji: '⚙️',
       name: 'Operations & Onboarding Genie',
       description: 'Automates applicant intake, onboarding, and workflow communication — while maintaining a human-centered, affirming tone.',
       impact: 'Saves staff time, ensures applicants and teams feel seen, and gives leadership real-time visibility.',
     },
     {
       icon: FiCpu,
-      emoji: '🧠',
       name: 'Custom Genie Builder',
       description: 'Lets you create your own Genies trained on your documents, tone, and workflows.',
       impact: 'Empowers your team to automate with heart.',
