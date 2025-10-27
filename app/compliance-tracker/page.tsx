@@ -21,7 +21,8 @@ import {
   Stack,
   useBreakpointValue,
 } from '@chakra-ui/react'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
+import { useUser } from '@stackframe/stack'
 import { formatDate } from '@/lib/utils/dates'
 import { Breadcrumb } from '@/components/ui/Breadcrumb'
 import {
@@ -34,23 +35,23 @@ import {
   FiDownload,
 } from 'react-icons/fi'
 import MainLayout from '@/components/layout/MainLayout'
-import { mockCompliance, type ComplianceItem } from '@/lib/mockData'
+import { useCompliance } from '@/lib/api/compliance'
+import type { ComplianceItem } from '@/lib/api/compliance'
 import { ComplianceTaskSkeleton, LoadingSkeleton } from '@/components/ui/LoadingSkeleton'
 import { NoPendingTasksEmptyState, NoOverdueTasksEmptyState } from '@/components/ui/EmptyState'
 import { useAppToast } from '@/lib/utils/toast'
 import { UploadSpinner } from '@/components/ui/LoadingSpinner'
 
 export default function ComplianceTrackerPage() {
+  const user = useUser()
   const toast = useAppToast()
-  const tasks = mockCompliance
-  const [isLoading, setIsLoading] = useState(true)
+
+  // TanStack Query - Fetch compliance items from API
+  const { data: complianceData, isLoading } = useCompliance(user?.id)
+  const tasks = complianceData?.items || []
+
   const [uploadingTaskId, setUploadingTaskId] = useState<string | null>(null)
   const isMobile = useBreakpointValue({ base: true, md: false })
-
-  // Simulate initial data load
-  useEffect(() => {
-    setTimeout(() => setIsLoading(false), 600)
-  }, [])
 
   const handleFileUpload = async (taskId: string) => {
     setUploadingTaskId(taskId)
@@ -188,7 +189,7 @@ export default function ComplianceTrackerPage() {
                   <Progress.Root
                     value={complianceRate}
                     size="sm"
-                    colorScheme="green"
+                    colorPalette="green"
                     w="full"
                     borderRadius="full"
                     aria-label={`Compliance progress: ${complianceRate}%`}
@@ -212,7 +213,7 @@ export default function ComplianceTrackerPage() {
                   <Tabs.Trigger value="overdue">
                     Overdue ({overdueTasks.length})
                     {overdueTasks.length > 0 && (
-                      <Badge ml={2} colorScheme="red">
+                      <Badge ml={2} colorPalette="red">
                         !
                       </Badge>
                     )}
@@ -240,18 +241,18 @@ export default function ComplianceTrackerPage() {
                                       <Text fontSize="sm">{task.requirement}</Text>
                                     </HStack>
                                   </VStack>
-                                  <Badge colorScheme={getStatusColor(task.status)}>
+                                  <Badge colorPalette={getStatusColor(task.status)}>
                                     {task.status}
                                   </Badge>
                                 </Flex>
                                 <SimpleGrid columns={2} gap={2}>
                                   <Box>
-                                    <Text fontSize="xs" color="gray.600">Due Date</Text>
-                                    <Text fontSize="sm">{formatDate(task.dueDate)}</Text>
+                                    <Text fontSize="xs" color="purple.600">Due Date</Text>
+                                    <Text fontSize="sm" color="purple.900">{formatDate(task.dueDate)}</Text>
                                   </Box>
                                   <Box>
-                                    <Text fontSize="xs" color="gray.600">Priority</Text>
-                                    <Badge colorScheme={getPriorityColor(task.priority)}>
+                                    <Text fontSize="xs" color="purple.600">Priority</Text>
+                                    <Badge colorPalette={getPriorityColor(task.priority)}>
                                       {task.priority}
                                     </Badge>
                                   </Box>
@@ -304,7 +305,7 @@ export default function ComplianceTrackerPage() {
                                 </HStack>
                               </Table.Cell>
                               <Table.Cell>
-                                <Badge colorScheme={getPriorityColor(task.priority)}>
+                                <Badge colorPalette={getPriorityColor(task.priority)}>
                                   {task.priority.toUpperCase()}
                                 </Badge>
                               </Table.Cell>
@@ -314,7 +315,7 @@ export default function ComplianceTrackerPage() {
                                     as={getStatusIcon(task.status)}
                                     color={`${getStatusColor(task.status)}.500`}
                                   />
-                                  <Badge colorScheme={getStatusColor(task.status)}>
+                                  <Badge colorPalette={getStatusColor(task.status)}>
                                     {task.status}
                                   </Badge>
                                 </HStack>
@@ -334,7 +335,16 @@ export default function ComplianceTrackerPage() {
                                   >
                                     {uploadingTaskId === task.id ? (
                                       <>
-                                        <Icon as={FiUpload} className="animate-spin" />
+                                        <Icon
+                                          as={FiUpload}
+                                          animation="spin 1s linear infinite"
+                                          css={{
+                                            '@keyframes spin': {
+                                              from: { transform: 'rotate(0deg)' },
+                                              to: { transform: 'rotate(360deg)' }
+                                            }
+                                          }}
+                                        />
                                         Uploading...
                                       </>
                                     ) : (
@@ -381,7 +391,7 @@ export default function ComplianceTrackerPage() {
                                 <HStack>
                                   <Icon as={FiAlertCircle} color="red.500" />
                                   <Heading size="sm">{task.requirement}</Heading>
-                                  <Badge colorScheme="red">OVERDUE</Badge>
+                                  <Badge colorPalette="red">OVERDUE</Badge>
                                 </HStack>
                                 <Text fontSize="sm" color="purple.800">
                                   {task.grantName}
@@ -392,7 +402,7 @@ export default function ComplianceTrackerPage() {
                               </VStack>
                               <Button
                                 size="lg"
-                                colorScheme="red"
+                                colorPalette="red"
                                 aria-label={`Submit overdue task: ${task.requirement}`}
                                 _focusVisible={{
                                   outline: '3px solid',
@@ -427,7 +437,7 @@ export default function ComplianceTrackerPage() {
                                 <HStack>
                                   <Icon as={FiClock} color="purple.500" />
                                   <Heading size="sm">{task.requirement}</Heading>
-                                  <Badge colorScheme={getPriorityColor(task.priority)}>
+                                  <Badge colorPalette={getPriorityColor(task.priority)}>
                                     {task.priority.toUpperCase()}
                                   </Badge>
                                 </HStack>
@@ -454,7 +464,7 @@ export default function ComplianceTrackerPage() {
                                 </Button>
                                 <Button
                                   size="lg"
-                                  colorScheme="purple"
+                                  colorPalette="purple"
                                   aria-label={`Upload document for ${task.requirement}`}
                                   _focusVisible={{
                                     outline: '3px solid',
@@ -485,7 +495,7 @@ export default function ComplianceTrackerPage() {
                                 <HStack>
                                   <Icon as={FiCheckCircle} color="green.500" />
                                   <Heading size="sm">{task.requirement}</Heading>
-                                  <Badge colorScheme="green">COMPLETED</Badge>
+                                  <Badge colorPalette="green">COMPLETED</Badge>
                                 </HStack>
                                 <Text fontSize="sm" color="purple.700">
                                   {task.grantName}
@@ -530,7 +540,7 @@ export default function ComplianceTrackerPage() {
                   </Text>
                   <Button
                     size="md"
-                    colorScheme="purple"
+                    colorPalette="purple"
                     w="full"
                     aria-label="Upload multiple compliance documents at once"
                     onClick={() => {
@@ -562,7 +572,7 @@ export default function ComplianceTrackerPage() {
                   </Text>
                   <Button
                     size="md"
-                    colorScheme="purple"
+                    colorPalette="purple"
                     w="full"
                     aria-label="Configure automatic deadline reminders"
                     onClick={() => toast.complianceReminderSet()}
@@ -588,7 +598,7 @@ export default function ComplianceTrackerPage() {
                   </Text>
                   <Button
                     size="md"
-                    colorScheme="purple"
+                    colorPalette="purple"
                     w="full"
                     aria-label="Download compliance status report"
                     _focusVisible={{

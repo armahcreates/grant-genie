@@ -34,7 +34,10 @@ import {
   FiArrowRight,
   FiMail,
   FiStar,
+  FiChevronDown,
+  FiChevronUp,
 } from 'react-icons/fi'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useUser } from '@stackframe/stack'
 import { colors } from '@/theme/tokens'
@@ -81,6 +84,9 @@ function LandingPageContent() {
   const router = useRouter()
   const user = useUser()
   const [scrollY, setScrollY] = useState(0)
+  const [isLoading, setIsLoading] = useState(false)
+  const [showMobileCTA, setShowMobileCTA] = useState(false)
+  const [openFAQ, setOpenFAQ] = useState<number | null>(null)
 
   // Redirect authenticated users to dashboard
   useEffect(() => {
@@ -90,10 +96,24 @@ function LandingPageContent() {
   }, [user, router])
 
   useEffect(() => {
-    const handleScroll = () => setScrollY(window.scrollY)
+    const handleScroll = () => {
+      setScrollY(window.scrollY)
+      // Show mobile CTA after scrolling 500px
+      setShowMobileCTA(window.scrollY > 500)
+    }
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
+
+  const handleCTAClick = () => {
+    setIsLoading(true)
+    router.push('/auth/signup')
+  }
+
+  const scrollToSection = (id: string) => {
+    const element = document.getElementById(id)
+    element?.scrollIntoView({ behavior: 'smooth' })
+  }
 
   // Use centralized theme tokens
   const { deepIndigo, softTeal, tealVariant, indigoVariant, indigoDark } = colors.brand
@@ -207,6 +227,41 @@ function LandingPageContent() {
     },
   ]
 
+  const faqs = [
+    {
+      q: 'What makes HeadspaceGenie different from other AI writing tools?',
+      a: 'HeadspaceGenie isn\'t just a writing tool—it\'s an AI ecosystem trained on your organization\'s voice, values, and workflows. Unlike generic AI assistants, each Genie learns your nuance and context, ensuring every output sounds authentically you. Plus, we\'re built specifically for mission-driven leaders, not corporate marketing teams.'
+    },
+    {
+      q: 'Do I need technical skills to use HeadspaceGenie?',
+      a: 'Not at all. HeadspaceGenie is designed for nonprofit leaders, not developers. If you can use email, you can use our platform. We provide onboarding support, video tutorials, and a simple interface that feels natural from day one.'
+    },
+    {
+      q: 'How does the 14-day free trial work?',
+      a: 'Sign up with your email—no credit card required. You\'ll get full access to your chosen Genie for 14 days. Explore all features, train it on your content, and see real results. Cancel anytime, or continue with a paid plan when you\'re ready.'
+    },
+    {
+      q: 'Can I train the Genies on my organization\'s specific content?',
+      a: 'Absolutely! Upload your past grants, newsletters, mission statements, or donor communications. Your Genies learn your tone, terminology, and storytelling style—so every output feels like it came from your team.'
+    },
+    {
+      q: 'What if I need help or have questions?',
+      a: 'We offer onboarding support for all users, plus priority support for Growth and Pro plans. You can reach us via email at hello@headspacegenie.ai, and we typically respond within 24 hours. Enterprise customers get dedicated support with SLA guarantees.'
+    },
+    {
+      q: 'Is my data secure?',
+      a: 'Yes. We use 256-bit encryption, SOC 2 compliance standards, and never train public AI models on your private data. You own your content—we just help you create more of it. See our Privacy Policy for full details.'
+    },
+    {
+      q: 'Can I switch plans or cancel anytime?',
+      a: 'Yes! You can upgrade, downgrade, or cancel your subscription anytime from your account settings. If you cancel, you\'ll retain access until the end of your current billing period. No long-term contracts or cancellation fees.'
+    },
+    {
+      q: 'Which Genie should I start with?',
+      a: 'It depends on your biggest need. Most nonprofits start with the Grant Genie (saves 20-30 hours per proposal) or Donor Conversation Coach (builds confidence in fundraising asks). You can always add more Genies as you grow.'
+    },
+  ]
+
   return (
     <Box bg="white" overflow="hidden">
       {/* Navigation */}
@@ -220,10 +275,12 @@ function LandingPageContent() {
         backdropFilter="blur(20px)"
         borderBottom="1px"
         borderColor={scrollY > 50 ? "gray.200" : "transparent"}
-        transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+        transitionProperty="background, border-color, box-shadow"
+        transitionDuration="0.3s"
+        transitionTimingFunction="cubic-bezier(0.4, 0, 0.2, 1)"
         boxShadow={scrollY > 50 ? "0 4px 20px rgba(0,0,0,0.05)" : "none"}
       >
-        <Container maxW="container.xl" py={4}>
+        <Container maxW="container.xl" py={4} px={{ base: 4, md: 6 }} mx="auto">
           <Flex justify="space-between" align="center">
             <HStack gap={3} cursor="pointer" _hover={{ transform: 'scale(1.05)' }} transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)">
               <Box
@@ -252,14 +309,25 @@ function LandingPageContent() {
               </Box>
               <Heading
                 size={{ base: 'md', md: 'lg' }}
-                bgGradient={`linear(to-r, ${deepIndigo}, ${softTeal})`}
-                bgClip="text"
+                color={deepIndigo}
                 fontWeight="bold"
               >
                 HeadspaceGenie.ai
               </Heading>
             </HStack>
             <HStack gap={{ base: 2, md: 4 }}>
+              <Button
+                variant="ghost"
+                onClick={() => window.location.href = 'mailto:hello@headspacegenie.ai'}
+                color={deepIndigo}
+                fontWeight="semibold"
+                size={{ base: 'sm', md: 'md' }}
+                _hover={{ bg: 'gray.50' }}
+                transition="all 0.3s"
+                display={{ base: 'none', md: 'flex' }}
+              >
+                Contact
+              </Button>
               <Button
                 variant="ghost"
                 onClick={() => router.push('/auth/signin')}
@@ -304,7 +372,7 @@ function LandingPageContent() {
         overflow="hidden"
         color="white"
       >
-        <Container maxW="container.xl" position="relative" zIndex={1}>
+        <Container maxW="container.xl" position="relative" zIndex={1} px={{ base: 4, md: 6 }} mx="auto">
           <VStack
             gap={{ base: 6, md: 8 }}
             textAlign="center"
@@ -328,25 +396,26 @@ function LandingPageContent() {
               boxShadow="0 4px 20px rgba(0,0,0,0.2)"
             >
               <HStack gap={2}>
-                <Icon as={FiStar} color={softTeal} />
-                <Text display={{ base: 'none', sm: 'block' }}>Trusted by 500+ mission-driven organizations</Text>
-                <Text display={{ base: 'block', sm: 'none' }}>500+ organizations</Text>
+                <Icon as={FiZap} color={softTeal} />
+                <Text display={{ base: 'none', sm: 'block' }}>Limited Beta Access Now Open</Text>
+                <Text display={{ base: 'block', sm: 'none' }}>Beta Now Open</Text>
               </HStack>
             </Badge>
 
             <Heading
-              size={{ base: '2xl', sm: '3xl', md: '4xl' }}
+              size={{ base: '2xl', sm: '3xl', md: '4xl', lg: '5xl' }}
               lineHeight="1.1"
               fontWeight="bold"
-              letterSpacing="-0.02em"
+              letterSpacing={{ base: '-0.01em', md: '-0.02em' }}
               maxW="4xl"
             >
               Built to give{' '}
               <Box
                 as="span"
-                bgGradient={`linear(to-r, ${softTeal}, #7DEBF0)`}
-                bgClip="text"
+                color="white"
+                fontWeight="extrabold"
                 position="relative"
+                textShadow="0 0 30px rgba(255, 255, 255, 0.5), 0 0 60px rgba(92, 225, 230, 0.3)"
                 _after={{
                   content: '""',
                   position: 'absolute',
@@ -363,8 +432,12 @@ function LandingPageContent() {
               back their headspace.
             </Heading>
 
-            <Text fontSize={{ base: 'md', md: 'xl' }} lineHeight="tall" color="white" maxW="3xl" fontWeight="normal">
+            <Text fontSize={{ base: 'md', md: 'xl' }} lineHeight="relaxed" color="white" maxW="3xl" fontWeight="normal">
               An AI ecosystem that writes, organizes, and thinks with you — so you can focus on what matters most.
+            </Text>
+            
+            <Text fontSize={{ base: 'lg', md: 'xl' }} lineHeight="relaxed" color="white" maxW="3xl" fontWeight="semibold" mt={2}>
+              AI-powered grant writing, donor coaching, and fundraising automation for nonprofits.
             </Text>
 
             <Flex gap={4} pt={6} direction={{ base: 'column', sm: 'row' }} w={{ base: 'full', sm: 'auto' }}>
@@ -376,7 +449,8 @@ function LandingPageContent() {
                 py={{ base: 6, md: 8 }}
                 fontSize={{ base: 'md', md: 'lg' }}
                 fontWeight="semibold"
-                onClick={() => router.push('/auth/signup')}
+                onClick={handleCTAClick}
+                loading={isLoading}
                 _hover={{
                   bgGradient: `linear(to-r, ${tealVariant}, ${softTeal})`,
                   transform: 'translateY(-3px)',
@@ -402,6 +476,7 @@ function LandingPageContent() {
                 fontWeight="semibold"
                 backdropFilter="blur(10px)"
                 bg="whiteAlpha.100"
+                onClick={() => scrollToSection('genies')}
                 _hover={{
                   bg: 'whiteAlpha.200',
                   borderColor: softTeal,
@@ -411,11 +486,11 @@ function LandingPageContent() {
                 borderRadius="xl"
                 w={{ base: 'full', sm: 'auto' }}
               >
-                Watch Demo
+                See Features
               </Button>
             </Flex>
 
-            <Flex gap={{ base: 4, md: 8 }} pt={2} color="white" fontSize={{ base: 'xs', md: 'sm' }} wrap="wrap" justify="center">
+            <Flex gap={{ base: 4, md: 8 }} pt={2} color="white" fontSize={{ base: 'sm', md: 'sm' }} wrap="wrap" justify="center">
               <HStack>
                 <Icon as={FiCheck} color={softTeal} />
                 <Text>14-day free trial</Text>
@@ -444,8 +519,9 @@ function LandingPageContent() {
               bg="whiteAlpha.100"
               backdropFilter="blur(10px)"
               p={{ base: 2, md: 3 }}
-              transform={`translateY(${scrollY * 0.1}px)`}
+              transform={{ base: 'none', md: `translate3d(0, ${scrollY * 0.1}px, 0)` }}
               transition="transform 0.1s"
+              css={{ willChange: 'transform' }}
             >
               <Box
                 borderRadius={{ base: 'xl', md: '2xl' }}
@@ -461,7 +537,7 @@ function LandingPageContent() {
               >
                 <Box position="relative" width="100%" height="500px">
                   <Image
-                    src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=1400&h=800&fit=crop&q=90"
+                    src="/images/hero-collaboration.jpg"
                     alt="Team collaborating on mission-driven work"
                     fill
                     style={{ objectFit: 'cover' }}
@@ -491,14 +567,20 @@ function LandingPageContent() {
                     borderColor: softTeal,
                     boxShadow: `0 25px 50px rgba(92, 225, 230, 0.4)`,
                   }}
-                  transition="all 0.4s cubic-bezier(0.4, 0, 0.2, 1)"
+                  transitionProperty="transform, box-shadow, border-color, background"
+                  transitionDuration="0.4s"
+                  transitionTimingFunction="cubic-bezier(0.4, 0, 0.2, 1)"
                   cursor="pointer"
-                  animation={`${float} ${3 + index * 0.5}s ease-in-out infinite`}
+                  css={{
+                    '@media (prefers-reduced-motion: no-preference)': {
+                      animation: `${float} ${8 + index}s ease-in-out infinite`,
+                    }
+                  }}
                   boxShadow="0 8px 25px rgba(0,0,0,0.2)"
                 >
-                  <Text fontSize={{ base: '3xl', md: '4xl' }} mb={2}>{genie.emoji}</Text>
-                  <Text fontSize={{ base: 'xs', md: 'sm' }} fontWeight="semibold" textAlign="center" lineHeight="short">
-                    {genie.name.replace(' Genie', '').replace(' Coach', '').replace(' Builder', '')}
+                  <Icon as={genie.icon} boxSize={{ base: 8, md: 10 }} color={softTeal} mb={2} />
+                  <Text fontSize={{ base: 'sm', md: 'sm' }} fontWeight="semibold" textAlign="center" lineHeight="short">
+                    {genie.name}
                   </Text>
                 </VStack>
               ))}
@@ -515,7 +597,7 @@ function LandingPageContent() {
           h="600px"
           bg={softTeal}
           borderRadius="full"
-          filter="blur(120px)"
+          filter="blur(80px)"
           opacity={0.2}
           animation={`${pulse} 8s ease-in-out infinite`}
         />
@@ -527,7 +609,7 @@ function LandingPageContent() {
           h="500px"
           bg="#9D7BE8"
           borderRadius="full"
-          filter="blur(120px)"
+          filter="blur(80px)"
           opacity={0.15}
           animation={`${pulse} 10s ease-in-out infinite`}
         />
@@ -535,11 +617,11 @@ function LandingPageContent() {
 
       {/* 2. THE PROBLEM */}
       <Box py={{ base: 16, md: 24 }} bg="white" position="relative">
-        <Container maxW="container.xl" px={{ base: 4, md: 6 }}>
+        <Container maxW="container.xl" px={{ base: 4, md: 6 }} mx="auto">
           <VStack gap={{ base: 12, md: 16 }} textAlign="center">
             <VStack gap={{ base: 6, md: 8 }} maxW="4xl" mx="auto">
               <Badge
-                colorScheme="red"
+                colorPalette="red"
                 fontSize={{ base: 'xs', md: 'sm' }}
                 px={{ base: 3, md: 4 }}
                 py={2}
@@ -552,12 +634,12 @@ function LandingPageContent() {
                 size={{ base: 'xl', md: '2xl', lg: '3xl' }}
                 color={deepIndigo}
                 lineHeight="1.2"
-                letterSpacing="-0.02em"
+                letterSpacing="normal"
                 px={{ base: 4, md: 0 }}
               >
                 Most leaders don't need another tool.
               </Heading>
-              <Text fontSize={{ base: 'md', md: 'lg', lg: 'xl' }} color={deepIndigo} lineHeight="tall" px={{ base: 4, md: 0 }}>
+              <Text fontSize={{ base: 'md', md: 'lg', lg: 'xl' }} color={deepIndigo} lineHeight="relaxed" px={{ base: 4, md: 0 }}>
                 Mission-driven leaders are drowning in noise: endless grant deadlines, donor emails, unposted newsletters, untracked applicants — and no time to breathe.
               </Text>
               <Box
@@ -569,7 +651,7 @@ function LandingPageContent() {
                 maxW="3xl"
                 mx={{ base: 4, md: 'auto' }}
               >
-                <Text fontSize={{ base: 'md', md: 'lg', lg: 'xl' }} color={deepIndigo} fontWeight="semibold" lineHeight="tall">
+                <Text fontSize={{ base: 'md', md: 'lg', lg: 'xl' }} color={deepIndigo} fontWeight="semibold" lineHeight="relaxed">
                   You didn't start this work to manage spreadsheets and sentences.
                   <br />
                   You started it to change lives.
@@ -603,7 +685,7 @@ function LandingPageContent() {
 
       {/* 3. THE HEADSPACEGENIE SOLUTION */}
       <Box py={{ base: 16, md: 24 }} background="linear-gradient(to bottom right, #F8F9FF, white)" position="relative">
-        <Container maxW="container.xl" px={{ base: 4, md: 6 }}>
+        <Container maxW="container.xl" px={{ base: 4, md: 6 }} mx="auto">
           <VStack gap={{ base: 12, md: 16 }}>
             <VStack gap={{ base: 4, md: 6 }} textAlign="center" maxW="4xl" mx="auto">
               <Badge
@@ -622,7 +704,7 @@ function LandingPageContent() {
                 size={{ base: 'xl', md: '2xl', lg: '3xl' }}
                 color={deepIndigo}
                 lineHeight="1.2"
-                letterSpacing="-0.02em"
+                letterSpacing="normal"
                 px={{ base: 2, md: 0 }}
               >
                 HeadspaceGenie gives you back what leadership takes away
@@ -649,7 +731,9 @@ function LandingPageContent() {
                     transform: 'translateY(-8px)',
                     boxShadow: `0 25px 50px rgba(92, 225, 230, 0.2)`,
                   }}
-                  transition="all 0.4s cubic-bezier(0.4, 0, 0.2, 1)"
+                  transitionProperty="transform, box-shadow, border-color"
+                  transitionDuration="0.4s"
+                  transitionTimingFunction="cubic-bezier(0.4, 0, 0.2, 1)"
                   borderRadius="2xl"
                   overflow="hidden"
                   position="relative"
@@ -662,7 +746,7 @@ function LandingPageContent() {
                     h="4px"
                     bgGradient={`linear(to-r, ${softTeal}, transparent)`}
                   />
-                  <Card.Body p={10}>
+                  <Card.Body p={{ base: 8, md: 10 }}>
                     <VStack gap={6}>
                       <Flex
                         w={20}
@@ -689,8 +773,8 @@ function LandingPageContent() {
       </Box>
 
       {/* 4. MEET YOUR GENIES */}
-      <Box py={{ base: 16, md: 24 }} bg="white">
-        <Container maxW="container.xl" px={{ base: 4, md: 6 }}>
+      <Box py={{ base: 16, md: 24 }} bg="white" id="genies">
+        <Container maxW="container.xl" px={{ base: 4, md: 6 }} mx="auto">
           <VStack gap={{ base: 12, md: 16 }}>
             <VStack gap={{ base: 4, md: 6 }} textAlign="center" maxW="4xl" mx="auto">
               <Badge
@@ -709,7 +793,7 @@ function LandingPageContent() {
                 size={{ base: 'xl', md: '2xl', lg: '3xl' }}
                 color={deepIndigo}
                 lineHeight="1.2"
-                letterSpacing="-0.02em"
+                letterSpacing="normal"
               >
                 Meet Your Genies
               </Heading>
@@ -731,7 +815,9 @@ function LandingPageContent() {
                     borderColor: softTeal,
                     transform: { base: 'none', md: 'translateX(8px)' },
                   }}
-                  transition="all 0.4s cubic-bezier(0.4, 0, 0.2, 1)"
+                  transitionProperty="transform, box-shadow, border-color"
+                  transitionDuration="0.4s"
+                  transitionTimingFunction="cubic-bezier(0.4, 0, 0.2, 1)"
                   borderRadius="2xl"
                 >
                   <Card.Body p={{ base: 6, md: 8 }}>
@@ -744,10 +830,9 @@ function LandingPageContent() {
                           borderRadius="xl"
                           align="center"
                           justify="center"
-                          fontSize="3xl"
                           flexShrink={0}
                         >
-                          {genie.emoji}
+                          <Icon as={genie.icon} boxSize={8} color={softTeal} />
                         </Flex>
                         <Heading size="md" color={deepIndigo}>{genie.name}</Heading>
                       </HStack>
@@ -755,7 +840,7 @@ function LandingPageContent() {
                         {genie.description}
                       </Text>
                       <Badge
-                        colorScheme="cyan"
+                        colorPalette="cyan"
                         p={3}
                         borderRadius="lg"
                         fontSize="sm"
@@ -773,10 +858,9 @@ function LandingPageContent() {
                           borderRadius="xl"
                           align="center"
                           justify="center"
-                          fontSize="3xl"
                           flexShrink={0}
                         >
-                          {genie.emoji}
+                          <Icon as={genie.icon} boxSize={8} color={softTeal} />
                         </Flex>
                         <VStack align="start" gap={1}>
                           <Heading size="md" color={deepIndigo}>{genie.name}</Heading>
@@ -786,7 +870,7 @@ function LandingPageContent() {
                         {genie.description}
                       </Text>
                       <Badge
-                        colorScheme="cyan"
+                        colorPalette="cyan"
                         gridColumn="span 4"
                         p={3}
                         borderRadius="lg"
@@ -808,10 +892,10 @@ function LandingPageContent() {
               borderRadius="2xl"
               textAlign="center"
               border="2px solid"
-              borderColor={`${softTeal}30`}
+              borderColor="rgba(92, 225, 230, 0.3)"
               mx={{ base: 4, md: 0 }}
             >
-              <Text fontSize={{ base: 'lg', md: 'xl', lg: '2xl' }} color={deepIndigo} fontWeight="semibold" lineHeight="tall">
+              <Text fontSize={{ base: 'lg', md: 'xl', lg: '2xl' }} color={deepIndigo} fontWeight="semibold" lineHeight="relaxed">
                 Together, they form your AI Headquarters — a workspace that reflects your mission, voice, and rhythm.
               </Text>
             </Box>
@@ -821,7 +905,7 @@ function LandingPageContent() {
 
       {/* 5. THE HEADSPACE ROI */}
       <Box py={{ base: 16, md: 24 }} background="linear-gradient(to bottom right, #F8F9FF, white)">
-        <Container maxW="container.xl" px={{ base: 4, md: 6 }}>
+        <Container maxW="container.xl" px={{ base: 4, md: 6 }} mx="auto">
           <VStack gap={{ base: 12, md: 16 }}>
             <VStack gap={{ base: 4, md: 6 }} textAlign="center" maxW="4xl" mx="auto">
               <Badge
@@ -840,7 +924,7 @@ function LandingPageContent() {
                 size={{ base: 'xl', md: '2xl', lg: '3xl' }}
                 color={deepIndigo}
                 lineHeight="1.2"
-                letterSpacing="-0.02em"
+                letterSpacing="normal"
               >
                 The Headspace ROI
               </Heading>
@@ -862,7 +946,9 @@ function LandingPageContent() {
                     boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
                     borderColor: softTeal,
                   }}
-                  transition="all 0.4s cubic-bezier(0.4, 0, 0.2, 1)"
+                  transitionProperty="transform, box-shadow, border-color"
+                  transitionDuration="0.4s"
+                  transitionTimingFunction="cubic-bezier(0.4, 0, 0.2, 1)"
                   borderRadius="2xl"
                 >
                   <Card.Body p={{ base: 6, md: 8 }}>
@@ -878,7 +964,7 @@ function LandingPageContent() {
                         <Icon as={item.icon} boxSize={8} color={softTeal} />
                       </Flex>
                       <Heading size={{ base: 'md', md: 'lg' }} color={deepIndigo}>{item.title}</Heading>
-                      <Text color={deepIndigo} fontSize="sm" textAlign="center" lineHeight="tall">
+                      <Text color={deepIndigo} fontSize={{ base: 'sm', md: 'sm' }} textAlign="center" lineHeight="tall">
                         {item.description}
                       </Text>
                     </VStack>
@@ -892,7 +978,7 @@ function LandingPageContent() {
 
       {/* 6. WHY HEADSPACEGENIE.AI IS DIFFERENT */}
       <Box py={{ base: 16, md: 24 }} background="linear-gradient(to bottom right, #F8F9FF, white)">
-        <Container maxW="container.xl" px={{ base: 4, md: 6 }}>
+        <Container maxW="container.xl" px={{ base: 4, md: 6 }} mx="auto">
           <VStack gap={{ base: 12, md: 16 }}>
             <VStack gap={{ base: 4, md: 6 }} textAlign="center" maxW="4xl" mx="auto">
               <Badge
@@ -911,7 +997,7 @@ function LandingPageContent() {
                 size={{ base: 'xl', md: '2xl', lg: '3xl' }}
                 color={deepIndigo}
                 lineHeight="1.2"
-                letterSpacing="-0.02em"
+                letterSpacing="normal"
               >
                 Why HeadspaceGenie.ai is Different
               </Heading>
@@ -929,7 +1015,9 @@ function LandingPageContent() {
                     boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
                     borderColor: softTeal,
                   }}
-                  transition="all 0.4s cubic-bezier(0.4, 0, 0.2, 1)"
+                  transitionProperty="transform, box-shadow, border-color"
+                  transitionDuration="0.4s"
+                  transitionTimingFunction="cubic-bezier(0.4, 0, 0.2, 1)"
                   borderRadius="2xl"
                 >
                   <Card.Body p={8}>
@@ -957,7 +1045,7 @@ function LandingPageContent() {
 
       {/* 7. HOW IT WORKS */}
       <Box py={{ base: 16, md: 24 }} background={`linear-gradient(to bottom right, ${deepIndigo}, #2D2C5A)`} color="white" position="relative" overflow="hidden">
-        <Container maxW="container.xl" position="relative" zIndex={1} px={{ base: 4, md: 6 }}>
+        <Container maxW="container.xl" position="relative" zIndex={1} px={{ base: 4, md: 6 }} mx="auto">
           <VStack gap={{ base: 12, md: 16 }}>
             <VStack gap={{ base: 4, md: 6 }} textAlign="center">
               <Badge
@@ -972,10 +1060,10 @@ function LandingPageContent() {
               >
                 Get Started
               </Badge>
-              <Heading size={{ base: 'xl', md: '2xl', lg: '3xl' }} color="white" letterSpacing="-0.02em">
+              <Heading size={{ base: 'xl', md: '2xl', lg: '3xl' }} color="white" letterSpacing="normal">
                 How It Works
               </Heading>
-              <Text fontSize={{ base: 'md', md: 'lg', lg: 'xl' }} color="gray.300" maxW="2xl">
+              <Text fontSize={{ base: 'md', md: 'lg', lg: 'xl' }} color="gray.200" maxW="2xl">
                 Simple steps to transform your workflow
               </Text>
             </VStack>
@@ -1027,7 +1115,7 @@ function LandingPageContent() {
                     <Text fontSize={{ base: '2xl', md: '3xl' }} fontWeight="bold" color="white">{item.step}</Text>
                   </Flex>
                   <Heading size={{ base: 'md', md: 'lg' }} color="white">{item.title}</Heading>
-                  <Text color="gray.300" textAlign="center" fontSize={{ base: 'sm', md: 'md' }} lineHeight="tall">
+                  <Text color="gray.200" textAlign="center" fontSize={{ base: 'sm', md: 'md' }} lineHeight="tall">
                     {item.description}
                   </Text>
                 </VStack>
@@ -1051,8 +1139,8 @@ function LandingPageContent() {
       </Box>
 
       {/* 8. PRICING & TIERS */}
-      <Box py={{ base: 16, md: 28 }} bg="white">
-        <Container maxW="container.xl" px={{ base: 4, md: 6 }}>
+      <Box py={{ base: 16, md: 28 }} bg="white" id="pricing">
+        <Container maxW="container.xl" px={{ base: 4, md: 6 }} mx="auto">
           <VStack gap={{ base: 12, md: 16 }}>
             <VStack gap={{ base: 4, md: 6 }} textAlign="center">
               <Badge
@@ -1070,7 +1158,7 @@ function LandingPageContent() {
               <Heading
                 size={{ base: 'xl', md: '2xl', lg: '3xl' }}
                 color={deepIndigo}
-                letterSpacing="-0.02em"
+                letterSpacing="normal"
               >
                 Simple, Transparent Pricing
               </Heading>
@@ -1092,7 +1180,9 @@ function LandingPageContent() {
                     boxShadow: plan.highlighted ? '0 25px 50px rgba(92, 225, 230, 0.3)' : '0 20px 40px rgba(0,0,0,0.1)',
                     transform: { base: 'scale(1)', md: plan.highlighted ? 'scale(1.08)' : 'scale(1.03)' },
                   }}
-                  transition="all 0.4s cubic-bezier(0.4, 0, 0.2, 1)"
+                  transitionProperty="transform, box-shadow"
+                  transitionDuration="0.4s"
+                  transitionTimingFunction="cubic-bezier(0.4, 0, 0.2, 1)"
                   position="relative"
                   borderRadius="2xl"
                   overflow="visible"
@@ -1191,6 +1281,78 @@ function LandingPageContent() {
         </Container>
       </Box>
 
+      {/* 8.5 FAQ SECTION */}
+      <Box py={{ base: 16, md: 24 }} bg="gray.50">
+        <Container maxW="container.xl" px={{ base: 4, md: 6 }} mx="auto">
+          <VStack gap={12}>
+            <VStack gap={6} textAlign="center">
+              <Heading size={{ base: 'xl', md: '2xl', lg: '3xl' }} color={deepIndigo}>
+                Frequently Asked Questions
+              </Heading>
+              <Text fontSize={{ base: 'md', md: 'lg' }} color={deepIndigo} maxW="2xl">
+                Everything you need to know about HeadspaceGenie.ai
+              </Text>
+            </VStack>
+
+            <VStack gap={4} w="full" maxW="3xl" mx="auto">
+              {faqs.map((faq, index) => (
+                <Box
+                  key={index}
+                  w="full"
+                  bg="white"
+                  borderRadius="xl"
+                  border="1px solid"
+                  borderColor="gray.200"
+                  overflow="hidden"
+                  transition="all 0.3s"
+                  _hover={{ borderColor: softTeal, boxShadow: 'md' }}
+                >
+                  <Flex
+                    p={6}
+                    cursor="pointer"
+                    onClick={() => setOpenFAQ(openFAQ === index ? null : index)}
+                    justify="space-between"
+                    align="center"
+                  >
+                    <Heading size="md" color={deepIndigo} pr={4}>
+                      {faq.q}
+                    </Heading>
+                    <Icon
+                      as={openFAQ === index ? FiChevronUp : FiChevronDown}
+                      color={softTeal}
+                      boxSize={6}
+                      flexShrink={0}
+                    />
+                  </Flex>
+                  {openFAQ === index && (
+                    <Box px={6} pb={6}>
+                      <Text color={deepIndigo} lineHeight="tall">
+                        {faq.a}
+                      </Text>
+                    </Box>
+                  )}
+                </Box>
+              ))}
+            </VStack>
+
+            <Box textAlign="center" pt={8}>
+              <Text fontSize="md" color={deepIndigo} mb={4}>
+                Still have questions?
+              </Text>
+              <Button
+                variant="outline"
+                borderColor={softTeal}
+                color={deepIndigo}
+                _hover={{ bg: `${softTeal}10` }}
+                onClick={() => window.location.href = 'mailto:hello@headspacegenie.ai?subject=Question about HeadspaceGenie'}
+              >
+                Contact Us
+              </Button>
+            </Box>
+          </VStack>
+        </Container>
+      </Box>
+
       {/* 9. THE INVITATION / CTA */}
       <Box
         py={{ base: 16, md: 28 }}
@@ -1199,18 +1361,18 @@ function LandingPageContent() {
         position="relative"
         overflow="hidden"
       >
-        <Container maxW="container.xl" position="relative" zIndex={1} px={{ base: 4, md: 6 }}>
+        <Container maxW="container.xl" position="relative" zIndex={1} px={{ base: 4, md: 6 }} mx="auto">
           <VStack gap={{ base: 6, md: 10 }} textAlign="center">
             <Heading
               size={{ base: '2xl', sm: '3xl', md: '4xl' }}
               maxW="5xl"
               color="white"
               lineHeight="1.15"
-              letterSpacing="-0.02em"
+              letterSpacing={{ base: '-0.01em', md: '-0.02em' }}
             >
               You've built a mission worth believing in.
             </Heading>
-            <Text fontSize={{ base: 'lg', md: '2xl' }} maxW="3xl" color="gray.200" lineHeight="tall">
+            <Text fontSize={{ base: 'lg', md: '2xl' }} maxW="3xl" color="whiteAlpha.900" lineHeight="tall">
               Now build a system that gives you the space to sustain it.
             </Text>
             <Text
@@ -1259,6 +1421,7 @@ function LandingPageContent() {
                 fontWeight="semibold"
                 backdropFilter="blur(10px)"
                 bg="whiteAlpha.100"
+                onClick={() => window.location.href = 'mailto:demo@headspacegenie.ai?subject=Demo Request&body=I\'d like to schedule a demo of HeadspaceGenie.ai'}
                 _hover={{
                   bg: 'whiteAlpha.200',
                   borderColor: softTeal,
@@ -1268,10 +1431,10 @@ function LandingPageContent() {
                 borderRadius="xl"
                 w={{ base: 'full', sm: 'auto' }}
               >
-                Book a Demo
+                Request a Demo
               </Button>
             </Flex>
-            <Flex gap={{ base: 4, md: 10 }} pt={4} fontSize={{ base: 'sm', md: 'md' }} color="gray.300" wrap="wrap" justify="center">
+            <Flex gap={{ base: 4, md: 10 }} pt={4} fontSize={{ base: 'sm', md: 'md' }} color="gray.200" wrap="wrap" justify="center">
               <HStack>
                 <Icon as={FiCheck} color={softTeal} boxSize={5} />
                 <Text>14-day free trial</Text>
@@ -1317,7 +1480,7 @@ function LandingPageContent() {
 
       {/* 10. FOOTER */}
       <Box bg="gray.900" color="gray.400" py={{ base: 12, md: 20 }}>
-        <Container maxW="container.xl" px={{ base: 4, md: 6 }}>
+        <Container maxW="container.xl" px={{ base: 4, md: 6 }} mx="auto">
           <SimpleGrid columns={{ base: 1, sm: 2, lg: 4 }} gap={{ base: 8, md: 12 }} mb={{ base: 12, md: 16 }} textAlign={{ base: 'center', sm: 'left' }}>
             <VStack align={{ base: 'center', md: 'start' }} gap={6}>
               <HStack gap={3}>
@@ -1333,7 +1496,7 @@ function LandingPageContent() {
                 >
                   <Icon as={FiZap} color="white" boxSize={7} />
                 </Box>
-                <Heading size="md" color="white">
+                <Heading size="md" color={deepIndigo}>
                   HeadspaceGenie.ai
                 </Heading>
               </HStack>
@@ -1341,73 +1504,95 @@ function LandingPageContent() {
                 Headspace for humans who lead. AI with a soul.
               </Text>
               <HStack gap={4}>
-                <Flex
-                  w={10}
-                  h={10}
-                  bg="whiteAlpha.100"
-                  borderRadius="lg"
-                  align="center"
-                  justify="center"
-                  cursor="pointer"
-                  _hover={{ bg: 'whiteAlpha.200', color: softTeal }}
-                  transition="all 0.2s"
-                >
-                  <Icon as={FiUsers} boxSize={5} />
-                </Flex>
-                <Flex
-                  w={10}
-                  h={10}
-                  bg="whiteAlpha.100"
-                  borderRadius="lg"
-                  align="center"
-                  justify="center"
-                  cursor="pointer"
-                  _hover={{ bg: 'whiteAlpha.200', color: softTeal }}
-                  transition="all 0.2s"
-                >
-                  <Icon as={FiMail} boxSize={5} />
-                </Flex>
+                <a href="mailto:hello@headspacegenie.ai" aria-label="Email us" style={{ textDecoration: 'none' }}>
+                  <Flex
+                    w={10}
+                    h={10}
+                    bg="whiteAlpha.100"
+                    borderRadius="lg"
+                    align="center"
+                    justify="center"
+                    cursor="pointer"
+                    _hover={{ bg: 'whiteAlpha.200', color: softTeal }}
+                    transition="all 0.2s"
+                  >
+                    <Icon as={FiMail} boxSize={5} />
+                  </Flex>
+                </a>
               </HStack>
             </VStack>
 
             <VStack align={{ base: 'center', md: 'start' }} gap={4}>
               <Text fontWeight="semibold" color="white" mb={2} fontSize="sm" textTransform="uppercase" letterSpacing="wide">Product</Text>
-              <Text fontSize="sm" cursor="pointer" _hover={{ color: softTeal }} transition="all 0.2s">Features</Text>
-              <Text fontSize="sm" cursor="pointer" _hover={{ color: softTeal }} transition="all 0.2s">Pricing</Text>
-              <Text fontSize="sm" cursor="pointer" _hover={{ color: softTeal }} transition="all 0.2s">Security</Text>
-              <Text fontSize="sm" cursor="pointer" _hover={{ color: softTeal }} transition="all 0.2s">Integrations</Text>
+              <Text fontSize="sm" cursor="pointer" _hover={{ color: softTeal }} transition="all 0.2s" onClick={() => scrollToSection('genies')}>Features</Text>
+              <Text fontSize="sm" cursor="pointer" _hover={{ color: softTeal }} transition="all 0.2s" onClick={() => scrollToSection('pricing')}>Pricing</Text>
             </VStack>
 
             <VStack align={{ base: 'center', md: 'start' }} gap={4}>
               <Text fontWeight="semibold" color="white" mb={2} fontSize="sm" textTransform="uppercase" letterSpacing="wide">Company</Text>
-              <Text fontSize="sm" cursor="pointer" _hover={{ color: softTeal }} transition="all 0.2s">About</Text>
-              <Text fontSize="sm" cursor="pointer" _hover={{ color: softTeal }} transition="all 0.2s">Blog</Text>
-              <Text fontSize="sm" cursor="pointer" _hover={{ color: softTeal }} transition="all 0.2s">Careers</Text>
-              <Text fontSize="sm" cursor="pointer" _hover={{ color: softTeal }} transition="all 0.2s">Contact</Text>
+              <Text fontSize="sm" cursor="pointer" _hover={{ color: softTeal }} transition="all 0.2s" onClick={() => window.location.href = 'mailto:hello@headspacegenie.ai'}>Contact</Text>
             </VStack>
 
             <VStack align={{ base: 'center', md: 'start' }} gap={4}>
-              <Text fontWeight="semibold" color="white" mb={2} fontSize="sm" textTransform="uppercase" letterSpacing="wide">Support</Text>
-              <Text fontSize="sm" cursor="pointer" _hover={{ color: softTeal }} transition="all 0.2s">Help Center</Text>
-              <Text fontSize="sm" cursor="pointer" _hover={{ color: softTeal }} transition="all 0.2s">Terms</Text>
-              <Text fontSize="sm" cursor="pointer" _hover={{ color: softTeal }} transition="all 0.2s">Privacy</Text>
-              <Text fontSize="sm" cursor="pointer" _hover={{ color: softTeal }} transition="all 0.2s">Status</Text>
+              <Text fontWeight="semibold" color="white" mb={2} fontSize="sm" textTransform="uppercase" letterSpacing="wide">Legal</Text>
+              <Link href="/terms" passHref>
+                <Text fontSize="sm" cursor="pointer" _hover={{ color: softTeal }} transition="all 0.2s">Terms</Text>
+              </Link>
+              <Link href="/privacy" passHref>
+                <Text fontSize="sm" cursor="pointer" _hover={{ color: softTeal }} transition="all 0.2s">Privacy</Text>
+              </Link>
             </VStack>
           </SimpleGrid>
 
           <Box pt={8} borderTop="1px" borderColor="gray.800">
             <Flex justify={{ base: 'center', md: 'space-between' }} align="center" direction={{ base: 'column', md: 'row' }} gap={4} textAlign="center">
               <Text fontSize="sm" color="gray.500">
-                © 2025 HeadspaceGenie.ai — Headspace for humans who lead.
+                © {new Date().getFullYear()} HeadspaceGenie.ai — Headspace for humans who lead.
               </Text>
               <HStack gap={6}>
-                <Text fontSize="sm" cursor="pointer" _hover={{ color: softTeal }} transition="all 0.2s">Privacy Policy</Text>
-                <Text fontSize="sm" cursor="pointer" _hover={{ color: softTeal }} transition="all 0.2s">Terms of Service</Text>
+                <Link href="/privacy" passHref>
+                  <Text fontSize="sm" cursor="pointer" _hover={{ color: softTeal }} transition="all 0.2s">Privacy Policy</Text>
+                </Link>
+                <Link href="/terms" passHref>
+                  <Text fontSize="sm" cursor="pointer" _hover={{ color: softTeal }} transition="all 0.2s">Terms of Service</Text>
+                </Link>
               </HStack>
             </Flex>
           </Box>
         </Container>
       </Box>
+
+      {/* Sticky Mobile CTA */}
+      {showMobileCTA && (
+        <Box
+          position="fixed"
+          bottom={0}
+          left={0}
+          right={0}
+          p={4}
+          bg="white"
+          boxShadow="0 -4px 20px rgba(0,0,0,0.1)"
+          display={{ base: 'block', md: 'none' }}
+          zIndex={999}
+          borderTop="1px solid"
+          borderColor="gray.200"
+        >
+          <Button
+            w="full"
+            size="lg"
+            bgGradient={`linear(to-r, ${softTeal}, ${tealVariant})`}
+            color="white"
+            onClick={handleCTAClick}
+            loading={isLoading}
+            _hover={{
+              bgGradient: `linear(to-r, ${tealVariant}, ${softTeal})`,
+            }}
+          >
+            Start Free Trial
+            <Icon as={FiArrowRight} ml={2} />
+          </Button>
+        </Box>
+      )}
 
     </Box>
   )

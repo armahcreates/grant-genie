@@ -131,7 +131,7 @@ export default function DashboardPage() {
             <Flex justify="space-between" align="start" flexWrap="wrap" gap={4}>
               <VStack align="start" gap={2}>
                 <HStack gap={3}>
-                  <Text fontSize={{ base: 'md', md: 'lg' }} color="purple.200" fontWeight="medium">
+                  <Text fontSize={{ base: 'md', md: 'lg' }} color="whiteAlpha.900" fontWeight="medium">
                     {getGreeting()}, {user?.name || 'there'}
                   </Text>
                   <Text fontSize={{ base: '2xl', md: '3xl' }}>👋</Text>
@@ -145,7 +145,7 @@ export default function DashboardPage() {
                   Your Headspace Command Center
                 </Heading>
                 <Text
-                  color="purple.200"
+                  color="whiteAlpha.800"
                   fontSize={{ base: 'sm', md: 'lg' }}
                   maxW="2xl"
                   lineHeight="1.5"
@@ -232,7 +232,7 @@ export default function DashboardPage() {
                       <Text fontWeight="bold" color="white" mb={1} fontSize={{ base: 'md', md: 'lg' }}>
                         Action Required: Overdue Tasks
                       </Text>
-                      <Text fontSize={{ base: 'sm', md: 'md' }} color="purple.100">
+                      <Text fontSize={{ base: 'sm', md: 'md' }} color="whiteAlpha.900">
                         You have {upcomingDeadlines.filter(item => item.status === 'Overdue').length} overdue compliance task(s) that need immediate attention.
                       </Text>
                     </Box>

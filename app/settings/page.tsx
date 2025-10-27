@@ -22,10 +22,49 @@ import {
   Checkbox,
   Badge,
 } from '@chakra-ui/react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useForm, Controller } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
 import { MdPerson, MdBusiness, MdNotifications, MdSecurity, MdCamera } from 'react-icons/md'
 import MainLayout from '@/components/layout/MainLayout'
 import { useAppToast } from '@/lib/utils/toast'
+import {
+  usePersonalInfo,
+  useUpdatePersonalInfo,
+  useOrganizationInfo,
+  useUpdateOrganizationInfo,
+  useNotificationPreferences,
+  useUpdateNotificationPreferences,
+} from '@/lib/api/user'
+import { getErrorMessage } from '@/lib/utils/formHelpers'
+
+// Validation Schemas
+const personalInfoSchema = z.object({
+  firstName: z.string().min(1, 'First name is required'),
+  lastName: z.string().min(1, 'Last name is required'),
+  email: z.string().email('Invalid email address'),
+  phone: z.string().min(1, 'Phone number is required'),
+  jobTitle: z.string().min(1, 'Job title is required'),
+  bio: z.string().optional(),
+  streetAddress: z.string().min(1, 'Street address is required'),
+  city: z.string().min(1, 'City is required'),
+  state: z.string().min(1, 'State is required'),
+  zipCode: z.string().min(1, 'ZIP code is required'),
+})
+
+const organizationInfoSchema = z.object({
+  orgName: z.string().min(1, 'Organization name is required'),
+  orgType: z.string().min(1, 'Organization type is required'),
+  taxId: z.string().min(1, 'Tax ID is required'),
+  orgWebsite: z.string().url('Invalid URL').optional().or(z.literal('')),
+  orgPhone: z.string().min(1, 'Phone is required'),
+  orgEmail: z.string().email('Invalid email'),
+  missionStatement: z.string().optional(),
+})
+
+type PersonalInfoFormData = z.infer<typeof personalInfoSchema>
+type OrganizationInfoFormData = z.infer<typeof organizationInfoSchema>
 
 interface SectionTabProps {
   icon: any
@@ -55,29 +94,75 @@ const SectionTab = ({ icon, label, isActive, onClick }: SectionTabProps) => {
 export default function SettingsPage() {
   const toast = useAppToast()
   const [activeSection, setActiveSection] = useState('personal')
-  const [isSaving, setIsSaving] = useState(false)
 
-  const handleSaveChanges = async () => {
-    setIsSaving(true)
-    try {
-      // TODO: Replace with actual API call based on activeSection
-      // if (activeSection === 'personal') {
-      //   await fetch('/api/user/profile', { method: 'PATCH', body: ... })
-      // } else if (activeSection === 'organization') {
-      //   await fetch('/api/user/organization', { method: 'PATCH', body: ... })
-      // } else if (activeSection === 'notifications') {
-      //   await fetch('/api/user/preferences', { method: 'PATCH', body: ... })
-      // }
+  // TanStack Query - Fetch data from API
+  const { data: personalInfo } = usePersonalInfo()
+  const { data: organizationInfo } = useOrganizationInfo()
+  const { data: notificationPrefs } = useNotificationPreferences()
 
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
+  // TanStack Query - Mutations
+  const updatePersonalMutation = useUpdatePersonalInfo()
+  const updateOrganizationMutation = useUpdateOrganizationInfo()
+  const updateNotificationsMutation = useUpdateNotificationPreferences()
 
-      toast.success('Changes saved successfully', 'Your settings have been updated')
-    } catch (error) {
-      toast.error('Failed to save changes', 'Please try again')
-    } finally {
-      setIsSaving(false)
+  // React Hook Form - Personal Info
+  const personalForm = useForm<PersonalInfoFormData>({
+    resolver: zodResolver(personalInfoSchema),
+    defaultValues: {
+      firstName: '',
+      lastName: '',
+      email: '',
+      phone: '',
+      jobTitle: '',
+      bio: '',
+      streetAddress: '',
+      city: '',
+      state: '',
+      zipCode: '',
+    },
+    mode: 'onChange',
+  })
+
+  // React Hook Form - Organization Info
+  const organizationForm = useForm<OrganizationInfoFormData>({
+    resolver: zodResolver(organizationInfoSchema),
+    defaultValues: {
+      orgName: '',
+      orgType: '',
+      taxId: '',
+      orgWebsite: '',
+      orgPhone: '',
+      orgEmail: '',
+      missionStatement: '',
+    },
+    mode: 'onChange',
+  })
+
+  // Update forms when data is fetched
+  useEffect(() => {
+    if (personalInfo) {
+      personalForm.reset(personalInfo)
     }
+  }, [personalInfo, personalForm])
+
+  useEffect(() => {
+    if (organizationInfo) {
+      organizationForm.reset(organizationInfo)
+    }
+  }, [organizationInfo, organizationForm])
+
+  // Form submit handlers
+  const onSavePersonal = (data: PersonalInfoFormData) => {
+    updatePersonalMutation.mutate(data)
+  }
+
+  const onSaveOrganization = (data: OrganizationInfoFormData) => {
+    updateOrganizationMutation.mutate(data)
+  }
+
+  const onSaveNotifications = () => {
+    // TODO: Implement notification preferences save
+    toast.success('Preferences saved', 'Your notification preferences have been updated')
   }
 
   return (
@@ -133,7 +218,7 @@ export default function SettingsPage() {
           <Card.Root flex={1}>
             <Card.Body p={8}>
               {activeSection === 'personal' && (
-                <Box>
+                <Box as="form" onSubmit={personalForm.handleSubmit(onSavePersonal)}>
                   <Heading size="md" mb={2} color="purple.900">
                     Personal Information
                   </Heading>
@@ -144,9 +229,11 @@ export default function SettingsPage() {
                   {/* Profile Photo */}
                   <Flex align="center" gap={4} mb={8}>
                     <Avatar.Root size="xl" bg="purple.500">
-                      <Avatar.Fallback>SJ</Avatar.Fallback>
+                      <Avatar.Fallback>
+                        {personalInfo?.firstName?.[0]}{personalInfo?.lastName?.[0]}
+                      </Avatar.Fallback>
                     </Avatar.Root>
-                    <Button variant="outline" size="sm">
+                    <Button variant="outline" size="sm" type="button">
                       <Icon as={MdCamera} />
                       Change Photo
                     </Button>
@@ -154,22 +241,40 @@ export default function SettingsPage() {
 
                   <VStack gap={6} align="stretch">
                     <SimpleGrid columns={{ base: 1, md: 2 }} gap={6}>
-                      <Field.Root>
-                        <Field.Label color="purple.900" fontWeight="medium">First Name</Field.Label>
-                        <Input
-                          placeholder="Enter first name"
-                          defaultValue="Sarah"
-                          color="purple.900"
-                        />
-                      </Field.Root>
-                      <Field.Root>
-                        <Field.Label color="purple.900" fontWeight="medium">Last Name</Field.Label>
-                        <Input
-                          placeholder="Enter last name"
-                          defaultValue="Johnson"
-                          color="purple.900"
-                        />
-                      </Field.Root>
+                      <Controller
+                        name="firstName"
+                        control={personalForm.control}
+                        render={({ field }) => (
+                          <Field.Root invalid={!!personalForm.formState.errors.firstName}>
+                            <Field.Label color="purple.900" fontWeight="medium">First Name</Field.Label>
+                            <Input
+                              {...field}
+                              placeholder="Enter first name"
+                              color="purple.900"
+                            />
+                            <Field.ErrorText>
+                              {getErrorMessage(personalForm.formState.errors.firstName)}
+                            </Field.ErrorText>
+                          </Field.Root>
+                        )}
+                      />
+                      <Controller
+                        name="lastName"
+                        control={personalForm.control}
+                        render={({ field }) => (
+                          <Field.Root invalid={!!personalForm.formState.errors.lastName}>
+                            <Field.Label color="purple.900" fontWeight="medium">Last Name</Field.Label>
+                            <Input
+                              {...field}
+                              placeholder="Enter last name"
+                              color="purple.900"
+                            />
+                            <Field.ErrorText>
+                              {getErrorMessage(personalForm.formState.errors.lastName)}
+                            </Field.ErrorText>
+                          </Field.Root>
+                        )}
+                      />
                     </SimpleGrid>
 
                     <Field.Root>
@@ -268,7 +373,7 @@ export default function SettingsPage() {
                         Cancel
                       </Button>
                       <Button
-                        colorScheme="purple"
+                        colorPalette="purple"
                         onClick={handleSaveChanges}
                         loading={isSaving}
                         disabled={isSaving}
@@ -371,7 +476,7 @@ export default function SettingsPage() {
 
                     <Flex justify="flex-end" gap={4} pt={4}>
                       <Button variant="outline">Cancel</Button>
-                      <Button colorScheme="purple">Save Changes</Button>
+                      <Button colorPalette="purple">Save Changes</Button>
                     </Flex>
                   </VStack>
                 </Box>
@@ -481,7 +586,7 @@ export default function SettingsPage() {
                     <Flex justify="flex-end" gap={4} pt={4}>
                       <Button variant="outline" disabled={isSaving}>Reset to Default</Button>
                       <Button
-                        colorScheme="purple"
+                        colorPalette="purple"
                         onClick={handleSaveChanges}
                         loading={isSaving}
                         disabled={isSaving}
@@ -536,7 +641,7 @@ export default function SettingsPage() {
                           />
                         </Field.Root>
 
-                        <Button colorScheme="purple" alignSelf="flex-start">
+                        <Button colorPalette="purple" alignSelf="flex-start">
                           Update Password
                         </Button>
                       </VStack>
@@ -578,7 +683,7 @@ export default function SettingsPage() {
                                   Current session • Last active: Now
                                 </Text>
                               </Box>
-                              <Badge colorScheme="green">Active</Badge>
+                              <Badge colorPalette="green">Active</Badge>
                             </HStack>
                           </Card.Body>
                         </Card.Root>
@@ -592,7 +697,7 @@ export default function SettingsPage() {
                                   Last active: 2 hours ago
                                 </Text>
                               </Box>
-                              <Button size="sm" variant="outline" colorScheme="red">
+                              <Button size="sm" variant="outline" colorPalette="red">
                                 Revoke
                               </Button>
                             </HStack>
@@ -616,7 +721,7 @@ export default function SettingsPage() {
                                 Once you delete your account, there is no going back. Please be certain.
                               </Text>
                             </Box>
-                            <Button size="sm" colorScheme="red" variant="outline" alignSelf="flex-start">
+                            <Button size="sm" colorPalette="red" variant="outline" alignSelf="flex-start">
                               Delete Account
                             </Button>
                           </VStack>
