@@ -143,7 +143,7 @@ export default function LandingPage() {
               <Button variant="ghost" onClick={() => setLoginModalOpen(true)}>
                 Log In
               </Button>
-              <Button colorScheme="blue" onClick={() => setSignupModalOpen(true)}>
+              <Button colorPalette="blue" onClick={() => setSignupModalOpen(true)}>
                 Get Started
               </Button>
             </HStack>
@@ -155,7 +155,7 @@ export default function LandingPage() {
       <Box bgGradient="linear(to-r, blue.400, purple.500)" color="white" py={20}>
         <Container maxW="container.xl">
           <VStack gap={8} textAlign="center">
-            <Badge colorScheme="yellow" fontSize="md" px={3} py={1}>
+            <Badge colorPalette="yellow" fontSize="md" px={3} py={1}>
               AI-Powered Grant Management
             </Badge>
             <Heading size="3xl" maxW="900px">
@@ -166,10 +166,10 @@ export default function LandingPage() {
               manage grants with AI-powered intelligence.
             </Text>
             <HStack gap={4} pt={4}>
-              <Button size="lg" colorScheme="yellow" onClick={() => setSignupModalOpen(true)}>
+              <Button size="lg" colorPalette="yellow" onClick={() => setSignupModalOpen(true)}>
                 Start Free Trial
               </Button>
-              <Button size="lg" variant="outline" colorScheme="whiteAlpha">
+              <Button size="lg" variant="outline" colorPalette="whiteAlpha">
                 Watch Demo
               </Button>
             </HStack>
@@ -258,7 +258,7 @@ export default function LandingPage() {
                     top={-3}
                     left="50%"
                     transform="translateX(-50%)"
-                    colorScheme="blue"
+                    colorPalette="blue"
                     fontSize="sm"
                     px={3}
                     py={1}
@@ -281,7 +281,7 @@ export default function LandingPage() {
 
                     <Button
                       size="lg"
-                      colorScheme={plan.highlighted ? 'blue' : 'gray'}
+                      colorPalette={plan.highlighted ? 'blue' : 'gray'}
                       variant={plan.highlighted ? 'solid' : 'outline'}
                       onClick={() => setSignupModalOpen(true)}
                     >
@@ -314,10 +314,10 @@ export default function LandingPage() {
               funding and streamline their operations.
             </Text>
             <HStack gap={4}>
-              <Button size="lg" colorScheme="yellow" onClick={() => setSignupModalOpen(true)}>
+              <Button size="lg" colorPalette="yellow" onClick={() => setSignupModalOpen(true)}>
                 Start Your Free Trial
               </Button>
-              <Button size="lg" variant="outline" colorScheme="whiteAlpha">
+              <Button size="lg" variant="outline" colorPalette="whiteAlpha">
                 Schedule a Demo
               </Button>
             </HStack>

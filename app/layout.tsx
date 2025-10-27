@@ -35,17 +35,17 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
-        <ErrorBoundary>
-          <StackProvider app={stackServerApp}>
-            <QueryProvider>
-              <Provider>
+        <StackProvider app={stackServerApp}>
+          <QueryProvider>
+            <Provider>
+              <ErrorBoundary>
                 <ToastProvider>
                   {children}
                 </ToastProvider>
-              </Provider>
-            </QueryProvider>
-          </StackProvider>
-        </ErrorBoundary>
+              </ErrorBoundary>
+            </Provider>
+          </QueryProvider>
+        </StackProvider>
         <Analytics />
         <SpeedInsights />
       </body>

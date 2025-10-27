@@ -16,6 +16,7 @@ import {
 } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import { FiArrowRight, FiEdit, FiRefreshCw, FiDownload } from 'react-icons/fi'
+import MainLayout from '@/components/layout/MainLayout'
 
 export default function DonorMeetingSummaryPage() {
   const router = useRouter()
@@ -52,8 +53,9 @@ export default function DonorMeetingSummaryPage() {
   ]
 
   return (
-    <Box minH="100vh" bg="purple.50">
-      <Container maxW="container.xl" py={8}>
+    <MainLayout>
+      <Box minH="100vh" bg="purple.50">
+        <Container maxW="container.xl" py={8}>
         <VStack gap={8} align="stretch">
           {/* Header */}
           <HStack justify="space-between">
@@ -65,7 +67,7 @@ export default function DonorMeetingSummaryPage() {
                 Practice conversations and analyze your pitch
               </Text>
             </VStack>
-            <Badge colorScheme="purple" fontSize="sm" px={3} py={1}>
+            <Badge colorPalette="purple" fontSize="sm" px={3} py={1}>
               Step 2 of 3
             </Badge>
           </HStack>
@@ -118,7 +120,7 @@ export default function DonorMeetingSummaryPage() {
                       </Text>
                     </Box>
                     <Button
-                      colorScheme="purple"
+                      colorPalette="purple"
                       variant="outline"
                       size="sm"
                     >
@@ -152,7 +154,7 @@ export default function DonorMeetingSummaryPage() {
                     >
                       <HStack mb={2} gap={2}>
                         <Badge
-                          colorScheme={exchange.role === 'Donor' ? 'purple' : 'purple'}
+                          colorPalette={exchange.role === 'Donor' ? 'purple' : 'purple'}
                           fontSize="xs"
                         >
                           {exchange.speaker} ({exchange.role})
@@ -183,21 +185,21 @@ export default function DonorMeetingSummaryPage() {
           {/* Action Buttons */}
           <HStack gap={4} justify="center" pt={4}>
             <Button
-              colorScheme="purple"
+              colorPalette="purple"
               variant="outline"
             >
               <Icon as={FiEdit} mr={2} />
               Edit Session
             </Button>
             <Button
-              colorScheme="purple"
+              colorPalette="purple"
               variant="outline"
             >
               <Icon as={FiRefreshCw} mr={2} />
               Regenerate
             </Button>
             <Button
-              colorScheme="purple"
+              colorPalette="purple"
               variant="outline"
             >
               <Icon as={FiDownload} mr={2} />
@@ -209,7 +211,7 @@ export default function DonorMeetingSummaryPage() {
           <Flex justify="center">
             <Button
               size="lg"
-              colorScheme="purple"
+              colorPalette="purple"
               px={12}
               onClick={() => router.push('/genies/donor-meeting/practice')}
             >
@@ -220,5 +222,6 @@ export default function DonorMeetingSummaryPage() {
         </VStack>
       </Container>
     </Box>
+    </MainLayout>
   )
 }

@@ -22,6 +22,7 @@ import {
   FiPlus,
 } from 'react-icons/fi'
 import { useAuth } from '@/contexts/AuthContext'
+import MainLayout from '@/components/layout/MainLayout'
 
 export default function GeniesPage() {
   const router = useRouter()
@@ -59,8 +60,9 @@ export default function GeniesPage() {
   ]
 
   return (
-    <Box minH="100vh" bg="purple.50" py={12}>
-      <Container maxW="container.xl">
+    <MainLayout>
+      <Box minH="100vh" bg="purple.50" py={12}>
+        <Container maxW="container.xl">
         <VStack gap={8} align="stretch">
           {/* Header */}
           <VStack align="start" gap={2}>
@@ -181,5 +183,6 @@ export default function GeniesPage() {
         </VStack>
       </Container>
     </Box>
+    </MainLayout>
   )
 }

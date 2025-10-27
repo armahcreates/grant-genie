@@ -81,7 +81,7 @@ export default function GrantProposalPage() {
               <HStack gap={3}>
                 <Button
                   variant="outline"
-                  colorScheme="purple"
+                  colorPalette="purple"
                   size="sm"
                 >
                   <Icon as={FiShare2} mr={2} />
@@ -89,14 +89,14 @@ export default function GrantProposalPage() {
                 </Button>
                 <Button
                   variant="outline"
-                  colorScheme="purple"
+                  colorPalette="purple"
                   size="sm"
                 >
                   <Icon as={FiDownload} mr={2} />
                   Download Copy
                 </Button>
                 <Button
-                  colorScheme="purple"
+                  colorPalette="purple"
                   size="sm"
                 >
                   <Icon as={FiSave} mr={2} />
@@ -193,7 +193,7 @@ export default function GrantProposalPage() {
                         <Text color="red.700" fontSize="lg">
                           {error}
                         </Text>
-                        <Button colorScheme="purple" onClick={handleRegenerate}>
+                        <Button colorPalette="purple" onClick={handleRegenerate}>
                           <Icon as={FiRefreshCw} mr={2} />
                           Try Again
                         </Button>
@@ -248,14 +248,14 @@ export default function GrantProposalPage() {
                   <HStack gap={4} justify="center" mt={8}>
                     <Button
                       variant="outline"
-                      colorScheme="purple"
+                      colorPalette="purple"
                       onClick={() => router.push('/grant-application')}
                     >
                       Edit Inputs
                     </Button>
                     <Button
                       variant="outline"
-                      colorScheme="purple"
+                      colorPalette="purple"
                       onClick={handleRegenerate}
                       disabled={isGenerating}
                     >
@@ -263,7 +263,7 @@ export default function GrantProposalPage() {
                       Regenerate
                     </Button>
                     <Button
-                      colorScheme="purple"
+                      colorPalette="purple"
                     >
                       <Icon as={FiSave} mr={2} />
                       Save to Database

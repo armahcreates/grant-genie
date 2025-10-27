@@ -86,15 +86,27 @@ function SignUpContent() {
         {/* Back to Home Link */}
         <NextLink href="/" style={{ position: 'absolute', top: '32px', left: '32px', zIndex: 2 }}>
           <Box
-            color="rgba(255, 255, 255, 0.9)"
-            fontSize="14px"
-            fontWeight="500"
+            color="whiteAlpha.900"
+            fontSize="sm"
+            fontWeight="semibold"
             cursor="pointer"
-            transition="color 0.2s"
+            transition="all 0.2s"
             display="flex"
             alignItems="center"
-            gap="8px"
-            _hover={{ color: softTeal }}
+            gap={2}
+            bg="whiteAlpha.200"
+            backdropFilter="blur(10px)"
+            px={4}
+            py={2}
+            borderRadius="full"
+            border="1px solid"
+            borderColor="whiteAlpha.300"
+            _hover={{
+              color: softTeal,
+              bg: "whiteAlpha.300",
+              borderColor: softTeal,
+              transform: "translateY(-2px)"
+            }}
           >
             <FiArrowLeft />
             <Text as="span" display={{ base: "none", sm: "inline" }}>
@@ -105,42 +117,82 @@ function SignUpContent() {
 
         {/* Main Auth Card */}
         <Box
-          maxW="500px"
+          maxW="540px"
           w="full"
-          background="rgba(255, 255, 255, 0.1)"
-          backdropFilter="blur(20px)"
-          borderRadius="24px"
-          border="1px solid rgba(255, 255, 255, 0.3)"
-          boxShadow="0 20px 40px rgba(0, 0, 0, 0.2)"
+          bg="white"
+          borderRadius="3xl"
+          border="2px solid"
+          borderColor="whiteAlpha.400"
+          boxShadow="0 30px 60px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1)"
           position="relative"
           zIndex={1}
-          p={{ base: "24px", md: "32px" }}
+          p={{ base: 8, md: 10 }}
+          _before={{
+            content: '""',
+            position: 'absolute',
+            inset: 0,
+            borderRadius: '3xl',
+            padding: '2px',
+            background: `linear-gradient(135deg, ${softTeal}, ${deepIndigo})`,
+            WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+            WebkitMaskComposite: 'xor',
+            maskComposite: 'exclude',
+            opacity: 0.3,
+          }}
         >
-          <VStack gap="24px" alignItems="stretch">
+          <VStack gap={8} alignItems="stretch">
             {/* Logo */}
-            <Text
-              fontSize={{ base: "24px", md: "30px" }}
-              fontWeight="bold"
-              background={`linear-gradient(to right, ${deepIndigo}, ${softTeal})`}
-              backgroundClip="text"
-              color="transparent"
-              textAlign="center"
-              mb="8px"
-            >
-              Headspace Genie
-            </Text>
+            <VStack gap={3}>
+              <Box
+                w={16}
+                h={16}
+                bgGradient={`linear(135deg, ${deepIndigo}, ${softTeal})`}
+                borderRadius="2xl"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                boxShadow={`0 8px 20px ${softTeal}40`}
+                position="relative"
+                _before={{
+                  content: '""',
+                  position: 'absolute',
+                  inset: '-4px',
+                  borderRadius: '2xl',
+                  padding: '2px',
+                  background: `linear-gradient(135deg, ${softTeal}, ${deepIndigo})`,
+                  WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                  WebkitMaskComposite: 'xor',
+                  maskComposite: 'exclude',
+                  opacity: 0.5,
+                }}
+              >
+                <Text fontSize="3xl" fontWeight="bold" color="white">
+                  H
+                </Text>
+              </Box>
+              <Text
+                fontSize={{ base: "2xl", md: "3xl" }}
+                fontWeight="bold"
+                bgGradient={`linear(to-r, ${deepIndigo}, ${softTeal})`}
+                bgClip="text"
+                textAlign="center"
+                letterSpacing="-0.02em"
+              >
+                Headspace Genie
+              </Text>
+            </VStack>
 
             {/* Heading */}
-            <VStack gap="8px" textAlign="center">
+            <VStack gap={2} textAlign="center">
               <Heading
-                fontSize={{ base: "28px", md: "36px", lg: "42px" }}
-                color="white"
-                letterSpacing={{ base: "normal", md: "-0.01em", lg: "-0.02em" }}
-                lineHeight="1.2"
+                size={{ base: "xl", md: "2xl" }}
+                color={deepIndigo}
+                letterSpacing="-0.02em"
+                lineHeight="1.1"
               >
-                Get Started
+                Create Your Account
               </Heading>
-              <Text color="rgba(255, 255, 255, 0.9)" fontSize={{ base: "14px", md: "16px" }}>
+              <Text color="purple.700" fontSize={{ base: "sm", md: "md" }}>
                 Start your journey to effortless grant success
               </Text>
             </VStack>
@@ -148,15 +200,15 @@ function SignUpContent() {
             {/* Loading state */}
             {isLoading && (
               <Box
-                p="16px"
-                background="rgba(255, 255, 255, 0.2)"
-                backdropFilter="blur(10px)"
-                borderRadius="24px"
-                border="1px solid rgba(255, 255, 255, 0.3)"
+                p={5}
+                bg="purple.50"
+                borderRadius="xl"
+                border="2px solid"
+                borderColor="purple.200"
               >
-                <Box display="flex" gap="12px" justifyContent="center" alignItems="center">
+                <Box display="flex" gap={3} justifyContent="center" alignItems="center">
                   <Spinner size="sm" color={softTeal} />
-                  <Text color="white" fontSize="14px" fontWeight="500">
+                  <Text color={deepIndigo} fontSize="sm" fontWeight="semibold">
                     Creating your account...
                   </Text>
                 </Box>
@@ -166,15 +218,16 @@ function SignUpContent() {
             {/* Success message */}
             {success && (
               <Box
-                p="16px"
-                background="linear-gradient(135deg, #10B981 0%, #059669 100%)"
-                borderRadius="24px"
-                border="1px solid #34D399"
-                boxShadow="0 4px 15px rgba(34, 197, 94, 0.3)"
+                p={5}
+                bg="green.50"
+                borderRadius="xl"
+                border="2px solid"
+                borderColor="green.400"
+                boxShadow="0 4px 15px rgba(34, 197, 94, 0.15)"
               >
-                <Box display="flex" gap="8px" alignItems="center">
-                  <FiCheckCircle color="white" size={20} />
-                  <Text color="white" fontSize="14px" fontWeight="600">
+                <Box display="flex" gap={3} alignItems="center">
+                  <FiCheckCircle color="#10B981" size={20} />
+                  <Text color="green.800" fontSize="sm" fontWeight="semibold">
                     Account created! Redirecting to onboarding...
                   </Text>
                 </Box>
@@ -184,15 +237,16 @@ function SignUpContent() {
             {/* Error message */}
             {error && (
               <Box
-                p="16px"
-                background="linear-gradient(135deg, #EF4444 0%, #DC2626 100%)"
-                borderRadius="24px"
-                border="1px solid #F87171"
-                boxShadow="0 4px 15px rgba(239, 68, 68, 0.3)"
+                p={5}
+                bg="red.50"
+                borderRadius="xl"
+                border="2px solid"
+                borderColor="red.400"
+                boxShadow="0 4px 15px rgba(239, 68, 68, 0.15)"
               >
-                <Box display="flex" gap="8px" alignItems="center">
-                  <FiAlertCircle color="white" size={20} />
-                  <Text color="white" fontSize="14px" fontWeight="600">
+                <Box display="flex" gap={3} alignItems="center">
+                  <FiAlertCircle color="#EF4444" size={20} />
+                  <Text color="red.800" fontSize="sm" fontWeight="semibold">
                     {error}
                   </Text>
                 </Box>
@@ -208,16 +262,23 @@ function SignUpContent() {
 }
 
 export default function SignUpPage() {
+  const { deepIndigo } = colors.brand;
+
   return (
     <Suspense fallback={
       <Box
         minH="100vh"
-        bg="purple.50"
+        bgGradient={`linear(135deg, ${deepIndigo}, #2D2C5A, #1a1a3e)`}
         display="flex"
         alignItems="center"
         justifyContent="center"
       >
-        <Spinner size="xl" color="purple.600" />
+        <VStack gap={4}>
+          <Spinner size="xl" color="white" />
+          <Text color="white" fontSize="lg" fontWeight="semibold">
+            Loading...
+          </Text>
+        </VStack>
       </Box>
     }>
       <SignUpContent />

@@ -29,6 +29,7 @@ import {
 import { Checkbox } from '@/components/ui/checkbox'
 import { useDonorGenieStore } from '@/lib/store'
 import { useDonorMeetingAgent } from '@/lib/agents'
+import MainLayout from '@/components/layout/MainLayout'
 
 export default function DonorMeetingPracticePage() {
   const router = useRouter()
@@ -69,8 +70,9 @@ export default function DonorMeetingPracticePage() {
   ]
 
   return (
-    <Box minH="100vh" bg="purple.50">
-      <Container maxW="container.xl" py={8}>
+    <MainLayout>
+      <Box minH="100vh" bg="purple.50">
+        <Container maxW="container.xl" py={8}>
         <VStack gap={6} align="stretch">
           {/* Header */}
           <HStack justify="space-between">
@@ -82,7 +84,7 @@ export default function DonorMeetingPracticePage() {
                 Prepare conversations and capture next steps
               </Text>
             </VStack>
-            <Badge colorScheme="purple" fontSize="sm" px={3} py={1}>
+            <Badge colorPalette="purple" fontSize="sm" px={3} py={1}>
               Step 3 of 3
             </Badge>
           </HStack>
@@ -168,7 +170,7 @@ export default function DonorMeetingPracticePage() {
                   </VStack>
                   <Button
                     size="sm"
-                    colorScheme="purple"
+                    colorPalette="purple"
                     variant="outline"
                     w="full"
                     mt={4}
@@ -247,7 +249,7 @@ export default function DonorMeetingPracticePage() {
                       <Heading size="sm" color="purple.900">
                         Practice Conversation
                       </Heading>
-                      <Badge colorScheme="green">Live</Badge>
+                      <Badge colorPalette="green">Live</Badge>
                     </HStack>
                   </Card.Header>
                   <Card.Body>
@@ -270,7 +272,7 @@ export default function DonorMeetingPracticePage() {
                           >
                             <HStack mb={2} justify="space-between">
                               <Badge
-                                colorScheme={msg.role === 'assistant' ? 'purple' : 'purple'}
+                                colorPalette={msg.role === 'assistant' ? 'purple' : 'purple'}
                                 fontSize="xs"
                               >
                                 {msg.role === 'assistant' ? 'Donor' : 'You'}
@@ -300,7 +302,7 @@ export default function DonorMeetingPracticePage() {
                           disabled={isProcessing}
                         />
                         <Button
-                          colorScheme="purple"
+                          colorPalette="purple"
                           onClick={handleSendMessage}
                           disabled={isProcessing || !userMessage.trim()}
                         >
@@ -315,21 +317,21 @@ export default function DonorMeetingPracticePage() {
                 {/* Action Buttons */}
                 <HStack gap={4} justify="center">
                   <Button
-                    colorScheme="purple"
+                    colorPalette="purple"
                     variant="outline"
                   >
                     <Icon as={FiDownload} mr={2} />
                     Download Transcript
                   </Button>
                   <Button
-                    colorScheme="purple"
+                    colorPalette="purple"
                     variant="outline"
                   >
                     <Icon as={FiBookmark} mr={2} />
                     Save to Workbook
                   </Button>
                   <Button
-                    colorScheme="purple"
+                    colorPalette="purple"
                     variant="outline"
                   >
                     <Icon as={FiShare2} mr={2} />
@@ -342,5 +344,6 @@ export default function DonorMeetingPracticePage() {
         </VStack>
       </Container>
     </Box>
+    </MainLayout>
   )
 }

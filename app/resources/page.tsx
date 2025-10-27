@@ -58,9 +58,9 @@ export default function ResourcesPage() {
     }
   }
 
-  const borderColor = 'gray.200'
-  const messageBgUser = 'blue.500'
-  const messageBgAssistant = 'gray.100'
+  const borderColor = 'purple.200'
+  const messageBgUser = 'purple.600'
+  const messageBgAssistant = 'purple.50'
 
   const templates = [
     { name: 'Federal Grant Template', icon: FiDownload },
@@ -93,10 +93,10 @@ export default function ResourcesPage() {
         <VStack gap={8} align="stretch">
           {/* Header */}
           <Box>
-            <Heading size="lg" mb={2}>
+            <Heading size="lg" mb={2} color="purple.900">
               Grant Management Resources
             </Heading>
-            <Text color="gray.600">
+            <Text color="purple.700">
               Access templates, guides, and tools to streamline your grant management process
             </Text>
           </Box>
@@ -105,16 +105,16 @@ export default function ResourcesPage() {
           <Card.Root>
             <Card.Header>
               <HStack>
-                <Icon as={FiFileText} boxSize={6} color="blue.500" />
-                <Heading size="md">AI Grant Copilot</Heading>
+                <Icon as={FiFileText} boxSize={6} color="purple.600" />
+                <Heading size="md" color="purple.900">AI Grant Copilot</Heading>
               </HStack>
             </Card.Header>
             <Card.Body>
               <VStack gap={4} align="stretch">
-                <Text color="gray.600" fontSize="sm">
+                <Text color="purple.700" fontSize="sm">
                   Hello! I'm your AI Grant Assistant. I can help you with:
                 </Text>
-                <List.Root gap={1} fontSize="sm" color="gray.600">
+                <List.Root gap={1} fontSize="sm" color="purple.700">
                   <List.Item>• Finding grants and opportunities</List.Item>
                   <List.Item>• Tracking application deadlines</List.Item>
                   <List.Item>• Generating reports and analytics</List.Item>
@@ -128,7 +128,7 @@ export default function ResourcesPage() {
                   borderColor={borderColor}
                   borderRadius="md"
                   p={4}
-                  bg="gray.50"
+                  bg="purple.50"
                 >
                   <VStack gap={3} align="stretch">
                     {messages.map((message, index) => (
@@ -139,7 +139,7 @@ export default function ResourcesPage() {
                         <Box
                           maxW="80%"
                           bg={message.role === 'user' ? messageBgUser : messageBgAssistant}
-                          color={message.role === 'user' ? 'white' : 'inherit'}
+                          color={message.role === 'user' ? 'white' : 'purple.900'}
                           px={4}
                           py={2}
                           borderRadius="lg"
@@ -167,12 +167,12 @@ export default function ResourcesPage() {
                   <IconButton
                     aria-label="Send message to AI assistant"
                     size="sm"
-                    colorScheme="blue"
+                    colorPalette="purple"
                     onClick={handleSendMessage}
                     _active={{ transform: 'scale(0.95)' }}
                     _focusVisible={{
                       outline: '3px solid',
-                      outlineColor: 'blue.500',
+                      outlineColor: 'purple.500',
                       outlineOffset: '2px'
                     }}
                   >
@@ -189,10 +189,10 @@ export default function ResourcesPage() {
             <Card.Root>
               <Card.Header>
                 <HStack>
-                  <Icon as={FiFileText} boxSize={5} color="blue.500" />
-                  <Heading size="sm">Application Templates</Heading>
+                  <Icon as={FiFileText} boxSize={5} color="purple.600" />
+                  <Heading size="sm" color="purple.900">Application Templates</Heading>
                 </HStack>
-                <Text fontSize="sm" color="gray.600" mt={2}>
+                <Text fontSize="sm" color="purple.700" mt={2}>
                   Pre-built templates for common grant applications
                 </Text>
               </Card.Header>
@@ -206,11 +206,11 @@ export default function ResourcesPage() {
                       border="1px"
                       borderColor={borderColor}
                       borderRadius="md"
-                      _hover={{ bg: 'gray.50' }}
+                      _hover={{ bg: 'purple.50' }}
                       cursor="pointer"
                     >
-                      <Text fontSize="sm">{template.name}</Text>
-                      <Icon as={template.icon} color="gray.500" />
+                      <Text fontSize="sm" color="purple.900">{template.name}</Text>
+                      <Icon as={template.icon} color="purple.600" />
                     </HStack>
                   ))}
                 </VStack>
@@ -221,10 +221,10 @@ export default function ResourcesPage() {
             <Card.Root>
               <Card.Header>
                 <HStack>
-                  <Icon as={FiFileText} boxSize={5} color="green.500" />
-                  <Heading size="sm">Best Practice Guides</Heading>
+                  <Icon as={FiFileText} boxSize={5} color="purple.600" />
+                  <Heading size="sm" color="purple.900">Best Practice Guides</Heading>
                 </HStack>
-                <Text fontSize="sm" color="gray.600" mt={2}>
+                <Text fontSize="sm" color="purple.700" mt={2}>
                   Comprehensive guides for successful grant management
                 </Text>
               </Card.Header>
@@ -253,10 +253,10 @@ export default function ResourcesPage() {
             <Card.Root>
               <Card.Header>
                 <HStack>
-                  <Icon as={FiFileText} boxSize={5} color="purple.500" />
-                  <Heading size="sm">Management Tools</Heading>
+                  <Icon as={FiFileText} boxSize={5} color="purple.600" />
+                  <Heading size="sm" color="purple.900">Management Tools</Heading>
                 </HStack>
-                <Text fontSize="sm" color="gray.600" mt={2}>
+                <Text fontSize="sm" color="purple.700" mt={2}>
                   Tools to streamline your grant management workflow
                 </Text>
               </Card.Header>
@@ -285,7 +285,7 @@ export default function ResourcesPage() {
           {/* Quick Actions */}
           <Card.Root>
             <Card.Header>
-              <Heading size="md">Quick Actions</Heading>
+              <Heading size="md" color="purple.900">Quick Actions</Heading>
             </Card.Header>
             <Card.Body>
               <SimpleGrid columns={{ base: 2, md: 4 }} gap={4}>
@@ -293,6 +293,7 @@ export default function ResourcesPage() {
                   <Button
                     key={index}
                     variant="outline"
+                    colorPalette="purple"
                     h="100px"
                     flexDirection="column"
                     gap={2}
@@ -320,7 +321,7 @@ export default function ResourcesPage() {
             >
               <Text>&lt;</Text>
             </IconButton>
-            <Text fontSize="sm" color="gray.600">
+            <Text fontSize="sm" color="purple.700">
               8 / 12
             </Text>
             <IconButton

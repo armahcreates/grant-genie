@@ -14,10 +14,14 @@ import {
   Icon,
   SimpleGrid,
   Spinner,
+  Field,
 } from "@chakra-ui/react";
 import { Suspense, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@stackframe/stack";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import {
   FiUser,
   FiBriefcase,
@@ -25,17 +29,41 @@ import {
   FiCheck,
   FiArrowRight,
 } from "react-icons/fi";
+import { getErrorMessage } from "@/lib/utils/formHelpers";
+
+// Zod validation schema
+const onboardingSchema = z.object({
+  fullName: z.string().min(2, "Name must be at least 2 characters"),
+  organizationName: z.string().min(2, "Organization name is required"),
+  organizationType: z.string().min(1, "Please select an organization type"),
+  role: z.string().min(2, "Role is required"),
+  goals: z.array(z.string()).min(1, "Please select at least one goal"),
+});
+
+type OnboardingFormData = z.infer<typeof onboardingSchema>;
 
 function OnboardingContent() {
   const router = useRouter();
   const user = useUser({ or: "redirect" });
   const [step, setStep] = useState(1);
-  const [formData, setFormData] = useState({
-    fullName: user?.displayName || "",
-    organizationName: "",
-    organizationType: "",
-    role: "",
-    goals: [] as string[],
+
+  const {
+    control,
+    handleSubmit,
+    watch,
+    setValue,
+    trigger,
+    formState: { errors, isSubmitting },
+  } = useForm<OnboardingFormData>({
+    resolver: zodResolver(onboardingSchema),
+    defaultValues: {
+      fullName: user?.displayName || "",
+      organizationName: "",
+      organizationType: "",
+      role: "",
+      goals: [],
+    },
+    mode: "onChange",
   });
 
   const totalSteps = 3;
@@ -59,17 +87,29 @@ function OnboardingContent() {
     "Learn Fundraising Best Practices",
   ];
 
+  const goals = watch("goals");
+  const organizationType = watch("organizationType");
+
   const handleGoalToggle = (goal: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      goals: prev.goals.includes(goal)
-        ? prev.goals.filter((g) => g !== goal)
-        : [...prev.goals, goal],
-    }));
+    const currentGoals = goals || [];
+    const newGoals = currentGoals.includes(goal)
+      ? currentGoals.filter((g) => g !== goal)
+      : [...currentGoals, goal];
+    setValue("goals", newGoals);
   };
 
-  const handleNext = () => {
-    if (step < totalSteps) {
+  const handleNext = async () => {
+    let fieldsToValidate: Array<keyof OnboardingFormData> = [];
+
+    if (step === 1) {
+      fieldsToValidate = ["fullName", "role"];
+    } else if (step === 2) {
+      fieldsToValidate = ["organizationName", "organizationType"];
+    }
+
+    const isValid = await trigger(fieldsToValidate);
+
+    if (isValid && step < totalSteps) {
       setStep(step + 1);
     }
   };
@@ -80,16 +120,15 @@ function OnboardingContent() {
     }
   };
 
-  const handleComplete = async () => {
-    // Save onboarding data to user metadata
+  const onSubmit = async (data: OnboardingFormData) => {
     try {
       await user.update({
         clientMetadata: {
           onboarded: "true",
-          organizationName: formData.organizationName,
-          organizationType: formData.organizationType,
-          role: formData.role,
-          goals: formData.goals.join(","),
+          organizationName: data.organizationName,
+          organizationType: data.organizationType,
+          role: data.role,
+          goals: data.goals.join(","),
         },
       });
       router.push("/dashboard");
@@ -132,212 +171,235 @@ function OnboardingContent() {
           {/* Onboarding Steps */}
           <Card.Root bg="white" p={{ base: 6, md: 8 }} borderRadius="2xl" boxShadow="xl">
             <Card.Body>
-              {step === 1 && (
-                <VStack gap={6} align="stretch">
-                  <HStack gap={3}>
-                    <Icon
-                      as={FiUser}
-                      boxSize={8}
-                      color="purple.600"
-                      p={2}
-                      bg="purple.50"
-                      borderRadius="lg"
-                    />
-                    <VStack align="start" gap={0}>
-                      <Heading size={{ base: "md", md: "lg" }} color="purple.900">
-                        About You
-                      </Heading>
-                      <Text color="purple.700" fontSize={{ base: "sm", md: "md" }}>
-                        Tell us a bit about yourself
-                      </Text>
-                    </VStack>
-                  </HStack>
-
-                  <VStack gap={4} align="stretch" mt={4}>
-                    <VStack align="start" gap={2}>
-                      <Text fontWeight="medium" color="purple.900">
-                        Full Name
-                      </Text>
-                      <Input
-                        size={{ base: "md", md: "lg" }}
-                        placeholder="Enter your full name"
-                        value={formData.fullName}
-                        onChange={(e) =>
-                          setFormData({ ...formData, fullName: e.target.value })
-                        }
+              <form onSubmit={handleSubmit(onSubmit)}>
+                {step === 1 && (
+                  <VStack gap={6} align="stretch">
+                    <HStack gap={3}>
+                      <Icon
+                        as={FiUser}
+                        boxSize={8}
+                        color="purple.600"
+                        p={2}
+                        bg="purple.50"
+                        borderRadius="lg"
                       />
-                    </VStack>
+                      <VStack align="start" gap={0}>
+                        <Heading size={{ base: "md", md: "lg" }} color="purple.900">
+                          About You
+                        </Heading>
+                        <Text color="purple.700" fontSize={{ base: "sm", md: "md" }}>
+                          Tell us a bit about yourself
+                        </Text>
+                      </VStack>
+                    </HStack>
 
-                    <VStack align="start" gap={2}>
-                      <Text fontWeight="medium" color="purple.900">
-                        Your Role
-                      </Text>
-                      <Input
-                        size={{ base: "md", md: "lg" }}
-                        placeholder="e.g., Executive Director, Development Manager"
-                        value={formData.role}
-                        onChange={(e) =>
-                          setFormData({ ...formData, role: e.target.value })
-                        }
+                    <VStack gap={4} align="stretch" mt={4}>
+                      <Controller
+                        name="fullName"
+                        control={control}
+                        render={({ field }) => (
+                          <Field.Root invalid={!!errors.fullName}>
+                            <Field.Label fontWeight="medium" color="purple.900">
+                              Full Name
+                            </Field.Label>
+                            <Input
+                              {...field}
+                              size={{ base: "md", md: "lg" }}
+                              placeholder="Enter your full name"
+                            />
+                            <Field.ErrorText>
+                              {getErrorMessage(errors.fullName)}
+                            </Field.ErrorText>
+                          </Field.Root>
+                        )}
+                      />
+
+                      <Controller
+                        name="role"
+                        control={control}
+                        render={({ field }) => (
+                          <Field.Root invalid={!!errors.role}>
+                            <Field.Label fontWeight="medium" color="purple.900">
+                              Your Role
+                            </Field.Label>
+                            <Input
+                              {...field}
+                              size={{ base: "md", md: "lg" }}
+                              placeholder="e.g., Executive Director, Development Manager"
+                            />
+                            <Field.ErrorText>
+                              {getErrorMessage(errors.role)}
+                            </Field.ErrorText>
+                          </Field.Root>
+                        )}
                       />
                     </VStack>
                   </VStack>
-                </VStack>
-              )}
-
-              {step === 2 && (
-                <VStack gap={6} align="stretch">
-                  <HStack gap={3}>
-                    <Icon
-                      as={FiBriefcase}
-                      boxSize={8}
-                      color="purple.600"
-                      p={2}
-                      bg="purple.50"
-                      borderRadius="lg"
-                    />
-                    <VStack align="start" gap={0}>
-                      <Heading size={{ base: "md", md: "lg" }} color="purple.900">
-                        Your Organization
-                      </Heading>
-                      <Text color="purple.700" fontSize={{ base: "sm", md: "md" }}>
-                        Help us understand your mission
-                      </Text>
-                    </VStack>
-                  </HStack>
-
-                  <VStack gap={4} align="stretch" mt={4}>
-                    <VStack align="start" gap={2}>
-                      <Text fontWeight="medium" color="purple.900">
-                        Organization Name
-                      </Text>
-                      <Input
-                        size={{ base: "md", md: "lg" }}
-                        placeholder="Enter your organization name"
-                        value={formData.organizationName}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            organizationName: e.target.value,
-                          })
-                        }
-                      />
-                    </VStack>
-
-                    <VStack align="start" gap={2}>
-                      <Text fontWeight="medium" color="purple.900">
-                        Organization Type
-                      </Text>
-                      <SimpleGrid columns={{ base: 1, sm: 2 }} gap={2} w="full">
-                        {organizationTypes.map((type) => (
-                          <Button
-                            key={type}
-                            variant={
-                              formData.organizationType === type
-                                ? "solid"
-                                : "outline"
-                            }
-                            colorScheme="purple"
-                            onClick={() =>
-                              setFormData({ ...formData, organizationType: type })
-                            }
-                            size={{ base: "sm", md: "md" }}
-                            textAlign="left"
-                            justifyContent="flex-start"
-                          >
-                            {formData.organizationType === type && (
-                              <Icon as={FiCheck} mr={2} />
-                            )}
-                            {type}
-                          </Button>
-                        ))}
-                      </SimpleGrid>
-                    </VStack>
-                  </VStack>
-                </VStack>
-              )}
-
-              {step === 3 && (
-                <VStack gap={6} align="stretch">
-                  <HStack gap={3}>
-                    <Icon
-                      as={FiTarget}
-                      boxSize={8}
-                      color="purple.600"
-                      p={2}
-                      bg="purple.50"
-                      borderRadius="lg"
-                    />
-                    <VStack align="start" gap={0}>
-                      <Heading size={{ base: "md", md: "lg" }} color="purple.900">
-                        Your Goals
-                      </Heading>
-                      <Text color="purple.700" fontSize={{ base: "sm", md: "md" }}>
-                        What would you like to accomplish?
-                      </Text>
-                    </VStack>
-                  </HStack>
-
-                  <VStack gap={2} align="stretch" mt={4}>
-                    <Text fontSize={{ base: "sm", md: "md" }} color="purple.700" mb={2}>
-                      Select all that apply:
-                    </Text>
-                    <SimpleGrid columns={{ base: 1, sm: 2 }} gap={2}>
-                      {goalOptions.map((goal) => (
-                        <Button
-                          key={goal}
-                          variant={
-                            formData.goals.includes(goal) ? "solid" : "outline"
-                          }
-                          colorScheme="purple"
-                          onClick={() => handleGoalToggle(goal)}
-                          size={{ base: "sm", md: "md" }}
-                          textAlign="left"
-                          justifyContent="flex-start"
-                        >
-                          {formData.goals.includes(goal) && (
-                            <Icon as={FiCheck} mr={2} />
-                          )}
-                          {goal}
-                        </Button>
-                      ))}
-                    </SimpleGrid>
-                  </VStack>
-                </VStack>
-              )}
-
-              {/* Navigation Buttons */}
-              <HStack justify="space-between" mt={8}>
-                <Button
-                  variant="outline"
-                  colorScheme="purple"
-                  onClick={handleBack}
-                  disabled={step === 1}
-                  size={{ base: "md", md: "lg" }}
-                >
-                  Back
-                </Button>
-
-                {step < totalSteps ? (
-                  <Button
-                    colorScheme="purple"
-                    onClick={handleNext}
-                    size={{ base: "md", md: "lg" }}
-                  >
-                    Continue
-                    <Icon as={FiArrowRight} ml={2} />
-                  </Button>
-                ) : (
-                  <Button
-                    colorScheme="purple"
-                    onClick={handleComplete}
-                    size={{ base: "md", md: "lg" }}
-                  >
-                    Complete Setup
-                    <Icon as={FiCheck} ml={2} />
-                  </Button>
                 )}
-              </HStack>
+
+                {step === 2 && (
+                  <VStack gap={6} align="stretch">
+                    <HStack gap={3}>
+                      <Icon
+                        as={FiBriefcase}
+                        boxSize={8}
+                        color="purple.600"
+                        p={2}
+                        bg="purple.50"
+                        borderRadius="lg"
+                      />
+                      <VStack align="start" gap={0}>
+                        <Heading size={{ base: "md", md: "lg" }} color="purple.900">
+                          Your Organization
+                        </Heading>
+                        <Text color="purple.700" fontSize={{ base: "sm", md: "md" }}>
+                          Help us understand your mission
+                        </Text>
+                      </VStack>
+                    </HStack>
+
+                    <VStack gap={4} align="stretch" mt={4}>
+                      <Controller
+                        name="organizationName"
+                        control={control}
+                        render={({ field }) => (
+                          <Field.Root invalid={!!errors.organizationName}>
+                            <Field.Label fontWeight="medium" color="purple.900">
+                              Organization Name
+                            </Field.Label>
+                            <Input
+                              {...field}
+                              size={{ base: "md", md: "lg" }}
+                              placeholder="Enter your organization name"
+                            />
+                            <Field.ErrorText>
+                              {getErrorMessage(errors.organizationName)}
+                            </Field.ErrorText>
+                          </Field.Root>
+                        )}
+                      />
+
+                      <Field.Root invalid={!!errors.organizationType}>
+                        <Field.Label fontWeight="medium" color="purple.900">
+                          Organization Type
+                        </Field.Label>
+                        <SimpleGrid columns={{ base: 1, sm: 2 }} gap={2} w="full">
+                          {organizationTypes.map((type) => (
+                            <Button
+                              key={type}
+                              type="button"
+                              variant={
+                                organizationType === type ? "solid" : "outline"
+                              }
+                              colorPalette="purple"
+                              onClick={() => setValue("organizationType", type)}
+                              size={{ base: "sm", md: "md" }}
+                              textAlign="left"
+                              justifyContent="flex-start"
+                            >
+                              {organizationType === type && (
+                                <Icon as={FiCheck} mr={2} />
+                              )}
+                              {type}
+                            </Button>
+                          ))}
+                        </SimpleGrid>
+                        <Field.ErrorText>
+                          {getErrorMessage(errors.organizationType)}
+                        </Field.ErrorText>
+                      </Field.Root>
+                    </VStack>
+                  </VStack>
+                )}
+
+                {step === 3 && (
+                  <VStack gap={6} align="stretch">
+                    <HStack gap={3}>
+                      <Icon
+                        as={FiTarget}
+                        boxSize={8}
+                        color="purple.600"
+                        p={2}
+                        bg="purple.50"
+                        borderRadius="lg"
+                      />
+                      <VStack align="start" gap={0}>
+                        <Heading size={{ base: "md", md: "lg" }} color="purple.900">
+                          Your Goals
+                        </Heading>
+                        <Text color="purple.700" fontSize={{ base: "sm", md: "md" }}>
+                          What would you like to accomplish?
+                        </Text>
+                      </VStack>
+                    </HStack>
+
+                    <VStack gap={2} align="stretch" mt={4}>
+                      <Field.Root invalid={!!errors.goals}>
+                        <Text fontSize={{ base: "sm", md: "md" }} color="purple.700" mb={2}>
+                          Select all that apply:
+                        </Text>
+                        <SimpleGrid columns={{ base: 1, sm: 2 }} gap={2}>
+                          {goalOptions.map((goal) => (
+                            <Button
+                              key={goal}
+                              type="button"
+                              variant={goals?.includes(goal) ? "solid" : "outline"}
+                              colorPalette="purple"
+                              onClick={() => handleGoalToggle(goal)}
+                              size={{ base: "sm", md: "md" }}
+                              textAlign="left"
+                              justifyContent="flex-start"
+                            >
+                              {goals?.includes(goal) && <Icon as={FiCheck} mr={2} />}
+                              {goal}
+                            </Button>
+                          ))}
+                        </SimpleGrid>
+                        <Field.ErrorText>
+                          {getErrorMessage(errors.goals as any)}
+                        </Field.ErrorText>
+                      </Field.Root>
+                    </VStack>
+                  </VStack>
+                )}
+
+                {/* Navigation Buttons */}
+                <HStack justify="space-between" mt={8}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    colorPalette="purple"
+                    onClick={handleBack}
+                    disabled={step === 1}
+                    size={{ base: "md", md: "lg" }}
+                  >
+                    Back
+                  </Button>
+
+                  {step < totalSteps ? (
+                    <Button
+                      type="button"
+                      colorPalette="purple"
+                      onClick={handleNext}
+                      size={{ base: "md", md: "lg" }}
+                    >
+                      Continue
+                      <Icon as={FiArrowRight} ml={2} />
+                    </Button>
+                  ) : (
+                    <Button
+                      type="submit"
+                      colorPalette="purple"
+                      size={{ base: "md", md: "lg" }}
+                      loading={isSubmitting}
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? "Saving..." : "Complete Setup"}
+                      <Icon as={FiCheck} ml={2} />
+                    </Button>
+                  )}
+                </HStack>
+              </form>
             </Card.Body>
           </Card.Root>
         </VStack>

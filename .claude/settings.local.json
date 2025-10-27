@@ -25,7 +25,12 @@
       "Bash(npx tsx:*)",
       "Bash(perl:*)",
       "WebFetch(domain:docs.stack-auth.com)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(tree:*)",
+      "Bash(find:*)",
+      "mcp__chakra-ui__v2_to_v3_code_review",
+      "mcp__chakra-ui__get_component_example",
+      "Bash(for file in /Users/blacktechgenius/projects/grant-genie/app/{grant-application,grant-search,support,settings}/page.tsx)"
     ],
     "deny": [],
     "ask": []

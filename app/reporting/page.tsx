@@ -29,12 +29,18 @@ import {
   FiBarChart2,
 } from 'react-icons/fi'
 import MainLayout from '@/components/layout/MainLayout'
-import { mockGrantReports, mockFundingByCategory } from '@/lib/mockData'
+import { useFundingByCategory, useGrantReports } from '@/lib/api/dashboard'
 import { Breadcrumb } from '@/components/ui/Breadcrumb'
+import { useUser } from '@stackframe/stack'
 
 export default function ReportingPage() {
-  const recentGrants = mockGrantReports
-  const fundingByCategory = mockFundingByCategory
+  const user = useUser()
+  const { data: fundingData, isLoading: fundingLoading } = useFundingByCategory(user?.id)
+  const { data: reportsData, isLoading: reportsLoading } = useGrantReports(user?.id)
+
+  const recentGrants = reportsData?.reports || []
+  const fundingByCategory = fundingData?.funding || []
+  const isLoading = fundingLoading || reportsLoading
 
   return (
     <MainLayout>
@@ -65,7 +71,7 @@ export default function ReportingPage() {
                   <option value="2023">Year: 2023</option>
                 </NativeSelectField>
               </NativeSelectRoot>
-              <Button colorScheme="purple">
+              <Button colorPalette="purple">
                 <Icon as={FiDownload} />
                 Export Report
               </Button>
@@ -155,8 +161,13 @@ export default function ReportingPage() {
                 </HStack>
               </Card.Header>
               <Card.Body>
-                <VStack gap={4} align="stretch">
-                  {fundingByCategory.map((item, index) => (
+                {isLoading ? (
+                  <Text color="purple.700">Loading funding data...</Text>
+                ) : fundingByCategory.length === 0 ? (
+                  <Text color="purple.700">No funding data available</Text>
+                ) : (
+                  <VStack gap={4} align="stretch">
+                    {fundingByCategory.map((item, index) => (
                     <Box key={index}>
                       <HStack justify="space-between" mb={2}>
                         <Text fontSize="sm" fontWeight="medium">
@@ -169,14 +180,15 @@ export default function ReportingPage() {
                           <Badge>{item.percentage}%</Badge>
                         </HStack>
                       </HStack>
-                      <Progress.Root value={item.percentage} size="sm" colorScheme="purple">
+                      <Progress.Root value={item.percentage} size="sm" colorPalette="purple">
                         <Progress.Track>
                           <Progress.Range />
                         </Progress.Track>
                       </Progress.Root>
                     </Box>
-                  ))}
-                </VStack>
+                    ))}
+                  </VStack>
+                )}
               </Card.Body>
             </Card.Root>
 
@@ -197,9 +209,9 @@ export default function ReportingPage() {
                 <VStack gap={4} align="stretch">
                   <HStack justify="space-between">
                     <Text fontSize="sm">Q1 2025</Text>
-                    <Badge colorScheme="green">8 Applications</Badge>
+                    <Badge colorPalette="green">8 Applications</Badge>
                   </HStack>
-                  <Progress.Root value={80} size="sm" colorScheme="green">
+                  <Progress.Root value={80} size="sm" colorPalette="green">
                     <Progress.Track>
                       <Progress.Range />
                     </Progress.Track>
@@ -207,9 +219,9 @@ export default function ReportingPage() {
 
                   <HStack justify="space-between">
                     <Text fontSize="sm">Q4 2024</Text>
-                    <Badge colorScheme="purple">6 Applications</Badge>
+                    <Badge colorPalette="purple">6 Applications</Badge>
                   </HStack>
-                  <Progress.Root value={60} size="sm" colorScheme="purple">
+                  <Progress.Root value={60} size="sm" colorPalette="purple">
                     <Progress.Track>
                       <Progress.Range />
                     </Progress.Track>
@@ -217,9 +229,9 @@ export default function ReportingPage() {
 
                   <HStack justify="space-between">
                     <Text fontSize="sm">Q3 2024</Text>
-                    <Badge colorScheme="purple">5 Applications</Badge>
+                    <Badge colorPalette="purple">5 Applications</Badge>
                   </HStack>
-                  <Progress.Root value={50} size="sm" colorScheme="purple">
+                  <Progress.Root value={50} size="sm" colorPalette="purple">
                     <Progress.Track>
                       <Progress.Range />
                     </Progress.Track>
@@ -227,9 +239,9 @@ export default function ReportingPage() {
 
                   <HStack justify="space-between">
                     <Text fontSize="sm">Q2 2024</Text>
-                    <Badge colorScheme="orange">4 Applications</Badge>
+                    <Badge colorPalette="orange">4 Applications</Badge>
                   </HStack>
-                  <Progress.Root value={40} size="sm" colorScheme="orange">
+                  <Progress.Root value={40} size="sm" colorPalette="orange">
                     <Progress.Track>
                       <Progress.Range />
                     </Progress.Track>
@@ -245,30 +257,35 @@ export default function ReportingPage() {
               <Heading size="md">Grant Performance Overview</Heading>
             </Card.Header>
             <Card.Body>
-              <Table.Root variant="outline">
-                <Table.Header>
-                  <Table.Row>
-                    <Table.ColumnHeader>Grant Name</Table.ColumnHeader>
-                    <Table.ColumnHeader>Award Amount</Table.ColumnHeader>
-                    <Table.ColumnHeader>Status</Table.ColumnHeader>
-                    <Table.ColumnHeader>Progress</Table.ColumnHeader>
-                    <Table.ColumnHeader>End Date</Table.ColumnHeader>
-                    <Table.ColumnHeader>Actions</Table.ColumnHeader>
-                  </Table.Row>
-                </Table.Header>
-                <Table.Body>
-                  {recentGrants.map((grant, index) => (
+              {isLoading ? (
+                <Text color="purple.700">Loading grant reports...</Text>
+              ) : recentGrants.length === 0 ? (
+                <Text color="purple.700">No grant reports available</Text>
+              ) : (
+                <Table.Root variant="outline">
+                  <Table.Header>
+                    <Table.Row>
+                      <Table.ColumnHeader>Grant Name</Table.ColumnHeader>
+                      <Table.ColumnHeader>Award Amount</Table.ColumnHeader>
+                      <Table.ColumnHeader>Status</Table.ColumnHeader>
+                      <Table.ColumnHeader>Progress</Table.ColumnHeader>
+                      <Table.ColumnHeader>End Date</Table.ColumnHeader>
+                      <Table.ColumnHeader>Actions</Table.ColumnHeader>
+                    </Table.Row>
+                  </Table.Header>
+                  <Table.Body>
+                    {recentGrants.map((grant, index) => (
                     <Table.Row key={index}>
                       <Table.Cell fontWeight="medium">{grant.name}</Table.Cell>
                       <Table.Cell>{grant.amount}</Table.Cell>
                       <Table.Cell>
-                        <Badge colorScheme={grant.status === 'Active' ? 'green' : 'gray'}>
+                        <Badge colorPalette={grant.status === 'Active' ? 'green' : 'gray'}>
                           {grant.status}
                         </Badge>
                       </Table.Cell>
                       <Table.Cell>
                         <HStack gap={3}>
-                          <Progress.Root value={grant.progress} size="sm" colorScheme="purple" w="100px">
+                          <Progress.Root value={grant.progress} size="sm" colorPalette="purple" w="100px">
                             <Progress.Track>
                               <Progress.Range />
                             </Progress.Track>
@@ -283,9 +300,10 @@ export default function ReportingPage() {
                         </Button>
                       </Table.Cell>
                     </Table.Row>
-                  ))}
-                </Table.Body>
-              </Table.Root>
+                    ))}
+                  </Table.Body>
+                </Table.Root>
+              )}
             </Card.Body>
           </Card.Root>
 
@@ -385,7 +403,7 @@ export default function ReportingPage() {
 
                 <HStack justify="flex-end">
                   <Button variant="outline">Preview</Button>
-                  <Button colorScheme="purple">
+                  <Button colorPalette="purple">
                     <Icon as={FiDownload} />
                     Generate Custom Report
                   </Button>

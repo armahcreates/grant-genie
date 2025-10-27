@@ -28,10 +28,9 @@ import { useAppToast } from '@/lib/utils/toast'
 import { formatDate } from '@/lib/utils/dates'
 import { useAuth } from '@/contexts/AuthContext'
 import { colors } from '@/theme/tokens'
-import { useDashboardStats, useRecentActivity } from '@/hooks/useDashboard'
+import { useDashboardStats, useRecentActivity } from '@/lib/api/dashboard'
 import { useGrantApplications } from '@/lib/api/grants'
 import { useCompliance } from '@/lib/api/compliance'
-import { mockDashboardStats } from '@/lib/mockData'
 
 export default function DashboardPage() {
   const router = useRouter()
@@ -44,10 +43,13 @@ export default function DashboardPage() {
   })
 
   // Fetch data from APIs
-  const { stats, isLoading: statsLoading } = useDashboardStats(user?.id)
+  const { data: statsData, isLoading: statsLoading } = useDashboardStats(user?.id)
   const { data: grants, isLoading: grantsLoading } = useGrantApplications()
   const { data: complianceData, isLoading: complianceLoading } = useCompliance(user?.id)
-  const { activities, isLoading: activitiesLoading } = useRecentActivity(user?.id)
+  const { data: activityData, isLoading: activitiesLoading } = useRecentActivity(user?.id)
+
+  const stats = statsData?.stats
+  const activities = activityData?.activities
 
   // Extract items from compliance data
   const complianceItems = complianceData?.items || []

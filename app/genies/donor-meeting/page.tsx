@@ -61,7 +61,7 @@ export default function DonorMeetingGeniePage() {
                 Prepare conversations and capture next steps
               </Text>
             </VStack>
-            <Badge colorScheme="purple" fontSize="sm" px={3} py={1}>
+            <Badge colorPalette="purple" fontSize="sm" px={3} py={1}>
               Step 1 of 3
             </Badge>
           </HStack>
@@ -241,21 +241,21 @@ export default function DonorMeetingGeniePage() {
                     <Button
                       flex={1}
                       variant="outline"
-                      colorScheme="purple"
+                      colorPalette="purple"
                     >
                       Edit Session
                     </Button>
                     <Button
                       flex={1}
                       variant="outline"
-                      colorScheme="purple"
+                      colorPalette="purple"
                     >
                       Regenerate
                     </Button>
                     <Button
                       flex={1}
                       variant="outline"
-                      colorScheme="purple"
+                      colorPalette="purple"
                     >
                       Export
                     </Button>
@@ -263,7 +263,7 @@ export default function DonorMeetingGeniePage() {
 
                   <Button
                     w="full"
-                    colorScheme="purple"
+                    colorPalette="purple"
                     size="lg"
                     onClick={handleStartPractice}
                   >

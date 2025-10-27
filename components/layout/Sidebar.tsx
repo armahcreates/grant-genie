@@ -27,24 +27,26 @@ import {
 } from '@chakra-ui/react'
 import { ColorModeToggle } from '@/components/ui/ColorModeToggle'
 import { IconType } from 'react-icons'
+// Icon Library Standardization - Using Feather Icons (fi) exclusively
 import {
-  MdDashboard,
-  MdSearch,
-  MdDescription,
-  MdChecklist,
-  MdBarChart,
-  MdNotifications,
-  MdSettings,
-  MdLibraryBooks,
-  MdHelp,
-  MdLogout,
-  MdPerson,
-  MdMenu,
-} from 'react-icons/md'
+  FiHome,
+  FiSearch,
+  FiFileText,
+  FiCheckSquare,
+  FiBarChart2,
+  FiBell,
+  FiSettings,
+  FiBook,
+  FiHelpCircle,
+  FiLogOut,
+  FiUser,
+  FiMenu,
+} from 'react-icons/fi'
 import NextLink from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useUser } from '@stackframe/stack'
 import { useState } from 'react'
+import { colors } from '@/theme/tokens'
 /**
  * TODO: Props Drilling Refactoring
  * 
@@ -128,6 +130,8 @@ const SidebarContent = ({ onClose }: { onClose?: () => void }) => {
     onClose?.()
   }
 
+  const { deepIndigo, softTeal } = colors.brand
+
   return (
     <Box
       bg="white"
@@ -138,7 +142,12 @@ const SidebarContent = ({ onClose }: { onClose?: () => void }) => {
       flexDirection="column"
     >
       <Flex h="20" alignItems="center" mx="4" justifyContent="space-between">
-        <Text fontSize={{ base: 'xl', md: '2xl' }} fontWeight="bold" color="purple.600">
+        <Text
+          fontSize={{ base: 'xl', md: '2xl' }}
+          fontWeight="bold"
+          bgGradient={`linear(to-r, ${deepIndigo}, ${softTeal})`}
+          bgClip="text"
+        >
           Headspace Genie
         </Text>
         <ColorModeToggle />
@@ -146,47 +155,47 @@ const SidebarContent = ({ onClose }: { onClose?: () => void }) => {
 
       <VStack gap={1} align="stretch" flex={1} overflowY="auto" pb={4}>
         <Box onClick={handleNavClick}>
-          <NavItem icon={MdDashboard} href="/dashboard" isActive={pathname === '/dashboard'}>
+          <NavItem icon={FiHome} href="/dashboard" isActive={pathname === '/dashboard'}>
             Dashboard
           </NavItem>
         </Box>
         <Box onClick={handleNavClick}>
-          <NavItem icon={MdSearch} href="/grant-search" isActive={pathname === '/grant-search'}>
+          <NavItem icon={FiSearch} href="/grant-search" isActive={pathname === '/grant-search'}>
             Grant Search
           </NavItem>
         </Box>
         <Box onClick={handleNavClick}>
-          <NavItem icon={MdDescription} href="/grant-application" isActive={pathname === '/grant-application'}>
+          <NavItem icon={FiFileText} href="/grant-application" isActive={pathname === '/grant-application'}>
             Grant Application
           </NavItem>
         </Box>
         <Box onClick={handleNavClick}>
-          <NavItem icon={MdChecklist} href="/compliance-tracker" isActive={pathname === '/compliance-tracker'}>
+          <NavItem icon={FiCheckSquare} href="/compliance-tracker" isActive={pathname === '/compliance-tracker'}>
             Compliance Tracker
           </NavItem>
         </Box>
         <Box onClick={handleNavClick}>
-          <NavItem icon={MdBarChart} href="/reporting" isActive={pathname === '/reporting'}>
+          <NavItem icon={FiBarChart2} href="/reporting" isActive={pathname === '/reporting'}>
             Reporting
           </NavItem>
         </Box>
         <Box onClick={handleNavClick}>
-          <NavItem icon={MdNotifications} href="/notifications" isActive={pathname === '/notifications'}>
+          <NavItem icon={FiBell} href="/notifications" isActive={pathname === '/notifications'}>
             Notifications
           </NavItem>
         </Box>
         <Box onClick={handleNavClick}>
-          <NavItem icon={MdLibraryBooks} href="/resources" isActive={pathname === '/resources'}>
+          <NavItem icon={FiBook} href="/resources" isActive={pathname === '/resources'}>
             Resources
           </NavItem>
         </Box>
         <Box onClick={handleNavClick}>
-          <NavItem icon={MdHelp} href="/support" isActive={pathname === '/support'}>
+          <NavItem icon={FiHelpCircle} href="/support" isActive={pathname === '/support'}>
             Support
           </NavItem>
         </Box>
         <Box onClick={handleNavClick}>
-          <NavItem icon={MdSettings} href="/profile" isActive={pathname === '/profile'}>
+          <NavItem icon={FiSettings} href="/profile" isActive={pathname === '/profile'}>
             Settings
           </NavItem>
         </Box>
@@ -239,7 +248,7 @@ const SidebarContent = ({ onClose }: { onClose?: () => void }) => {
                 outlineOffset: '0px'
               }}
             >
-              <Icon as={MdPerson} />
+              <Icon as={FiUser} />
               Profile Settings
             </MenuItem>
             <MenuSeparator />
@@ -252,7 +261,7 @@ const SidebarContent = ({ onClose }: { onClose?: () => void }) => {
                 outlineOffset: '0px'
               }}
             >
-              <Icon as={MdLogout} />
+              <Icon as={FiLogOut} />
               Log Out
             </MenuItem>
           </MenuContent>
@@ -282,7 +291,12 @@ export default function Sidebar() {
         py={3}
       >
         <Flex justify="space-between" align="center">
-          <Text fontSize="xl" fontWeight="bold" color="purple.600">
+          <Text
+            fontSize="xl"
+            fontWeight="bold"
+            bgGradient={`linear(to-r, ${colors.brand.deepIndigo}, ${colors.brand.softTeal})`}
+            bgClip="text"
+          >
             Headspace Genie
           </Text>
           <DrawerRoot
@@ -322,7 +336,7 @@ export default function Sidebar() {
                   outlineOffset: '2px'
                 }}
               >
-                <Icon as={MdMenu} boxSize={6} />
+                <Icon as={FiMenu} boxSize={6} />
               </IconButton>
             </DrawerTrigger>
           </DrawerRoot>

@@ -33,7 +33,7 @@ import {
 import MainLayout from '@/components/layout/MainLayout'
 
 export default function SupportPage() {
-  const borderColor = 'gray.200'
+  const borderColor = 'purple.200'
   const accordionBg = 'white'
 
   const faqs = [
@@ -96,11 +96,11 @@ export default function SupportPage() {
         <VStack gap={8} align="stretch">
           {/* Header */}
           <Box>
-            <Heading size="lg" mb={2}>
+            <Heading size="lg" mb={2} color="purple.900">
               Support Center
             </Heading>
-            <Text color="gray.600">
-              Find answers to your questions and get help with AI Grant Managed
+            <Text color="purple.700">
+              Find answers to your questions and get help with Headspace Genie
             </Text>
           </Box>
 
@@ -109,7 +109,7 @@ export default function SupportPage() {
             <GridItem>
               <Card.Root>
                 <Card.Header>
-                  <Heading size="md">Frequently Asked Questions</Heading>
+                  <Heading size="md" color="purple.900">Frequently Asked Questions</Heading>
                 </Card.Header>
                 <Card.Body>
                   <Accordion.Root collapsible>
@@ -120,17 +120,17 @@ export default function SupportPage() {
                           border="1px"
                           borderColor={borderColor}
                           borderRadius="md"
-                          _hover={{ bg: 'gray.50' }}
-                          _expanded={{ bg: 'blue.50' }}
+                          _hover={{ bg: 'purple.50' }}
+                          _expanded={{ bg: 'purple.50' }}
                           py={4}
                           cursor="pointer"
                         >
-                          <Box flex="1" textAlign="left" fontWeight="medium">
+                          <Box flex="1" textAlign="left" fontWeight="medium" color="purple.900">
                             {faq.question}
                           </Box>
                           <Accordion.ItemIndicator />
                         </Accordion.ItemTrigger>
-                        <Accordion.ItemContent pb={4} pt={4} color="gray.600">
+                        <Accordion.ItemContent pb={4} pt={4} color="purple.700">
                           {faq.answer}
                         </Accordion.ItemContent>
                       </Accordion.Item>
@@ -146,23 +146,23 @@ export default function SupportPage() {
                 {/* Contact Support */}
                 <Card.Root>
                   <Card.Header>
-                    <Heading size="md">Contact Support</Heading>
+                    <Heading size="md" color="purple.900">Contact Support</Heading>
                   </Card.Header>
                   <Card.Body>
                     <VStack gap={4} align="stretch">
                       {/* Email Support */}
                       <HStack gap={3} align="start">
-                        <Icon as={FiMail} boxSize={5} color="blue.500" mt={1} />
+                        <Icon as={FiMail} boxSize={5} color="purple.600" mt={1} />
                         <Box flex={1}>
-                          <Text fontWeight="semibold" mb={1}>
+                          <Text fontWeight="semibold" mb={1} color="purple.900">
                             Email Support
                           </Text>
                           <Link
-                            href="mailto:support@aigrantmanaged.com"
-                            color="blue.500"
+                            href="mailto:support@headspacegenie.ai"
+                            color="purple.600"
                             fontSize="sm"
                           >
-                            support@aigrantmanaged.com
+                            support@headspacegenie.ai
                           </Link>
                         </Box>
                       </HStack>
@@ -171,15 +171,15 @@ export default function SupportPage() {
 
                       {/* Phone Support */}
                       <HStack gap={3} align="start">
-                        <Icon as={FiPhone} boxSize={5} color="blue.500" mt={1} />
+                        <Icon as={FiPhone} boxSize={5} color="purple.600" mt={1} />
                         <Box flex={1}>
-                          <Text fontWeight="semibold" mb={1}>
+                          <Text fontWeight="semibold" mb={1} color="purple.900">
                             Phone Support
                           </Text>
-                          <Text fontSize="sm" color="gray.600">
+                          <Text fontSize="sm" color="purple.700">
                             1-800-XXX-XXXX
                           </Text>
-                          <Text fontSize="sm" color="gray.500">
+                          <Text fontSize="sm" color="purple.600">
                             Available 24/7
                           </Text>
                         </Box>
@@ -189,18 +189,18 @@ export default function SupportPage() {
 
                       {/* Live Chat */}
                       <HStack gap={3} align="start">
-                        <Icon as={FiMessageCircle} boxSize={5} color="blue.500" mt={1} />
+                        <Icon as={FiMessageCircle} boxSize={5} color="purple.600" mt={1} />
                         <Box flex={1}>
-                          <Text fontWeight="semibold" mb={1}>
+                          <Text fontWeight="semibold" mb={1} color="purple.900">
                             Live Chat
                           </Text>
-                          <Text fontSize="sm" color="gray.600" mb={3}>
+                          <Text fontSize="sm" color="purple.700" mb={3}>
                             Available M-F
                           </Text>
-                          <Text fontSize="sm" color="gray.500" mb={3}>
+                          <Text fontSize="sm" color="purple.600" mb={3}>
                             9am-5pm EST
                           </Text>
-                          <Button colorScheme="blue" w="full" size="sm">
+                          <Button colorPalette="purple" w="full" size="sm">
                             Start Live Chat
                           </Button>
                         </Box>
@@ -212,7 +212,7 @@ export default function SupportPage() {
                 {/* Community Resources */}
                 <Card.Root>
                   <Card.Header>
-                    <Heading size="md">Community Resources</Heading>
+                    <Heading size="md" color="purple.900">Community Resources</Heading>
                   </Card.Header>
                   <Card.Body>
                     <VStack gap={2} align="stretch">
@@ -222,11 +222,11 @@ export default function SupportPage() {
                           p={3}
                           borderRadius="md"
                           cursor="pointer"
-                          _hover={{ bg: 'gray.50' }}
+                          _hover={{ bg: 'purple.50' }}
                           transition="all 0.2s"
                         >
-                          <Icon as={resource.icon} boxSize={5} color="gray.500" />
-                          <Text fontSize="sm">{resource.name}</Text>
+                          <Icon as={resource.icon} boxSize={5} color="purple.600" />
+                          <Text fontSize="sm" color="purple.900">{resource.name}</Text>
                         </HStack>
                       ))}
                     </VStack>
@@ -236,7 +236,7 @@ export default function SupportPage() {
                 {/* Quick Actions */}
                 <Card.Root>
                   <Card.Header>
-                    <Heading size="md">Quick Actions</Heading>
+                    <Heading size="md" color="purple.900">Quick Actions</Heading>
                   </Card.Header>
                   <Card.Body>
                     <VStack gap={2} align="stretch">
@@ -246,11 +246,11 @@ export default function SupportPage() {
                           p={3}
                           borderRadius="md"
                           cursor="pointer"
-                          _hover={{ bg: 'gray.50' }}
+                          _hover={{ bg: 'purple.50' }}
                           transition="all 0.2s"
                         >
-                          <Icon as={action.icon} boxSize={5} color="gray.500" />
-                          <Text fontSize="sm">{action.name}</Text>
+                          <Icon as={action.icon} boxSize={5} color="purple.600" />
+                          <Text fontSize="sm" color="purple.900">{action.name}</Text>
                         </HStack>
                       ))}
                     </VStack>
@@ -262,8 +262,8 @@ export default function SupportPage() {
 
           {/* Footer */}
           <Box textAlign="center" py={8} borderTop="1px" borderColor={borderColor}>
-            <Text fontSize="sm" color="gray.500">
-              © 2025 AI Grant Managed. All rights reserved.
+            <Text fontSize="sm" color="purple.600">
+              © 2025 Headspace Genie. All rights reserved.
             </Text>
           </Box>
         </VStack>

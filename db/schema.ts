@@ -56,6 +56,23 @@ export const userPreferences = pgTable('user_preferences', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 })
 
+// User Sessions - Track login sessions
+export const userSessions = pgTable('user_sessions', {
+  id: serial('id').primaryKey(),
+  userId: text('user_id').notNull().references(() => users.id),
+  sessionToken: text('session_token').notNull().unique(),
+  device: text('device'), // Device name/type
+  browser: text('browser'), // Browser name
+  os: text('os'), // Operating system
+  location: text('location'), // City, State/Country
+  ipAddress: text('ip_address'),
+  userAgent: text('user_agent'),
+  isCurrent: boolean('is_current').default(false),
+  lastActive: timestamp('last_active').defaultNow().notNull(),
+  expiresAt: timestamp('expires_at'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+})
+
 // Team Members / Collaborators
 export const teamMembers = pgTable('team_members', {
   id: serial('id').primaryKey(),
@@ -421,10 +438,18 @@ export const usersRelations = relations(users, ({ many, one }) => ({
   templates: many(templates),
   bookmarks: many(grantBookmarks),
   savedSearches: many(savedSearches),
+  sessions: many(userSessions),
   teamMembers: many(teamMembers, { relationName: 'organizationOwner' }),
   memberOf: many(teamMembers, { relationName: 'teamMember' }),
   organizationProfile: one(organizationProfiles),
   preferences: one(userPreferences),
+}))
+
+export const userSessionsRelations = relations(userSessions, ({ one }) => ({
+  user: one(users, {
+    fields: [userSessions.userId],
+    references: [users.id],
+  }),
 }))
 
 export const grantOpportunitiesRelations = relations(grantOpportunities, ({ many }) => ({

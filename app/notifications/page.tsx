@@ -20,18 +20,25 @@ import {
 import { useState } from 'react'
 import { FiAlertCircle, FiCheckCircle, FiInfo, FiClock } from 'react-icons/fi'
 import MainLayout from '@/components/layout/MainLayout'
-import { mockNotifications, type Notification } from '@/lib/mockData'
+import { useNotifications, useMarkNotificationRead, useMarkAllNotificationsRead, type Notification } from '@/lib/api/notifications'
+import { useUser } from '@stackframe/stack'
 
 export default function NotificationsPage() {
+  const user = useUser()
+  const { data, isLoading } = useNotifications(user?.id)
+  const markAsRead = useMarkNotificationRead()
+  const markAllAsRead = useMarkAllNotificationsRead()
+
   const [filterType, setFilterType] = useState('All Alerts')
   const [filterDays, setFilterDays] = useState('Last 7 days')
   const [emailNotifications, setEmailNotifications] = useState(true)
   const [inAppNotifications, setInAppNotifications] = useState(true)
-  const [readNotifications, setReadNotifications] = useState<Set<string>>(new Set())
   const [isSaving, setIsSaving] = useState(false)
 
+  const notifications = data?.notifications || []
+
   // Filter notifications based on selections
-  const filteredNotifications = mockNotifications.filter((notification) => {
+  const filteredNotifications = notifications.filter((notification) => {
     // Filter by type
     const matchesType = filterType === 'All Alerts' ||
       (filterType === 'Critical' && notification.type === 'critical') ||
@@ -44,7 +51,7 @@ export default function NotificationsPage() {
     return matchesType && matchesDays
   })
 
-  const notifications = filteredNotifications
+  const displayNotifications = filteredNotifications
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
@@ -92,15 +99,12 @@ export default function NotificationsPage() {
     return `${diffInDays} days ago`
   }
 
-  const markAllAsRead = () => {
-    const allIds = new Set(mockNotifications.map(n => n.id))
-    setReadNotifications(allIds)
-    // TODO: Call API to persist: await fetch('/api/notifications/mark-all-read', { method: 'POST' })
+  const handleMarkAllAsRead = () => {
+    markAllAsRead.mutate()
   }
 
-  const markAsRead = (notificationId: string) => {
-    setReadNotifications(prev => new Set(prev).add(notificationId))
-    // TODO: Call API to persist: await fetch(`/api/notifications/${notificationId}/read`, { method: 'POST' })
+  const handleMarkAsRead = (notificationId: string) => {
+    markAsRead.mutate(notificationId)
   }
 
   const savePreferences = async () => {
@@ -160,7 +164,11 @@ export default function NotificationsPage() {
                 <option>All time</option>
               </NativeSelectField>
             </NativeSelectRoot>
-            <Button colorScheme="purple" onClick={markAllAsRead}>
+            <Button
+              colorPalette="purple"
+              onClick={handleMarkAllAsRead}
+              loading={markAllAsRead.isPending}
+            >
               <Icon as={FiClock} />
               Mark All Read
             </Button>
@@ -172,9 +180,14 @@ export default function NotificationsPage() {
               Critical Alerts
             </Heading>
             <VStack gap={4} align="stretch">
-              {notifications
-                .filter((n) => n.type === 'critical')
-                .map((notification) => (
+              {isLoading ? (
+                <Text color="purple.700">Loading notifications...</Text>
+              ) : displayNotifications.filter((n) => n.type === 'critical').length === 0 ? (
+                <Text color="purple.700">No critical alerts</Text>
+              ) : (
+                displayNotifications
+                  .filter((n) => n.type === 'critical')
+                  .map((notification) => (
                   <Card.Root
                     key={notification.id}
                     borderLeft="4px solid"
@@ -182,8 +195,8 @@ export default function NotificationsPage() {
                     _hover={{ bg: 'purple.50', transform: 'translateX(8px) scale(1.02)', boxShadow: 'lg' }}
                     transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
                     cursor="pointer"
-                    opacity={readNotifications.has(notification.id) ? 0.6 : 1}
-                    onClick={() => markAsRead(notification.id)}
+                    opacity={notification.read ? 0.6 : 1}
+                    onClick={() => handleMarkAsRead(notification.id)}
                   >
                     <Card.Body>
                       <HStack align="start" gap={4}>
@@ -197,7 +210,7 @@ export default function NotificationsPage() {
                           <HStack justify="space-between">
                             <HStack>
                               <Heading size="sm">{notification.title}</Heading>
-                              <Badge colorScheme={getNotificationColor(notification.type)}>
+                              <Badge colorPalette={getNotificationColor(notification.type)}>
                                 {getBadgeLabel(notification.type)}
                               </Badge>
                             </HStack>
@@ -209,7 +222,7 @@ export default function NotificationsPage() {
                             {notification.message}
                           </Text>
                           <Box>
-                            <Button size="sm" colorScheme="purple" variant="outline">
+                            <Button size="sm" colorPalette="purple" variant="outline">
                               View Notification Details
                             </Button>
                           </Box>
@@ -217,7 +230,8 @@ export default function NotificationsPage() {
                       </HStack>
                     </Card.Body>
                   </Card.Root>
-                ))}
+                  ))
+              )}
             </VStack>
           </Box>
 
@@ -227,9 +241,14 @@ export default function NotificationsPage() {
               Recent Updates
             </Heading>
             <VStack gap={4} align="stretch">
-              {notifications
-                .filter((n) => n.type !== 'critical')
-                .map((notification) => (
+              {isLoading ? (
+                <Text color="purple.700">Loading notifications...</Text>
+              ) : displayNotifications.filter((n) => n.type !== 'critical').length === 0 ? (
+                <Text color="purple.700">No recent updates</Text>
+              ) : (
+                displayNotifications
+                  .filter((n) => n.type !== 'critical')
+                  .map((notification) => (
                   <Card.Root
                     key={notification.id}
                     borderLeft="4px solid"
@@ -237,8 +256,8 @@ export default function NotificationsPage() {
                     _hover={{ bg: 'purple.50', transform: 'translateX(8px) scale(1.02)', boxShadow: 'lg' }}
                     transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
                     cursor="pointer"
-                    opacity={readNotifications.has(notification.id) ? 0.6 : 1}
-                    onClick={() => markAsRead(notification.id)}
+                    opacity={notification.read ? 0.6 : 1}
+                    onClick={() => handleMarkAsRead(notification.id)}
                   >
                     <Card.Body>
                       <HStack align="start" gap={4}>
@@ -252,7 +271,7 @@ export default function NotificationsPage() {
                           <HStack justify="space-between">
                             <HStack>
                               <Heading size="sm">{notification.title}</Heading>
-                              <Badge colorScheme={getNotificationColor(notification.type)}>
+                              <Badge colorPalette={getNotificationColor(notification.type)}>
                                 {getBadgeLabel(notification.type)}
                               </Badge>
                             </HStack>
@@ -264,7 +283,7 @@ export default function NotificationsPage() {
                             {notification.message}
                           </Text>
                           <Box>
-                            <Button size="sm" colorScheme="purple" variant="outline">
+                            <Button size="sm" colorPalette="purple" variant="outline">
                               View Notification Details
                             </Button>
                           </Box>
@@ -272,7 +291,8 @@ export default function NotificationsPage() {
                       </HStack>
                     </Card.Body>
                   </Card.Root>
-                ))}
+                  ))
+              )}
             </VStack>
           </Box>
 
@@ -334,7 +354,7 @@ export default function NotificationsPage() {
                 </HStack>
 
                 <Button
-                  colorScheme="purple"
+                  colorPalette="purple"
                   alignSelf="flex-start"
                   onClick={savePreferences}
                   loading={isSaving}
