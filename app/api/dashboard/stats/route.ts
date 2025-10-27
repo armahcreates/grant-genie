@@ -2,24 +2,22 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/db'
 import { grantApplications, complianceItems } from '@/db/schema'
 import { eq, and, count, sum, sql } from 'drizzle-orm'
+import { requireAuth } from '@/lib/middleware/auth'
 
-// GET /api/dashboard/stats - Get dashboard statistics
+// GET /api/dashboard/stats - Get dashboard statistics for authenticated user
 export async function GET(request: NextRequest) {
   try {
-    const searchParams = request.nextUrl.searchParams
-    const userId = searchParams.get('userId')
+    // Authenticate user
+    const { error, user } = await requireAuth(request)
+    if (error) return error
 
-    if (!userId) {
-      return NextResponse.json({ error: 'User ID is required' }, { status: 400 })
-    }
-
-    // Get active grants count
+    // Get active grants count for authenticated user
     const activeGrantsResult = await db
       .select({ count: count() })
       .from(grantApplications)
       .where(
         and(
-          eq(grantApplications.userId, userId),
+          eq(grantApplications.userId, user!.id),
           eq(grantApplications.status, 'Approved')
         )
       )
@@ -32,7 +30,7 @@ export async function GET(request: NextRequest) {
       .from(grantApplications)
       .where(
         and(
-          eq(grantApplications.userId, userId),
+          eq(grantApplications.userId, user!.id),
           eq(grantApplications.status, 'Approved')
         )
       )
@@ -41,14 +39,14 @@ export async function GET(request: NextRequest) {
     const totalComplianceResult = await db
       .select({ count: count() })
       .from(complianceItems)
-      .where(eq(complianceItems.userId, userId))
+      .where(eq(complianceItems.userId, user!.id))
 
     const completedComplianceResult = await db
       .select({ count: count() })
       .from(complianceItems)
       .where(
         and(
-          eq(complianceItems.userId, userId),
+          eq(complianceItems.userId, user!.id),
           eq(complianceItems.status, 'Completed')
         )
       )
@@ -58,7 +56,7 @@ export async function GET(request: NextRequest) {
       .from(complianceItems)
       .where(
         and(
-          eq(complianceItems.userId, userId),
+          eq(complianceItems.userId, user!.id),
           sql`${complianceItems.status} IN ('Upcoming', 'Overdue')`
         )
       )
