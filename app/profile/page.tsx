@@ -29,9 +29,12 @@ import { useState } from 'react'
 import { FiUser, FiBell, FiLock, FiShield, FiMail, FiSmartphone, FiGlobe } from 'react-icons/fi'
 import { MdBusiness } from 'react-icons/md'
 import MainLayout from '@/components/layout/MainLayout'
+import { useAppToast } from '@/lib/utils/toast'
 
 export default function ProfilePage() {
+  const toast = useAppToast()
   const [activeTab, setActiveTab] = useState('personal')
+  const [isSaving, setIsSaving] = useState(false)
   const [formData, setFormData] = useState({
     firstName: 'Sarah',
     lastName: 'Johnson',
@@ -66,9 +69,26 @@ export default function ProfilePage() {
     setFormData(prev => ({ ...prev, [name]: value }))
   }
 
-  const handleSave = () => {
-    console.log('Saving changes:', formData)
-    // Add your save logic here
+  const handleSave = async () => {
+    setIsSaving(true)
+    try {
+      // TODO: Replace with actual API call
+      // const response = await fetch('/api/user/profile', {
+      //   method: 'PATCH',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify(formData)
+      // })
+      // if (!response.ok) throw new Error('Failed to save')
+
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000))
+
+      toast.success('Profile updated successfully', 'Your changes have been saved')
+    } catch (error) {
+      toast.error('Failed to save profile', 'Please try again')
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   const menuItems = [
@@ -270,9 +290,14 @@ export default function ProfilePage() {
                   </Box>
 
                   <HStack gap={4} justify="flex-end" pt={4}>
-                    <Button variant="outline">Cancel</Button>
-                    <Button colorScheme="purple" onClick={handleSave}>
-                      Save Changes
+                    <Button variant="outline" disabled={isSaving}>Cancel</Button>
+                    <Button
+                      colorScheme="purple"
+                      onClick={handleSave}
+                      loading={isSaving}
+                      disabled={isSaving}
+                    >
+                      {isSaving ? 'Saving...' : 'Save Changes'}
                     </Button>
                   </HStack>
                 </VStack>
@@ -382,9 +407,14 @@ export default function ProfilePage() {
                   </Card.Root>
 
                   <HStack gap={4} justify="flex-end" pt={4}>
-                    <Button variant="outline">Cancel</Button>
-                    <Button colorScheme="purple" onClick={handleSave}>
-                      Save Changes
+                    <Button variant="outline" disabled={isSaving}>Cancel</Button>
+                    <Button
+                      colorScheme="purple"
+                      onClick={handleSave}
+                      loading={isSaving}
+                      disabled={isSaving}
+                    >
+                      {isSaving ? 'Saving...' : 'Save Changes'}
                     </Button>
                   </HStack>
                 </VStack>
@@ -502,9 +532,14 @@ export default function ProfilePage() {
                   </Box>
 
                   <HStack gap={4} justify="flex-end" pt={4}>
-                    <Button variant="outline">Reset to Default</Button>
-                    <Button colorScheme="purple" onClick={handleSave}>
-                      Save Preferences
+                    <Button variant="outline" disabled={isSaving}>Reset to Default</Button>
+                    <Button
+                      colorScheme="purple"
+                      onClick={handleSave}
+                      loading={isSaving}
+                      disabled={isSaving}
+                    >
+                      {isSaving ? 'Saving...' : 'Save Preferences'}
                     </Button>
                   </HStack>
                 </VStack>

@@ -21,6 +21,7 @@ import { useRouter } from 'next/navigation'
 import { FiUpload, FiX, FiArrowRight } from 'react-icons/fi'
 import { Checkbox } from '@/components/ui/checkbox'
 import { useDonorGenieStore } from '@/lib/store'
+import MainLayout from '@/components/layout/MainLayout'
 
 export default function DonorMeetingGeniePage() {
   const router = useRouter()
@@ -35,13 +36,20 @@ export default function DonorMeetingGeniePage() {
   }
 
   const handleStartPractice = () => {
-    // Navigate to practice session
-    router.push('/genies/donor-meeting/practice')
+    // Validate required fields before navigating
+    if (!sessionConfig.donorType) {
+      alert('Please select a donor type before continuing')
+      return
+    }
+
+    // Navigate to summary page first
+    router.push('/genies/donor-meeting/summary')
   }
 
   return (
-    <Box minH="100vh" bg="purple.50">
-      <Container maxW="container.xl" py={8}>
+    <MainLayout>
+      <Box minH="100vh" bg="purple.50">
+        <Container maxW="container.xl" py={8}>
         <VStack gap={8} align="stretch">
           {/* Header */}
           <HStack justify="space-between">
@@ -339,5 +347,6 @@ export default function DonorMeetingGeniePage() {
         </VStack>
       </Container>
     </Box>
+    </MainLayout>
   )
 }

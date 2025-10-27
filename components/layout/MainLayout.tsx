@@ -3,6 +3,7 @@
 import { Box, Flex } from '@chakra-ui/react'
 import Sidebar from './Sidebar'
 import ProtectedRoute from '@/components/auth/ProtectedRoute'
+import SupportGenie from '@/components/SupportGenie'
 
 interface MainLayoutProps {
   children: React.ReactNode
@@ -23,6 +24,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
           {children}
         </Box>
       </Flex>
+      <SupportGenie />
     </ProtectedRoute>
   )
 }

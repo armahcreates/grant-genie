@@ -25,6 +25,7 @@ import {
 import { useState } from 'react'
 import { MdPerson, MdBusiness, MdNotifications, MdSecurity, MdCamera } from 'react-icons/md'
 import MainLayout from '@/components/layout/MainLayout'
+import { useAppToast } from '@/lib/utils/toast'
 
 interface SectionTabProps {
   icon: any
@@ -52,7 +53,32 @@ const SectionTab = ({ icon, label, isActive, onClick }: SectionTabProps) => {
 }
 
 export default function SettingsPage() {
+  const toast = useAppToast()
   const [activeSection, setActiveSection] = useState('personal')
+  const [isSaving, setIsSaving] = useState(false)
+
+  const handleSaveChanges = async () => {
+    setIsSaving(true)
+    try {
+      // TODO: Replace with actual API call based on activeSection
+      // if (activeSection === 'personal') {
+      //   await fetch('/api/user/profile', { method: 'PATCH', body: ... })
+      // } else if (activeSection === 'organization') {
+      //   await fetch('/api/user/organization', { method: 'PATCH', body: ... })
+      // } else if (activeSection === 'notifications') {
+      //   await fetch('/api/user/preferences', { method: 'PATCH', body: ... })
+      // }
+
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000))
+
+      toast.success('Changes saved successfully', 'Your settings have been updated')
+    } catch (error) {
+      toast.error('Failed to save changes', 'Please try again')
+    } finally {
+      setIsSaving(false)
+    }
+  }
 
   return (
     <MainLayout>
@@ -238,11 +264,16 @@ export default function SettingsPage() {
 
                     {/* Action Buttons */}
                     <Flex justify="flex-end" gap={4} pt={4}>
-                      <Button variant="outline">
+                      <Button variant="outline" disabled={isSaving}>
                         Cancel
                       </Button>
-                      <Button colorScheme="purple">
-                        Save Changes
+                      <Button
+                        colorScheme="purple"
+                        onClick={handleSaveChanges}
+                        loading={isSaving}
+                        disabled={isSaving}
+                      >
+                        {isSaving ? 'Saving...' : 'Save Changes'}
                       </Button>
                     </Flex>
                   </VStack>
@@ -448,8 +479,15 @@ export default function SettingsPage() {
                     <Separator my={2} />
 
                     <Flex justify="flex-end" gap={4} pt={4}>
-                      <Button variant="outline">Reset to Default</Button>
-                      <Button colorScheme="purple">Save Preferences</Button>
+                      <Button variant="outline" disabled={isSaving}>Reset to Default</Button>
+                      <Button
+                        colorScheme="purple"
+                        onClick={handleSaveChanges}
+                        loading={isSaving}
+                        disabled={isSaving}
+                      >
+                        {isSaving ? 'Saving...' : 'Save Preferences'}
+                      </Button>
                     </Flex>
                   </VStack>
                 </Box>

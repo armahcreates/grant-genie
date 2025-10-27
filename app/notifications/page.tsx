@@ -27,8 +27,24 @@ export default function NotificationsPage() {
   const [filterDays, setFilterDays] = useState('Last 7 days')
   const [emailNotifications, setEmailNotifications] = useState(true)
   const [inAppNotifications, setInAppNotifications] = useState(true)
+  const [readNotifications, setReadNotifications] = useState<Set<string>>(new Set())
+  const [isSaving, setIsSaving] = useState(false)
 
-  const notifications = mockNotifications
+  // Filter notifications based on selections
+  const filteredNotifications = mockNotifications.filter((notification) => {
+    // Filter by type
+    const matchesType = filterType === 'All Alerts' ||
+      (filterType === 'Critical' && notification.type === 'critical') ||
+      (filterType === 'Updates' && notification.type === 'update') ||
+      (filterType === 'Info' && notification.type !== 'critical' && notification.type !== 'update')
+
+    // Filter by days (simplified - in real app would check timestamp)
+    const matchesDays = true // Placeholder - implement date filtering as needed
+
+    return matchesType && matchesDays
+  })
+
+  const notifications = filteredNotifications
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
@@ -76,6 +92,36 @@ export default function NotificationsPage() {
     return `${diffInDays} days ago`
   }
 
+  const markAllAsRead = () => {
+    const allIds = new Set(mockNotifications.map(n => n.id))
+    setReadNotifications(allIds)
+    // TODO: Call API to persist: await fetch('/api/notifications/mark-all-read', { method: 'POST' })
+  }
+
+  const markAsRead = (notificationId: string) => {
+    setReadNotifications(prev => new Set(prev).add(notificationId))
+    // TODO: Call API to persist: await fetch(`/api/notifications/${notificationId}/read`, { method: 'POST' })
+  }
+
+  const savePreferences = async () => {
+    setIsSaving(true)
+    try {
+      // TODO: Implement API call
+      // await fetch('/api/user/preferences', {
+      //   method: 'PATCH',
+      //   body: JSON.stringify({ emailNotifications, inAppNotifications })
+      // })
+
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      alert('Notification preferences saved successfully!')
+    } catch (error) {
+      alert('Failed to save preferences. Please try again.')
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
   return (
     <MainLayout>
       <Container maxW="container.xl" py={8}>
@@ -114,7 +160,7 @@ export default function NotificationsPage() {
                 <option>All time</option>
               </NativeSelectField>
             </NativeSelectRoot>
-            <Button colorScheme="purple">
+            <Button colorScheme="purple" onClick={markAllAsRead}>
               <Icon as={FiClock} />
               Mark All Read
             </Button>
@@ -136,6 +182,8 @@ export default function NotificationsPage() {
                     _hover={{ bg: 'purple.50', transform: 'translateX(8px) scale(1.02)', boxShadow: 'lg' }}
                     transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
                     cursor="pointer"
+                    opacity={readNotifications.has(notification.id) ? 0.6 : 1}
+                    onClick={() => markAsRead(notification.id)}
                   >
                     <Card.Body>
                       <HStack align="start" gap={4}>
@@ -189,6 +237,8 @@ export default function NotificationsPage() {
                     _hover={{ bg: 'purple.50', transform: 'translateX(8px) scale(1.02)', boxShadow: 'lg' }}
                     transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
                     cursor="pointer"
+                    opacity={readNotifications.has(notification.id) ? 0.6 : 1}
+                    onClick={() => markAsRead(notification.id)}
                   >
                     <Card.Body>
                       <HStack align="start" gap={4}>
@@ -283,8 +333,13 @@ export default function NotificationsPage() {
                   </Switch.Root>
                 </HStack>
 
-                <Button colorScheme="purple" alignSelf="flex-start">
-                  Save Preferences
+                <Button
+                  colorScheme="purple"
+                  alignSelf="flex-start"
+                  onClick={savePreferences}
+                  loading={isSaving}
+                >
+                  {isSaving ? 'Saving...' : 'Save Preferences'}
                 </Button>
               </VStack>
             </Card.Body>
