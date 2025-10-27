@@ -7,7 +7,7 @@
 import { db } from '@/db'
 import { userSessions } from '@/db/schema'
 import { eq, and, desc } from 'drizzle-orm'
-import UAParser from 'ua-parser-js'
+import { UAParser } from 'ua-parser-js'
 
 export interface SessionInfo {
   device: string
