@@ -369,16 +369,16 @@ export default function SettingsPage() {
 
                     {/* Action Buttons */}
                     <Flex justify="flex-end" gap={4} pt={4}>
-                      <Button variant="outline" disabled={isSaving}>
+                      <Button variant="outline" type="button">
                         Cancel
                       </Button>
                       <Button
+                        type="submit"
                         colorPalette="purple"
-                        onClick={handleSaveChanges}
-                        loading={isSaving}
-                        disabled={isSaving}
+                        loading={updatePersonalMutation.isPending}
+                        disabled={updatePersonalMutation.isPending}
                       >
-                        {isSaving ? 'Saving...' : 'Save Changes'}
+                        {updatePersonalMutation.isPending ? 'Saving...' : 'Save Changes'}
                       </Button>
                     </Flex>
                   </VStack>
@@ -584,14 +584,12 @@ export default function SettingsPage() {
                     <Separator my={2} />
 
                     <Flex justify="flex-end" gap={4} pt={4}>
-                      <Button variant="outline" disabled={isSaving}>Reset to Default</Button>
+                      <Button variant="outline" type="button">Reset to Default</Button>
                       <Button
                         colorPalette="purple"
-                        onClick={handleSaveChanges}
-                        loading={isSaving}
-                        disabled={isSaving}
+                        onClick={onSaveNotifications}
                       >
-                        {isSaving ? 'Saving...' : 'Save Preferences'}
+                        Save Preferences
                       </Button>
                     </Flex>
                   </VStack>
