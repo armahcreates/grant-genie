@@ -17,89 +17,86 @@ import {
   Separator,
   Image,
 } from '@chakra-ui/react'
-// TODO: Icon Library Consolidation - Standardize on react-icons/fi (Feather Icons)
-// Currently mixing Material Design (md) and Feather (fi) icons
-// Target: Migrate all MdXxx icons to FiXxx equivalents for visual consistency
-import { MdDescription, MdTrendingUp, MdCheckCircle, MdPending, MdCalendarToday, MdSearch, MdAdd, MdNotifications } from 'react-icons/md'
-import { FiTrendingUp, FiArrowRight, FiClock, FiAlertCircle, FiZap, FiTarget, FiDollarSign, FiAward, FiUsers, FiMail, FiMessageCircle } from 'react-icons/fi'
+// Icon Library Standardization - Using Feather Icons (fi) exclusively
+import { FiFileText, FiTrendingUp, FiCheckCircle, FiClock, FiCalendar, FiSearch, FiPlus, FiBell, FiArrowRight, FiAlertCircle, FiZap, FiTarget, FiDollarSign, FiAward, FiUsers, FiMail, FiMessageCircle } from 'react-icons/fi'
 import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import MainLayout from '@/components/layout/MainLayout'
-import { mockApplications, mockCompliance, mockDashboardStats, mockRecentActivity } from '@/lib/mockData'
 import { DashboardStatsSkeleton, LoadingSkeleton } from '@/components/ui/LoadingSkeleton'
 import { NoApplicationsEmptyState, NoDeadlinesEmptyState } from '@/components/ui/EmptyState'
 import { useAppToast } from '@/lib/utils/toast'
 import { formatDate } from '@/lib/utils/dates'
 import { useAuth } from '@/contexts/AuthContext'
+import { colors } from '@/theme/tokens'
+import { useDashboardStats, useRecentActivity } from '@/hooks/useDashboard'
+import { useGrantApplications } from '@/lib/api/grants'
+import { useCompliance } from '@/hooks/useCompliance'
+import { mockDashboardStats } from '@/lib/mockData'
 
 export default function DashboardPage() {
   const router = useRouter()
   const { user } = useAuth()
   const toast = useAppToast()
   const [currentTime, setCurrentTime] = useState(new Date())
-  const [isLoading, setIsLoading] = useState(true)
   const [animatedStats, setAnimatedStats] = useState({
     activeGrants: 0,
     complianceRate: 0,
   })
+
+  // Fetch data from APIs
+  const { stats, isLoading: statsLoading } = useDashboardStats(user?.id)
+  const { data: grants, isLoading: grantsLoading } = useGrantApplications()
+  const { items: complianceItems, isLoading: complianceLoading } = useCompliance(user?.id)
+  const { activities, isLoading: activitiesLoading } = useRecentActivity(user?.id)
+
+  const isLoading = statsLoading || grantsLoading || complianceLoading
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 60000)
     return () => clearInterval(timer)
   }, [])
 
-  // Simulate loading and animate stats
+  // Animate stats when data loads
   useEffect(() => {
-    const loadTimer = setTimeout(() => setIsLoading(false), 500)
+    if (!stats) return
 
-    // Animate stats on load
-    const statTimer = setTimeout(() => {
-      const duration = 1500
-      const steps = 60
-      const interval = duration / steps
-      let currentStep = 0
+    const duration = 1500
+    const steps = 60
+    const interval = duration / steps
+    let currentStep = 0
 
-      const animate = setInterval(() => {
-        currentStep++
-        const progress = currentStep / steps
-        const easeOutQuart = 1 - Math.pow(1 - progress, 4)
+    const animate = setInterval(() => {
+      currentStep++
+      const progress = currentStep / steps
+      const easeOutQuart = 1 - Math.pow(1 - progress, 4)
 
+      setAnimatedStats({
+        activeGrants: Math.round(stats.activeGrants * easeOutQuart),
+        complianceRate: Math.round(stats.complianceRate * easeOutQuart),
+      })
+
+      if (currentStep >= steps) {
+        clearInterval(animate)
         setAnimatedStats({
-          activeGrants: Math.round(mockDashboardStats.activeGrants * easeOutQuart),
-          complianceRate: Math.round(mockDashboardStats.complianceRate * easeOutQuart),
+          activeGrants: stats.activeGrants,
+          complianceRate: stats.complianceRate,
         })
+      }
+    }, interval)
 
-        if (currentStep >= steps) {
-          clearInterval(animate)
-          setAnimatedStats({
-            activeGrants: mockDashboardStats.activeGrants,
-            complianceRate: mockDashboardStats.complianceRate,
-          })
-        }
-      }, interval)
-
-      return () => clearInterval(animate)
-    }, 600)
-
-    return () => {
-      clearTimeout(loadTimer)
-      clearTimeout(statTimer)
-    }
-  }, [])
+    return () => clearInterval(animate)
+  }, [stats])
 
   // Use centralized theme tokens
-  const deepIndigo = '#3C3B6E'
-  const softTeal = '#5CE1E6'
-  // TODO: Migrate to: import { colors } from '@/theme/tokens'
-  // const { deepIndigo, softTeal } = colors.brand
+  const { deepIndigo, softTeal, tealVariant, indigoVariant } = colors.brand
 
-  // Get recent applications (top 5)
-  const recentApplications = mockApplications.slice(0, 5)
+  // Get recent applications (top 5) - use real data or fallback to empty
+  const recentApplications = grants?.slice(0, 5) || []
 
   // Get upcoming compliance deadlines
-  const upcomingDeadlines = mockCompliance
-    .filter(item => item.status === 'Upcoming' || item.status === 'Overdue')
-    .slice(0, 5)
+  const upcomingDeadlines = complianceItems
+    ?.filter(item => item.status === 'Upcoming' || item.status === 'Overdue')
+    .slice(0, 5) || []
 
   const getGreeting = () => {
     const hour = currentTime.getHours()
@@ -140,9 +137,9 @@ export default function DashboardPage() {
                   <Text fontSize={{ base: '2xl', md: '3xl' }}>👋</Text>
                 </HStack>
                 <Heading
-                  size={{ base: 'xl', md: '2xl' }}
+                  size={{ base: 'xl', md: '2xl', lg: '3xl' }}
                   color="white"
-                  letterSpacing="-0.02em"
+                  letterSpacing={{ base: 'normal', md: '-0.01em', lg: '-0.02em' }}
                   lineHeight={{ base: '1.2', md: '1.1' }}
                 >
                   Your Headspace Command Center
@@ -180,7 +177,7 @@ export default function DashboardPage() {
                   onClick={() => router.push('/grant-search')}
                   aria-label="Navigate to grant search to discover funding opportunities"
                 >
-                  <Icon as={MdSearch} mr={2} />
+                  <Icon as={FiSearch} mr={2} />
                   <Text display={{ base: 'none', sm: 'inline' }}>Discover Grants</Text>
                   <Text display={{ base: 'inline', sm: 'none' }}>Discover</Text>
                 </Button>
@@ -323,7 +320,7 @@ export default function DashboardPage() {
                     justify="center"
                     boxShadow={`0 4px 15px ${softTeal}30`}
                   >
-                    <Icon as={MdDescription} boxSize={{ base: 6, md: 7 }} color={softTeal} />
+                    <Icon as={FiFileText} boxSize={{ base: 6, md: 7 }} color={softTeal} />
                   </Flex>
                   <Icon as={FiArrowRight} color={deepIndigo} boxSize={5} />
                 </HStack>
@@ -334,7 +331,7 @@ export default function DashboardPage() {
                     color={deepIndigo}
                     mb={1}
                     transition="all 0.3s"
-                    letterSpacing="-0.02em"
+                    letterSpacing="normal"
                     fontWeight="bold"
                   >
                     {animatedStats.activeGrants}
@@ -418,9 +415,9 @@ export default function DashboardPage() {
                     size={{ base: 'xl', md: '2xl' }}
                     color="white"
                     mb={1}
-                    letterSpacing="-0.02em"
+                    letterSpacing="normal"
                   >
-                    {mockDashboardStats.totalFunding}
+                    {stats?.totalFunding || '$0'}
                   </Heading>
                   <Text fontSize="sm" color="whiteAlpha.800">Secured to date</Text>
                 </Box>
@@ -436,7 +433,7 @@ export default function DashboardPage() {
             role="button"
             aria-label="View upcoming compliance deadlines"
             border="2px solid"
-            borderColor={mockDashboardStats.upcomingDeadlines > 5 ? 'orange.300' : 'purple.100'}
+            borderColor={(stats?.upcomingDeadlines || 0) > 5 ? 'orange.300' : 'purple.100'}
             _hover={{
               transform: 'translateY(-8px)',
               boxShadow: '0 20px 40px rgba(251, 146, 60, 0.2)',
@@ -461,7 +458,7 @@ export default function DashboardPage() {
             overflow="hidden"
           >
 
-            {mockDashboardStats.upcomingDeadlines > 5 && (
+            {(stats?.upcomingDeadlines || 0) > 5 && (
               <Box
                 position="absolute"
                 top={0}
@@ -484,8 +481,8 @@ export default function DashboardPage() {
                   >
                     <Icon as={FiClock} boxSize={{ base: 6, md: 7 }} color="orange.500" />
                   </Flex>
-                  {mockDashboardStats.upcomingDeadlines > 5 && (
-                    <Badge colorScheme="orange" fontSize="sm" px={3} py={1}>Urgent</Badge>
+                  {(stats?.upcomingDeadlines || 0) > 5 && (
+                    <Badge colorPalette="orange" fontSize="sm" px={3} py={1}>Urgent</Badge>
                   )}
                 </HStack>
                 <Box>
@@ -494,10 +491,10 @@ export default function DashboardPage() {
                     size={{ base: '2xl', md: '3xl' }}
                     color={deepIndigo}
                     mb={1}
-                    letterSpacing="-0.02em"
+                    letterSpacing="normal"
                     fontWeight="bold"
                   >
-                    {mockDashboardStats.upcomingDeadlines}
+                    {stats?.upcomingDeadlines || 0}
                   </Heading>
                   <Text fontSize="sm" color="purple.600">This month</Text>
                 </Box>
@@ -558,7 +555,7 @@ export default function DashboardPage() {
                     color="white"
                     mb={3}
                     transition="all 0.3s"
-                    letterSpacing="-0.02em"
+                    letterSpacing="normal"
                     fontWeight="bold"
                   >
                     {animatedStats.complianceRate}%
@@ -567,6 +564,7 @@ export default function DashboardPage() {
                     <Progress.Track bg="whiteAlpha.300">
                       <Progress.Range
                         bg={softTeal}
+                        boxShadow={`0 0 10px ${softTeal}`}
                         transition="all 0.5s cubic-bezier(0.4, 0, 0.2, 1)"
                       />
                     </Progress.Track>
@@ -601,9 +599,9 @@ export default function DashboardPage() {
                     justify="center"
                     display={{ base: 'none', sm: 'flex' }}
                   >
-                    <Icon as={MdDescription} boxSize={5} color={softTeal} />
+                    <Icon as={FiFileText} boxSize={5} color={softTeal} />
                   </Flex>
-                  <Heading size={{ base: 'sm', md: 'md' }} color={deepIndigo}>Recent Applications</Heading>
+                  <Heading size={{ base: 'md', md: 'lg' }} color={deepIndigo}>Recent Applications</Heading>
                 </HStack>
                 <Button
                   size="sm"
@@ -663,8 +661,9 @@ export default function DashboardPage() {
                           color={deepIndigo}
                           mb={1}
                           fontSize={{ base: 'sm', md: 'md' }}
-                          
+                          lineClamp={2}
                           lineHeight="1.4"
+                          title={app.grantTitle}
                         >
                           {app.grantTitle}
                         </Text>
@@ -673,7 +672,7 @@ export default function DashboardPage() {
                         </Text>
                       </Box>
                       <Badge
-                        colorScheme={
+                        colorPalette={
                           app.status === 'Approved' ? 'green' :
                           app.status === 'Under Review' ? 'cyan' :
                           app.status === 'Submitted' ? 'blue' :
@@ -733,7 +732,7 @@ export default function DashboardPage() {
                   >
                     <Icon as={FiClock} boxSize={5} color="orange.500" />
                   </Flex>
-                  <Heading size={{ base: 'sm', md: 'md' }} color={deepIndigo}>Upcoming Deadlines</Heading>
+                  <Heading size={{ base: 'md', md: 'lg' }} color={deepIndigo}>Upcoming Deadlines</Heading>
                 </HStack>
                 <Button
                   size="sm"
@@ -809,8 +808,9 @@ export default function DashboardPage() {
                             fontSize={{ base: 'sm', md: 'md' }}
                             color={item.status === 'Overdue' ? 'red.900' : deepIndigo}
                             mb={1}
-                            
+                            lineClamp={2}
                             lineHeight="1.4"
+                            title={item.requirement}
                           >
                             {item.requirement}
                           </Text>
@@ -820,7 +820,7 @@ export default function DashboardPage() {
                         </Box>
                       </HStack>
                       <Badge
-                        colorScheme={
+                        colorPalette={
                           item.status === 'Overdue' ? 'red' :
                           item.priority === 'High' ? 'orange' :
                           item.priority === 'Medium' ? 'yellow' : 'gray'
@@ -837,13 +837,13 @@ export default function DashboardPage() {
                     <Separator my={3} />
                     <Flex justify="space-between" align="center" flexWrap="wrap" gap={3}>
                       <HStack gap={2}>
-                        <Icon as={MdCalendarToday} boxSize={4} color={item.status === 'Overdue' ? 'red.600' : deepIndigo} />
+                        <Icon as={FiCalendar} boxSize={4} color={item.status === 'Overdue' ? 'red.600' : deepIndigo} />
                         <Text fontSize="sm" color={item.status === 'Overdue' ? 'red.700' : 'purple.900'} fontWeight="semibold">
                           {formatDate(item.dueDate)}
                         </Text>
                       </HStack>
                       {item.status === 'Overdue' && (
-                        <Badge colorScheme="red" fontSize="xs" px={2} py={0.5} fontWeight="bold">
+                        <Badge colorPalette="red" fontSize="xs" px={2} py={0.5} fontWeight="bold">
                           OVERDUE
                         </Badge>
                       )}
@@ -861,7 +861,7 @@ export default function DashboardPage() {
           mb={8}
           bgGradient={`linear(135deg, ${deepIndigo}05, ${softTeal}05)`}
           border="2px solid"
-          borderColor={`${softTeal}30`}
+          borderColor="rgba(92, 225, 230, 0.3)"
           borderRadius="2xl"
           overflow="hidden"
         >
@@ -878,7 +878,7 @@ export default function DashboardPage() {
               >
                 <Icon as={FiZap} boxSize={5} color="white" />
               </Flex>
-              <Heading size={{ base: 'sm', md: 'md' }} color={deepIndigo}>Your Genies - Quick Actions</Heading>
+              <Heading size={{ base: 'md', md: 'lg' }} color={deepIndigo}>Your Genies - Quick Actions</Heading>
             </HStack>
           </Card.Header>
           <Card.Body p={{ base: 4, md: 6 }} pt={2}>
@@ -933,7 +933,7 @@ export default function DashboardPage() {
                   position="relative"
                   zIndex={1}
                 >
-                  <Icon as={MdAdd} boxSize={{ base: 5, md: 6 }} color={softTeal} />
+                  <Icon as={FiPlus} boxSize={{ base: 5, md: 6 }} color={softTeal} />
                 </Flex>
                 <Text fontSize={{ base: 'xs', md: 'sm' }} color={deepIndigo} fontWeight="semibold" textAlign="center" position="relative" zIndex={1}>
                   Grant Genie
@@ -1135,9 +1135,9 @@ export default function DashboardPage() {
                   justify="center"
                   display={{ base: 'none', sm: 'flex' }}
                 >
-                  <Icon as={MdNotifications} boxSize={5} color={deepIndigo} />
+                  <Icon as={FiBell} boxSize={5} color={deepIndigo} />
                 </Flex>
-                <Heading size={{ base: 'sm', md: 'md' }} color={deepIndigo}>Recent Activity</Heading>
+                <Heading size={{ base: 'md', md: 'lg' }} color={deepIndigo}>Recent Activity</Heading>
               </HStack>
               <Button
                 size="sm"
@@ -1146,14 +1146,17 @@ export default function DashboardPage() {
                 _hover={{ bg: `${softTeal}10` }}
                 onClick={() => router.push('/notifications')}
               >
-                <Icon as={MdNotifications} mr={{ base: 0, sm: 2 }} />
+                <Icon as={FiBell} mr={{ base: 0, sm: 2 }} />
                 <Text display={{ base: 'none', sm: 'inline' }}>View All</Text>
               </Button>
             </Flex>
           </Card.Header>
           <Card.Body p={{ base: 4, md: 6 }} pt={2}>
+            {activitiesLoading ? (
+              <LoadingSkeleton variant="list" count={5} />
+            ) : (
             <VStack gap={0} align="stretch">
-              {mockRecentActivity.map((activity, index) => (
+              {(activities || []).map((activity, index) => (
                 <Box key={activity.id}>
                   <Flex
                     p={4}
@@ -1211,7 +1214,7 @@ export default function DashboardPage() {
                       </VStack>
                     </Flex>
                   </Flex>
-                  {index < mockRecentActivity.length - 1 && (
+                  {index < (activities || []).length - 1 && (
                     <Box pl={9}>
                       <Separator />
                     </Box>
@@ -1219,6 +1222,7 @@ export default function DashboardPage() {
                 </Box>
               ))}
             </VStack>
+            )}
           </Card.Body>
         </Card.Root>
       </Container>

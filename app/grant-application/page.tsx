@@ -15,8 +15,9 @@ import {
   Badge,
   Textarea,
   IconButton,
+  Spinner,
 } from '@chakra-ui/react'
-import { useState, useRef, DragEvent } from 'react'
+import { useState, useRef, DragEvent, Suspense } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   FiUpload,
@@ -31,6 +32,8 @@ import MainLayout from '@/components/layout/MainLayout'
 import { useGrantGenieStore } from '@/lib/store'
 import { useAppToast } from '@/lib/utils/toast'
 import { Breadcrumb } from '@/components/ui/Breadcrumb'
+import { useCreateGrantApplication } from '@/lib/api/grants'
+import { useUser } from '@stackframe/stack'
 
 // File type validation
 const ALLOWED_FILE_TYPES = {
@@ -46,10 +49,11 @@ interface UploadedFile {
   id: string
 }
 
-export default function GrantGeniePage() {
+function GrantGenieContent() {
   const router = useRouter()
   const toast = useAppToast()
-  const [isGenerating, setIsGenerating] = useState(false)
+  const user = useUser()
+  const { mutate: createApplication, isPending: isCreating } = useCreateGrantApplication()
   const [errors, setErrors] = useState<Record<string, string>>({})
   const { formData, setFormData } = useGrantGenieStore()
   
@@ -193,34 +197,52 @@ export default function GrantGeniePage() {
   const handleGenerate = async () => {
     // Validate all required fields
     const newErrors: Record<string, string> = {}
-    
+
     if (!formData.projectName?.trim()) {
       newErrors.projectName = 'Project/Program Name is required'
     }
     if (!formData.funderName?.trim()) {
       newErrors.funderName = 'Funder Name is required'
     }
-    
+
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors)
       toast.error('Please fill in all required fields', 'Validation Error')
       return
     }
 
-    setIsGenerating(true)
+    if (!user?.id) {
+      toast.error('You must be logged in to create a grant application', 'Authentication Required')
+      return
+    }
+
     setErrors({})
 
-    try {
-      // Navigate to proposal page which will generate the content
-      // Form data is already in Zustand store with persistence
-      toast.success('Generating your grant proposal...', 'Generation Started')
-      router.push('/grant-application/proposal')
-    } catch (err) {
-      const errorMessage = 'Failed to start generation. Please try again.'
-      setErrors({ submit: errorMessage })
-      toast.grantApplicationError(errorMessage)
-      setIsGenerating(false)
-    }
+    // Create the grant application in the database
+    createApplication({
+      grantTitle: formData.projectName,
+      organization: user.primaryEmail || 'Unknown Organization',
+      funderName: formData.funderName,
+      focusArea: 'General', // Default focus area
+      amount: formData.fundingAmount || undefined,
+      deadline: formData.deadline || undefined,
+      status: 'Draft' as const,
+      rfpText: formData.rfpText || undefined,
+      teachingMaterials: formData.teachingMaterials || undefined,
+      projectName: formData.projectName,
+    }, {
+      onSuccess: () => {
+        // Navigate to proposal page which will generate the content
+        // Form data is already in Zustand store with persistence
+        toast.success('Generating your grant proposal...', 'Generation Started')
+        router.push('/grant-application/proposal')
+      },
+      onError: (err) => {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to start generation. Please try again.'
+        setErrors({ submit: errorMessage })
+        // Error toast is already shown by the hook
+      }
+    })
   }
 
   return (
@@ -245,7 +267,7 @@ export default function GrantGeniePage() {
                   Make it yours and collaborate
                 </Text>
               </VStack>
-              <Badge colorScheme="purple" fontSize="sm" px={3} py={1}>
+              <Badge colorPalette="purple" fontSize="sm" px={3} py={1}>
                 Step 1 of 1
               </Badge>
             </HStack>
@@ -334,7 +356,7 @@ export default function GrantGeniePage() {
                                 aria-label={`Remove file ${uploadedFile.file.name}`}
                                 size="sm"
                                 variant="ghost"
-                                colorScheme="red"
+                                colorPalette="red"
                                 onClick={() => removeFile(uploadedFile.id, 'rfp')}
                                 _active={{ transform: 'scale(0.95)' }}
                                 _focusVisible={{
@@ -445,7 +467,7 @@ export default function GrantGeniePage() {
                                 aria-label={`Remove file ${uploadedFile.file.name}`}
                                 size="sm"
                                 variant="ghost"
-                                colorScheme="red"
+                                colorPalette="red"
                                 onClick={() => removeFile(uploadedFile.id, 'teaching')}
                                 _active={{ transform: 'scale(0.95)' }}
                                 _focusVisible={{
@@ -683,12 +705,12 @@ export default function GrantGeniePage() {
             <HStack justify="center" pt={4}>
               <Button
                 size="lg"
-                colorScheme="purple"
+                colorPalette="purple"
                 px={12}
                 onClick={handleGenerate}
-                disabled={isGenerating || !isFormValid()}
-                opacity={!isFormValid() && !isGenerating ? 0.6 : 1}
-                cursor={!isFormValid() && !isGenerating ? 'not-allowed' : 'pointer'}
+                disabled={isCreating || !isFormValid()}
+                opacity={!isFormValid() && !isCreating ? 0.6 : 1}
+                cursor={!isFormValid() && !isCreating ? 'not-allowed' : 'pointer'}
                 _active={{ transform: 'scale(0.98)' }}
                 _disabled={{
                   opacity: 0.6,
@@ -696,10 +718,20 @@ export default function GrantGeniePage() {
                   _hover: { bg: undefined }
                 }}
               >
-                {isGenerating ? (
+                {isCreating ? (
                   <>
-                    <Icon as={FiLoader} className="animate-spin" mr={2} />
-                    Generating...
+                    <Icon
+                      as={FiLoader}
+                      mr={2}
+                      animation="spin 1s linear infinite"
+                      css={{
+                        '@keyframes spin': {
+                          from: { transform: 'rotate(0deg)' },
+                          to: { transform: 'rotate(360deg)' }
+                        }
+                      }}
+                    />
+                    Creating...
                   </>
                 ) : (
                   <>
@@ -713,5 +745,23 @@ export default function GrantGeniePage() {
         </Container>
       </Box>
     </MainLayout>
+  )
+}
+
+export default function GrantGeniePage() {
+  return (
+    <Suspense fallback={
+      <Box
+        minH="100vh"
+        bg="purple.50"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+      >
+        <Spinner size="xl" color="purple.600" />
+      </Box>
+    }>
+      <GrantGenieContent />
+    </Suspense>
   )
 }

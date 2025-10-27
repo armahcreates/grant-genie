@@ -35,32 +35,36 @@ import {
   FiStar,
 } from 'react-icons/fi'
 import MainLayout from '@/components/layout/MainLayout'
-import { mockGrants, type Grant } from '@/lib/mockData'
 import { GrantCardSkeleton } from '@/components/ui/LoadingSkeleton'
 import { NoSearchResultsEmptyState } from '@/components/ui/EmptyState'
 import { useAppToast } from '@/lib/utils/toast'
 import { formatDate, getDaysUntil, isWithinDays } from '@/lib/utils/dates'
+import { useGrantsStore } from '@/lib/stores/grantsStore'
+import { useGrants, type Grant } from '@/lib/api/grants'
 
-type FundingRange = '0-25k' | '25k-100k' | '100k-500k' | '500k+' | 'all'
-type DeadlineFilter = '30days' | '60days' | '90days' | 'all'
-type LocationFilter = 'national' | 'state' | 'regional' | 'local' | 'all'
 type SortOption = 'relevance' | 'deadline' | 'amount' | 'recent'
 
 export default function GrantSearchPage() {
   const router = useRouter()
   const toast = useAppToast()
   const searchInputRef = useRef<HTMLInputElement>(null)
-  const [searchQuery, setSearchQuery] = useState('')
-  const [selectedCategory, setSelectedCategory] = useState('all')
-  const [fundingRangeFilter, setFundingRangeFilter] = useState<FundingRange>('all')
-  const [deadlineFilter, setDeadlineFilter] = useState<DeadlineFilter>('all')
-  const [locationFilter, setLocationFilter] = useState<LocationFilter>('all')
+
+  // Zustand store for grant filters
+  const filters = useGrantsStore((state) => state.filters)
+  const setFilters = useGrantsStore((state) => state.setFilters)
+  const resetFilters = useGrantsStore((state) => state.resetFilters)
+  const selectedGrantIds = useGrantsStore((state) => state.selectedGrantIds)
+  const toggleGrantSelection = useGrantsStore((state) => state.toggleGrantSelection)
+  const addRecentSearch = useGrantsStore((state) => state.addRecentSearch)
+
+  // Local UI state
   const [sortBy, setSortBy] = useState<SortOption>('relevance')
   const [currentPage, setCurrentPage] = useState(1)
-  const [bookmarked, setBookmarked] = useState<string[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  
+
   const itemsPerPage = 10
+
+  // TanStack Query - Fetch grants from API
+  const { data: grantsData = [], isLoading, error } = useGrants(filters)
 
   // Keyboard shortcuts
   useKeyboardShortcuts([
@@ -73,26 +77,27 @@ export default function GrantSearchPage() {
       category: 'Search',
     },
   ])
-
-  // Simulate initial data load
-  useEffect(() => {
-    setTimeout(() => setIsLoading(false), 800)
-  }, [])
   
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1)
-  }, [searchQuery, selectedCategory, fundingRangeFilter, deadlineFilter, locationFilter, sortBy])
+  }, [filters, sortBy])
+
+  // Add search to recent searches when it changes
+  useEffect(() => {
+    if (filters.searchQuery && filters.searchQuery.length > 2) {
+      const timeoutId = setTimeout(() => {
+        addRecentSearch(filters.searchQuery)
+      }, 1000)
+      return () => clearTimeout(timeoutId)
+    }
+  }, [filters.searchQuery, addRecentSearch])
 
   const toggleBookmark = (grantId: string, grantTitle: string) => {
-    const wasBookmarked = bookmarked.includes(grantId)
-    
-    setBookmarked(prev =>
-      prev.includes(grantId)
-        ? prev.filter(id => id !== grantId)
-        : [...prev, grantId]
-    )
-    
+    const wasBookmarked = selectedGrantIds.includes(grantId)
+
+    toggleGrantSelection(grantId)
+
     // Show toast notification
     if (wasBookmarked) {
       toast.bookmarkRemoved(grantTitle)
@@ -109,47 +114,33 @@ export default function GrantSearchPage() {
   // Filter and sort grants
   const { filteredAndSortedGrants, activeFilterChips } = useMemo(() => {
     const chips: string[] = []
-    
+
     // Apply all filters
-    let filtered = mockGrants.filter((grant) => {
+    let filtered = grantsData.filter((grant) => {
       // Search query filter
       const matchesSearch =
-        searchQuery === '' ||
-        grant.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        grant.organization.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        grant.description.toLowerCase().includes(searchQuery.toLowerCase())
+        filters.searchQuery === '' ||
+        grant.title.toLowerCase().includes(filters.searchQuery.toLowerCase()) ||
+        grant.organization.toLowerCase().includes(filters.searchQuery.toLowerCase()) ||
+        grant.description.toLowerCase().includes(filters.searchQuery.toLowerCase())
 
       // Category filter
       const matchesCategory =
-        selectedCategory === 'all' ||
-        selectedCategory === 'all categories' ||
-        grant.category.toLowerCase() === selectedCategory.toLowerCase()
+        filters.category === 'all' ||
+        filters.category === 'all categories' ||
+        grant.category.toLowerCase() === filters.category.toLowerCase()
 
       // Funding amount filter
       let matchesFunding = true
-      if (fundingRangeFilter !== 'all') {
-        const amount = parseFundingAmount(grant.amount)
-        switch (fundingRangeFilter) {
-          case '0-25k':
-            matchesFunding = amount >= 0 && amount <= 25000
-            break
-          case '25k-100k':
-            matchesFunding = amount > 25000 && amount <= 100000
-            break
-          case '100k-500k':
-            matchesFunding = amount > 100000 && amount <= 500000
-            break
-          case '500k+':
-            matchesFunding = amount > 500000
-            break
-        }
+      const amount = parseFundingAmount(grant.amount)
+      if (amount < filters.amountRange.min || amount > filters.amountRange.max) {
+        matchesFunding = false
       }
 
       // Deadline filter
       let matchesDeadline = true
-      if (deadlineFilter !== 'all') {
-        const days = getDaysUntil(grant.deadline)
-        switch (deadlineFilter) {
+      if (filters.deadline !== 'all') {
+        switch (filters.deadline) {
           case '30days':
             matchesDeadline = isWithinDays(grant.deadline, 30)
             break
@@ -162,35 +153,29 @@ export default function GrantSearchPage() {
         }
       }
 
-      // Location filter (simplified - in real app would check grant location data)
-      const matchesLocation = locationFilter === 'all'
+      // Status filter
+      const matchesStatus = filters.status === 'all' || grant.status.toLowerCase() === filters.status
 
-      return matchesSearch && matchesCategory && matchesFunding && matchesDeadline && matchesLocation
+      return matchesSearch && matchesCategory && matchesFunding && matchesDeadline && matchesStatus
     })
 
     // Build active filter chips
-    if (selectedCategory !== 'all' && selectedCategory !== 'all categories') {
-      chips.push(`Category: ${selectedCategory}`)
+    if (filters.category !== 'all' && filters.category !== 'all categories') {
+      chips.push(`Category: ${filters.category}`)
     }
-    if (fundingRangeFilter !== 'all') {
-      const rangeLabels = {
-        '0-25k': '$0 - $25,000',
-        '25k-100k': '$25,000 - $100,000',
-        '100k-500k': '$100,000 - $500,000',
-        '500k+': '$500,000+'
-      }
-      chips.push(`Funding: ${rangeLabels[fundingRangeFilter]}`)
+    if (filters.amountRange.min > 0 || filters.amountRange.max < 1000000) {
+      chips.push(`Funding: $${filters.amountRange.min.toLocaleString()} - $${filters.amountRange.max.toLocaleString()}`)
     }
-    if (deadlineFilter !== 'all') {
+    if (filters.deadline !== 'all') {
       const deadlineLabels = {
         '30days': 'Next 30 days',
         '60days': 'Next 60 days',
         '90days': 'Next 90 days'
       }
-      chips.push(`Deadline: ${deadlineLabels[deadlineFilter]}`)
+      chips.push(`Deadline: ${deadlineLabels[filters.deadline]}`)
     }
-    if (locationFilter !== 'all') {
-      chips.push(`Location: ${locationFilter}`)
+    if (filters.status !== 'all') {
+      chips.push(`Status: ${filters.status}`)
     }
 
     // Apply sorting
@@ -211,14 +196,14 @@ export default function GrantSearchPage() {
     })
 
     return { filteredAndSortedGrants: sorted, activeFilterChips: chips }
-  }, [searchQuery, selectedCategory, fundingRangeFilter, deadlineFilter, locationFilter, sortBy])
+  }, [grantsData, filters, sortBy])
 
   // Pagination
   const totalPages = Math.ceil(filteredAndSortedGrants.length / itemsPerPage)
   const startIndex = (currentPage - 1) * itemsPerPage
   const endIndex = startIndex + itemsPerPage
   const paginatedGrants = filteredAndSortedGrants.slice(startIndex, endIndex)
-  
+
   // Calculate display range
   const displayStart = filteredAndSortedGrants.length === 0 ? 0 : startIndex + 1
   const displayEnd = Math.min(endIndex, filteredAndSortedGrants.length)
@@ -249,22 +234,18 @@ export default function GrantSearchPage() {
 
   const removeFilterChip = (chip: string) => {
     if (chip.startsWith('Category:')) {
-      setSelectedCategory('all')
+      setFilters({ category: 'all' })
     } else if (chip.startsWith('Funding:')) {
-      setFundingRangeFilter('all')
+      setFilters({ amountRange: { min: 0, max: 1000000 } })
     } else if (chip.startsWith('Deadline:')) {
-      setDeadlineFilter('all')
-    } else if (chip.startsWith('Location:')) {
-      setLocationFilter('all')
+      setFilters({ deadline: 'all' })
+    } else if (chip.startsWith('Status:')) {
+      setFilters({ status: 'all' })
     }
   }
-  
+
   const clearAllFilters = () => {
-    setSelectedCategory('all')
-    setFundingRangeFilter('all')
-    setDeadlineFilter('all')
-    setLocationFilter('all')
-    setSearchQuery('')
+    resetFilters()
   }
   
   const goToPage = (page: number) => {
@@ -296,16 +277,16 @@ export default function GrantSearchPage() {
                     ref={searchInputRef}
                     size="lg"
                     placeholder="Search grants by keyword, organization, or category... (Press / to focus)"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    value={filters.searchQuery}
+                    onChange={(e) => setFilters({ searchQuery: e.target.value })}
                   />
                 </HStack>
 
                 <SimpleGrid columns={{ base: 1, md: 4 }} gap={4}>
                   <NativeSelectRoot>
                     <NativeSelectField
-                      value={selectedCategory}
-                      onChange={(e) => setSelectedCategory(e.target.value)}
+                      value={filters.category}
+                      onChange={(e) => setFilters({ category: e.target.value })}
                     >
                       {categories.map((cat, index) => (
                         <option key={index} value={cat.toLowerCase()}>
@@ -318,8 +299,20 @@ export default function GrantSearchPage() {
                   <NativeSelectRoot>
                     <NativeSelectField
                       placeholder="Funding Amount"
-                      value={fundingRangeFilter}
-                      onChange={(e) => setFundingRangeFilter(e.target.value as FundingRange)}
+                      onChange={(e) => {
+                        const value = e.target.value
+                        if (value === 'all') {
+                          setFilters({ amountRange: { min: 0, max: 1000000 } })
+                        } else if (value === '0-25k') {
+                          setFilters({ amountRange: { min: 0, max: 25000 } })
+                        } else if (value === '25k-100k') {
+                          setFilters({ amountRange: { min: 25000, max: 100000 } })
+                        } else if (value === '100k-500k') {
+                          setFilters({ amountRange: { min: 100000, max: 500000 } })
+                        } else if (value === '500k+') {
+                          setFilters({ amountRange: { min: 500000, max: 1000000 } })
+                        }
+                      }}
                     >
                       <option value="all">All Amounts</option>
                       <option value="0-25k">$0 - $25,000</option>
@@ -332,8 +325,8 @@ export default function GrantSearchPage() {
                   <NativeSelectRoot>
                     <NativeSelectField
                       placeholder="Deadline"
-                      value={deadlineFilter}
-                      onChange={(e) => setDeadlineFilter(e.target.value as DeadlineFilter)}
+                      value={filters.deadline}
+                      onChange={(e) => setFilters({ deadline: e.target.value as any })}
                     >
                       <option value="all">All Deadlines</option>
                       <option value="30days">Next 30 days</option>
@@ -344,15 +337,15 @@ export default function GrantSearchPage() {
 
                   <NativeSelectRoot>
                     <NativeSelectField
-                      placeholder="Location"
-                      value={locationFilter}
-                      onChange={(e) => setLocationFilter(e.target.value as LocationFilter)}
+                      placeholder="Status"
+                      value={filters.status}
+                      onChange={(e) => setFilters({ status: e.target.value as any })}
                     >
-                      <option value="all">All Locations</option>
-                      <option value="national">National</option>
-                      <option value="state">State-wide</option>
-                      <option value="regional">Regional</option>
-                      <option value="local">Local</option>
+                      <option value="all">All Statuses</option>
+                      <option value="open">Open</option>
+                      <option value="closing soon">Closing Soon</option>
+                      <option value="upcoming">Upcoming</option>
+                      <option value="closed">Closed</option>
                     </NativeSelectField>
                   </NativeSelectRoot>
                 </SimpleGrid>
@@ -378,7 +371,7 @@ export default function GrantSearchPage() {
                       <Button
                         size="xs"
                         variant="ghost"
-                        colorScheme="purple"
+                        colorPalette="purple"
                         onClick={clearAllFilters}
                       >
                         Clear All
@@ -386,7 +379,7 @@ export default function GrantSearchPage() {
                     </Flex>
                     <Wrap gap={2}>
                       {activeFilterChips.map((chip, index) => (
-                        <Tag.Root key={index} size="md" colorScheme="purple" borderRadius="full">
+                        <Tag.Root key={index} size="md" colorPalette="purple" borderRadius="full">
                           <Tag.Label>{chip}</Tag.Label>
                           <Tag.CloseTrigger onClick={() => removeFilterChip(chip)} />
                         </Tag.Root>
@@ -425,7 +418,7 @@ export default function GrantSearchPage() {
           {isLoading ? (
             <GrantCardSkeleton count={5} />
           ) : filteredAndSortedGrants.length === 0 ? (
-            <NoSearchResultsEmptyState searchTerm={searchQuery} />
+            <NoSearchResultsEmptyState searchTerm={filters.searchQuery} />
           ) : (
           <VStack gap={4} align="stretch">
             {paginatedGrants.map((grant) => (
@@ -456,7 +449,7 @@ export default function GrantSearchPage() {
                       <Box flex={1}>
                         <HStack mb={2}>
                           <Heading size="md">{grant.title}</Heading>
-                          <Badge colorScheme={getStatusColor(grant.status)}>
+                          <Badge colorPalette={getStatusColor(grant.status)}>
                             {grant.status}
                           </Badge>
                         </HStack>
@@ -523,7 +516,7 @@ export default function GrantSearchPage() {
                           </Text>
                           <Wrap gap={2}>
                             {grant.eligibility.map((item, index) => (
-                              <Badge key={index} colorScheme="purple" variant="subtle">
+                              <Badge key={index} colorPalette="purple" variant="subtle">
                                 {item}
                               </Badge>
                             ))}
@@ -533,9 +526,9 @@ export default function GrantSearchPage() {
 
                       <VStack gap={2} ml={4}>
                         <IconButton
-                          aria-label={bookmarked.includes(grant.id) ? `Remove ${grant.title} from bookmarks` : `Bookmark ${grant.title}`}
-                          variant={bookmarked.includes(grant.id) ? 'solid' : 'ghost'}
-                          colorScheme="purple"
+                          aria-label={selectedGrantIds.includes(grant.id) ? `Remove ${grant.title} from bookmarks` : `Bookmark ${grant.title}`}
+                          variant={selectedGrantIds.includes(grant.id) ? 'solid' : 'ghost'}
+                          colorPalette="purple"
                           onClick={(e) => {
                             e.stopPropagation()
                             toggleBookmark(grant.id, grant.title)
@@ -553,7 +546,7 @@ export default function GrantSearchPage() {
                             outlineOffset: '2px'
                           }}
                         >
-                          <Icon as={FiBookmark} fill={bookmarked.includes(grant.id) ? 'currentColor' : 'none'} />
+                          <Icon as={FiBookmark} fill={selectedGrantIds.includes(grant.id) ? 'currentColor' : 'none'} />
                         </IconButton>
                       </VStack>
                     </Flex>
@@ -564,7 +557,7 @@ export default function GrantSearchPage() {
                       <Button
                         variant="outline"
                         size="md"
-                        colorScheme="purple"
+                        colorPalette="purple"
                         aria-label={`View details for ${grant.title}`}
                         _focusVisible={{
                           outline: '3px solid',
@@ -575,7 +568,7 @@ export default function GrantSearchPage() {
                         View Grant Details
                       </Button>
                       <Button
-                        colorScheme="purple"
+                        colorPalette="purple"
                         size="lg"
                         aria-label={`Start application for ${grant.title}`}
                         onClick={(e) => {
@@ -635,7 +628,7 @@ export default function GrantSearchPage() {
                     <Button
                       key={pageNum}
                       size="md"
-                      colorScheme={isCurrentPage ? 'purple' : undefined}
+                      colorPalette={isCurrentPage ? 'purple' : undefined}
                       variant={isCurrentPage ? 'solid' : 'ghost'}
                       aria-label={isCurrentPage ? `Page ${pageNum}, current page` : `Go to page ${pageNum}`}
                       aria-current={isCurrentPage ? 'page' : undefined}
