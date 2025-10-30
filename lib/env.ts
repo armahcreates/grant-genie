@@ -42,7 +42,7 @@ function validateEnv() {
     return envSchema.parse(process.env)
   } catch (error) {
     if (error instanceof z.ZodError) {
-      const missingVars = error.errors.map(err => ({
+      const missingVars = error.issues.map(err => ({
         path: err.path.join('.'),
         message: err.message,
       }))

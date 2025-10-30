@@ -6,7 +6,7 @@
 
 import { QueryClient } from '@tanstack/react-query'
 import { cookies } from 'next/headers'
-import { getUser } from '@stackframe/stack'
+import { stackServerApp } from '@/lib/stack'
 import { apiClient } from '@/lib/api/client'
 
 /**
@@ -33,7 +33,7 @@ export async function prefetchDashboardStats() {
   try {
     // Get authenticated user
     const cookieStore = await cookies()
-    const user = await getUser({ cookieStore })
+    const user = await stackServerApp.getUser()
     
     if (!user) {
       return queryClient
@@ -69,7 +69,7 @@ export async function prefetchGrantApplications() {
   
   try {
     const cookieStore = await cookies()
-    const user = await getUser({ cookieStore })
+    const user = await stackServerApp.getUser()
     
     if (!user) {
       return queryClient
@@ -104,7 +104,7 @@ export async function prefetchCompliance(userId?: string) {
   
   try {
     const cookieStore = await cookies()
-    const user = await getUser({ cookieStore })
+    const user = await stackServerApp.getUser()
     
     if (!user || !userId) {
       return queryClient
@@ -139,7 +139,7 @@ export async function prefetchRecentActivity(userId?: string) {
   
   try {
     const cookieStore = await cookies()
-    const user = await getUser({ cookieStore })
+    const user = await stackServerApp.getUser()
     
     if (!user || !userId) {
       return queryClient

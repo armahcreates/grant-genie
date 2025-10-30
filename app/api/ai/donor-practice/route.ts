@@ -76,7 +76,7 @@ Provide responses that:
     ]
 
     // Use Vercel AI SDK streaming format
-    const stream = await agent.stream(messagesWithContext, {
+    const stream = await agent.stream(messagesWithContext as any, {
       format: 'aisdk',
     })
 

@@ -1,4 +1,4 @@
-import { NextRequest } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/db'
 import { organizationProfiles } from '@/db/schema'
 import { eq } from 'drizzle-orm'
@@ -30,11 +30,11 @@ export async function GET(request: NextRequest) {
     // Transform to match OrganizationInfo interface
     const organizationInfo = {
       orgName: organization.legalName || '',
-      orgType: organization.type || '',
+      orgType: '', // Not stored in schema
       taxId: organization.ein || '',
       orgWebsite: organization.website || '',
       orgPhone: organization.phone || '',
-      orgEmail: organization.email || '',
+      orgEmail: '', // Not stored in schema
     }
 
     return NextResponse.json(successResponse(organizationInfo))
@@ -77,11 +77,11 @@ export async function PATCH(request: NextRequest) {
     }
 
     if (orgName !== undefined) updateData.legalName = orgName.trim()
-    if (orgType !== undefined) updateData.type = orgType.trim()
+    // orgType and orgEmail not stored in schema - skip
     if (taxId !== undefined) updateData.ein = taxId.trim()
     if (orgWebsite !== undefined) updateData.website = orgWebsite.trim()
     if (orgPhone !== undefined) updateData.phone = orgPhone.trim()
-    if (orgEmail !== undefined) updateData.email = orgEmail.trim()
+    // orgEmail not stored in schema - skip
 
     // Check if organization profile exists
     const [existing] = await db
@@ -126,11 +126,11 @@ export async function PATCH(request: NextRequest) {
     // Transform to match OrganizationInfo interface
     const organizationInfo = {
       orgName: updatedOrganization.legalName || '',
-      orgType: updatedOrganization.type || '',
+      orgType: '', // Not stored in schema
       taxId: updatedOrganization.ein || '',
       orgWebsite: updatedOrganization.website || '',
       orgPhone: updatedOrganization.phone || '',
-      orgEmail: updatedOrganization.email || '',
+      orgEmail: '', // Not stored in schema
     }
 
     return NextResponse.json(successResponse(organizationInfo))

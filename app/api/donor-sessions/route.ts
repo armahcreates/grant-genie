@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/db'
 import { donorMeetingSessions, activityLog } from '@/db/schema'
-import { desc, eq } from 'drizzle-orm'
+import { desc, eq, and } from 'drizzle-orm'
 import { requireAuth } from '@/lib/middleware/auth'
 import { moderateRateLimit } from '@/lib/middleware/rate-limit'
 import { successResponse, errorResponse } from '@/lib/api/response'
@@ -32,25 +32,25 @@ export async function GET(request: NextRequest) {
 
     const searchParams = request.nextUrl.searchParams
     const limit = Math.min(100, parseInt(searchParams.get('limit') || '20'))
-    const donorId = searchParams.get('donorId')
 
     // Build query conditions
-    let query = db
-      .select()
-      .from(donorMeetingSessions)
-      .where(eq(donorMeetingSessions.userId, user!.id))
-      .orderBy(desc(donorMeetingSessions.createdAt))
-      .limit(limit)
+    const conditions = [eq(donorMeetingSessions.userId, user!.id)]
 
     // Filter by donorId if provided
+    const donorId = searchParams.get('donorId')
     if (donorId) {
       const id = parseInt(donorId)
       if (!isNaN(id)) {
-        query = query.where(eq(donorMeetingSessions.donorId, id))
+        conditions.push(eq(donorMeetingSessions.donorId, id))
       }
     }
 
-    const sessions = await query
+    const sessions = await db
+      .select()
+      .from(donorMeetingSessions)
+      .where(and(...conditions))
+      .orderBy(desc(donorMeetingSessions.createdAt))
+      .limit(limit)
 
     return NextResponse.json(successResponse(sessions))
   } catch (error) {

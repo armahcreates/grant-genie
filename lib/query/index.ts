@@ -1,2 +1,2 @@
 export * from './hooks'
-export * from './provider'
+// QueryProvider is exported from lib/providers/QueryProvider.tsx - import directly

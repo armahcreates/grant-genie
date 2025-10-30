@@ -52,7 +52,8 @@ export async function POST(request: NextRequest) {
     const agent = mastra.getAgent(agentName)
 
     // Use Vercel AI SDK streaming format
-    const stream = await agent.stream(messages, {
+    // Mastra's stream accepts messages array directly
+    const stream = await agent.stream(messages as any, {
       format: 'aisdk',
     })
 

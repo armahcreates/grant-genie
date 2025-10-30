@@ -1,4 +1,4 @@
-import { NextRequest } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/db'
 import { users } from '@/db/schema'
 import { eq } from 'drizzle-orm'
@@ -33,13 +33,13 @@ export async function GET(request: NextRequest) {
       firstName: userProfile.name?.split(' ')[0] || '',
       lastName: userProfile.name?.split(' ').slice(1).join(' ') || '',
       email: userProfile.email || '',
-      phone: userProfile.phone || '',
+      phone: '', // Not stored in users table
       jobTitle: userProfile.role || '',
-      bio: userProfile.bio || '',
-      streetAddress: userProfile.address || '',
-      city: userProfile.city || '',
-      state: userProfile.state || '',
-      zipCode: userProfile.zipCode || '',
+      bio: '', // Not stored in users table
+      streetAddress: '', // Not stored in users table
+      city: '', // Not stored in users table
+      state: '', // Not stored in users table
+      zipCode: '', // Not stored in users table
     }
 
     return NextResponse.json(successResponse(personalInfo))
@@ -101,13 +101,8 @@ export async function PATCH(request: NextRequest) {
     }
 
     if (email !== undefined) updateData.email = email.trim()
-    if (phone !== undefined) updateData.phone = phone.trim()
     if (jobTitle !== undefined) updateData.role = jobTitle.trim()
-    if (bio !== undefined) updateData.bio = bio.trim()
-    if (streetAddress !== undefined) updateData.address = streetAddress.trim()
-    if (city !== undefined) updateData.city = city.trim()
-    if (state !== undefined) updateData.state = state.trim()
-    if (zipCode !== undefined) updateData.zipCode = zipCode.trim()
+    // phone, bio, address fields not stored in users table - skip
 
     // Update user profile
     const [updatedProfile] = await db
@@ -125,13 +120,13 @@ export async function PATCH(request: NextRequest) {
       firstName: updatedProfile.name?.split(' ')[0] || '',
       lastName: updatedProfile.name?.split(' ').slice(1).join(' ') || '',
       email: updatedProfile.email || '',
-      phone: updatedProfile.phone || '',
+      phone: '', // Not stored in users table
       jobTitle: updatedProfile.role || '',
-      bio: updatedProfile.bio || '',
-      streetAddress: updatedProfile.address || '',
-      city: updatedProfile.city || '',
-      state: updatedProfile.state || '',
-      zipCode: updatedProfile.zipCode || '',
+      bio: '', // Not stored in users table
+      streetAddress: '', // Not stored in users table
+      city: '', // Not stored in users table
+      state: '', // Not stored in users table
+      zipCode: '', // Not stored in users table
     }
 
     return NextResponse.json(successResponse(personalInfo))

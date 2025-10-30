@@ -1,4 +1,4 @@
-import { NextRequest } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/db'
 import { userPreferences } from '@/db/schema'
 import { eq } from 'drizzle-orm'

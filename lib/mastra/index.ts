@@ -17,11 +17,8 @@ const openai = createOpenAI({
   apiKey: env.OPENAI_API_KEY,
 })
 
-// Initialize Mastra with OpenAI provider and agents
+// Initialize Mastra with agents only (providers handled by agents)
 export const mastra = new Mastra({
-  providers: {
-    openai,
-  },
   agents: {
     grantWriting: grantWritingAgent,
     donorMeeting: donorMeetingAgent,

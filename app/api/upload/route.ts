@@ -1,4 +1,4 @@
-import { NextRequest } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { put } from '@vercel/blob'
 import { requireAuth } from '@/lib/middleware/auth'
 import { moderateRateLimit } from '@/lib/middleware/rate-limit'
@@ -86,9 +86,7 @@ export async function POST(request: NextRequest): Promise<Response> {
     return NextResponse.json(successResponse({
       url: blob.url,
       filename: blob.pathname,
-      size: blob.size,
       contentType: blob.contentType,
-      uploadedAt: blob.uploadedAt,
     }), { status: 201 })
   } catch (error) {
     console.error('Error uploading file:', error)

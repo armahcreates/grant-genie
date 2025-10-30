@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
     ]
 
     // Generate response using streaming
-    const stream = await agent.stream(messages, {
+    const stream = await agent.stream(messages as any, {
       format: 'aisdk',
     })
 

@@ -52,8 +52,8 @@ export function errorResponse(
   return Response.json(
     {
       error,
-      ...(details && { details }),
-      ...(errorId && { errorId }),
+      ...(details ? { details } : {}),
+      ...(errorId ? { errorId } : {}),
     } as ApiErrorResponse,
     { status }
   )

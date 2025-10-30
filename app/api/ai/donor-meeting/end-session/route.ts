@@ -1,4 +1,4 @@
-import { NextRequest } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { mastra } from '@/lib/mastra'
 import { requireAuth } from '@/lib/middleware/auth'
 import { strictRateLimit } from '@/lib/middleware/rate-limit'
@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
         role: 'user' as const,
         content: summaryPrompt,
       },
-    ], {
+    ] as any, {
       format: 'aisdk',
     })
 

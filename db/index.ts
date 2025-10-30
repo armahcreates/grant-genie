@@ -29,7 +29,7 @@ export const db = drizzle(sql, {
 
 // Export transaction helper for convenience
 export async function withTransaction<T>(
-  callback: (tx: typeof db) => Promise<T>
+  callback: (tx: Parameters<Parameters<typeof db.transaction>[0]>[0]) => Promise<T>
 ): Promise<T> {
   return db.transaction(callback)
 }
