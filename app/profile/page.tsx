@@ -34,7 +34,7 @@ import { MdBusiness } from 'react-icons/md'
 import MainLayout from '@/components/layout/MainLayout'
 import { useAppToast } from '@/lib/utils/toast'
 import { getErrorMessage } from '@/lib/utils/formHelpers'
-import { useUIStore } from '@/lib/stores/uiStore'
+import { useUIStore } from '@/lib/stores'
 import {
   usePersonalInfo,
   useUpdatePersonalInfo,

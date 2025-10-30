@@ -57,12 +57,12 @@ CREATE INDEX IF NOT EXISTS team_members_user_id_idx ON team_members(user_id);
 CREATE INDEX IF NOT EXISTS team_members_member_user_id_idx ON team_members(member_user_id);
 
 -- Budget Items indexes
-CREATE INDEX IF NOT EXISTS budget_items_grant_id_idx ON budget_items(grant_id);
+CREATE INDEX IF NOT EXISTS budget_items_grant_budget_id_idx ON budget_items(grant_budget_id);
 
--- Milestones indexes
-CREATE INDEX IF NOT EXISTS milestones_grant_id_idx ON milestones(grant_id);
-CREATE INDEX IF NOT EXISTS milestones_due_date_idx ON milestones(due_date);
-CREATE INDEX IF NOT EXISTS milestones_status_idx ON milestones(status);
+-- Grant Milestones indexes (table name is grant_milestones)
+CREATE INDEX IF NOT EXISTS grant_milestones_grant_application_id_idx ON grant_milestones(grant_application_id);
+CREATE INDEX IF NOT EXISTS grant_milestones_due_date_idx ON grant_milestones(due_date);
+CREATE INDEX IF NOT EXISTS grant_milestones_status_idx ON grant_milestones(status);
 
 -- Donor Interactions indexes
 CREATE INDEX IF NOT EXISTS donor_interactions_donor_id_idx ON donor_interactions(donor_id);

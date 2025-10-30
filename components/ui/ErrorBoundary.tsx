@@ -136,7 +136,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
             <Stack direction={{ base: 'column', sm: 'row' }} gap={3} w="100%">
               <Button
                 flex={1}
-                colorScheme="purple"
+                colorPalette="purple"
                 onClick={this.handleReset}
               >
                 <FiRefreshCw />
@@ -222,7 +222,7 @@ export function PageErrorBoundary({ children }: { children: ReactNode }) {
 
             <Stack direction="row" gap={3}>
               <Button
-                colorScheme="purple"
+                colorPalette="purple"
                 onClick={() => window.location.reload()}
               >
                 <FiRefreshCw />
@@ -279,7 +279,7 @@ export function SectionErrorBoundary({
             </Stack>
             <Button
               size="sm"
-              colorScheme="purple"
+              colorPalette="purple"
               variant="outline"
               onClick={() => window.location.reload()}
             >

@@ -27,7 +27,7 @@ import {
   FiMessageCircle,
 } from 'react-icons/fi'
 import { Checkbox } from '@/components/ui/checkbox'
-import { useDonorGenieStore } from '@/lib/store'
+import { useDonorGenieStore } from '@/lib/stores'
 import { useDonorMeetingAgent } from '@/lib/agents'
 import MainLayout from '@/components/layout/MainLayout'
 

@@ -23,7 +23,7 @@ import {
   FiRefreshCw,
 } from 'react-icons/fi'
 import MainLayout from '@/components/layout/MainLayout'
-import { useGrantGenieStore } from '@/lib/store'
+import { useGrantGenieStore } from '@/lib/stores'
 import { useGrantWritingAgent } from '@/lib/agents'
 
 export default function GrantProposalPage() {

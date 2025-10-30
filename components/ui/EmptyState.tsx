@@ -83,7 +83,7 @@ export function EmptyState({
         {action && (
           <Button
             mt={2}
-            colorScheme="purple"
+            colorPalette="purple"
             onClick={action.onClick}
           >
             {action.label}

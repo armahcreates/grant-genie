@@ -8,6 +8,34 @@
       "when": 1761356672916,
       "tag": "0000_breezy_carmella_unuscione",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1761356672917,
+      "tag": "0001_add_performance_indexes",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1761356672918,
+      "tag": "0002_add_unique_constraints",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1761356672919,
+      "tag": "0003_add_user_sessions",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1761356672920,
+      "tag": "0004_add_cascade_deletes",
+      "breakpoints": true
     }
   ]
 }

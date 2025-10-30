@@ -56,8 +56,9 @@ export function useDashboardStats(userId?: string) {
       if (!userId) {
         return { stats: { activeGrants: 0, totalFunding: '$0', upcomingDeadlines: 0, complianceRate: 0 } }
       }
-      const response = await apiClient<{ stats: DashboardStats }>(`/api/dashboard/stats?userId=${userId}`)
-      return response
+      // API automatically uses authenticated user, no need to pass userId
+      const response = await apiClient<{ data: DashboardStats }>('/api/dashboard/stats')
+      return { stats: response.data }
     },
     enabled: !!userId,
     staleTime: 2 * 60 * 1000, // 2 minutes
@@ -71,8 +72,9 @@ export function useRecentActivity(userId?: string) {
       if (!userId) {
         return { activities: [] }
       }
-      const response = await apiClient<{ activities: RecentActivity[] }>(`/api/activity?userId=${userId}`)
-      return response
+      // API automatically uses authenticated user, no need to pass userId
+      const response = await apiClient<{ data: RecentActivity[] }>('/api/activity')
+      return { activities: response.data || [] }
     },
     enabled: !!userId,
     staleTime: 1 * 60 * 1000, // 1 minute

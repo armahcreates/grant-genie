@@ -39,8 +39,9 @@ import { GrantCardSkeleton } from '@/components/ui/LoadingSkeleton'
 import { NoSearchResultsEmptyState } from '@/components/ui/EmptyState'
 import { useAppToast } from '@/lib/utils/toast'
 import { formatDate, getDaysUntil, isWithinDays } from '@/lib/utils/dates'
-import { useGrantsStore } from '@/lib/stores/grantsStore'
+import { useGrantsStore } from '@/lib/stores'
 import { useGrants, type Grant } from '@/lib/api/grants'
+import { gaps, padding } from '@/lib/constants/spacing'
 
 type SortOption = 'relevance' | 'deadline' | 'amount' | 'recent'
 
@@ -255,8 +256,8 @@ export default function GrantSearchPage() {
 
   return (
     <MainLayout>
-      <Container maxW="container.xl" py={8}>
-        <VStack gap={8} align="stretch">
+      <Container maxW="container.xl" py={padding.page}>
+        <VStack gap={gaps.loose} align="stretch">
           {/* Header */}
           <Box>
             <Heading size="lg" mb={2} color="purple.900">
@@ -282,7 +283,7 @@ export default function GrantSearchPage() {
                   />
                 </HStack>
 
-                <SimpleGrid columns={{ base: 1, md: 4 }} gap={4}>
+                <SimpleGrid columns={{ base: 1, md: 4 }} gap={gaps.normal}>
                   <NativeSelectRoot>
                     <NativeSelectField
                       value={filters.category}
@@ -444,7 +445,7 @@ export default function GrantSearchPage() {
                 }}
               >
                 <Card.Body>
-                  <VStack gap={4} align="stretch">
+                  <VStack gap={gaps.normal} align="stretch">
                     <Flex justify="space-between" align="start">
                       <Box flex={1}>
                         <HStack mb={2}>
@@ -460,7 +461,7 @@ export default function GrantSearchPage() {
                           {grant.description}
                         </Text>
 
-                        <SimpleGrid columns={{ base: 1, md: 4 }} gap={4} mb={3}>
+                        <SimpleGrid columns={{ base: 1, md: 4 }} gap={gaps.normal} mb={3}>
                           <HStack>
                             <Icon as={FiDollarSign} color="purple.600" />
                             <Box>

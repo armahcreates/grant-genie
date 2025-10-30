@@ -2,12 +2,47 @@
  * User API Hooks - TanStack Query
  *
  * Query and mutation hooks for user-related data
+ * 
+ * NOTE: Server state is managed by TanStack Query only.
+ * Do NOT sync to Zustand stores - TanStack Query is the single source of truth.
  */
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { apiClient } from './client'
-import { useUserStore, type PersonalInfo, type OrganizationInfo, type NotificationPreferences } from '../stores/userStore'
 import { useAppToast } from '../utils/toast'
+
+// Re-export types for convenience (these should come from API responses, not Zustand)
+export interface PersonalInfo {
+  firstName: string
+  lastName: string
+  email: string
+  phone: string
+  jobTitle: string
+  bio?: string
+  streetAddress: string
+  city: string
+  state: string
+  zipCode: string
+}
+
+export interface OrganizationInfo {
+  orgName: string
+  orgType: string
+  taxId: string
+  orgWebsite?: string
+  orgPhone: string
+  orgEmail: string
+}
+
+export interface NotificationPreferences {
+  emailNotifications: boolean
+  pushNotifications: boolean
+  smsNotifications: boolean
+  deadlineReminders: boolean
+  complianceAlerts: boolean
+  grantMatches: boolean
+  weeklyDigest: boolean
+}
 
 // Query Keys
 export const userKeys = {
@@ -23,35 +58,32 @@ export const userKeys = {
 // ============================================================================
 
 export function usePersonalInfo() {
-  const setPersonalInfo = useUserStore((state) => state.setPersonalInfo)
-
   return useQuery({
     queryKey: userKeys.profile(),
     queryFn: async () => {
-      const response = await apiClient<{ profile: PersonalInfo }>('/api/user/profile')
-      const data = response.profile
-      setPersonalInfo(data)
-      return data
+      const response = await apiClient<{ data: PersonalInfo }>('/api/user/profile')
+      return response.data
     },
+    staleTime: 5 * 60 * 1000, // 5 minutes
   })
 }
 
 export function useUpdatePersonalInfo() {
   const queryClient = useQueryClient()
-  const setPersonalInfo = useUserStore((state) => state.setPersonalInfo)
   const toast = useAppToast()
 
   return useMutation({
     mutationFn: async (data: PersonalInfo) => {
-      const response = await apiClient<{ profile: PersonalInfo }>('/api/user/profile', {
+      const response = await apiClient<{ data: PersonalInfo }>('/api/user/profile', {
         method: 'PATCH',
         body: JSON.stringify(data),
       })
-      return response.profile
+      return response.data
     },
     onSuccess: (data) => {
+      // Invalidate and refetch - TanStack Query handles state
+      queryClient.setQueryData(userKeys.profile(), data)
       queryClient.invalidateQueries({ queryKey: userKeys.profile() })
-      setPersonalInfo(data)
       toast.success('Profile updated', 'Your personal information has been saved successfully')
     },
     onError: (error) => {
@@ -65,35 +97,32 @@ export function useUpdatePersonalInfo() {
 // ============================================================================
 
 export function useOrganizationInfo() {
-  const setOrganizationInfo = useUserStore((state) => state.setOrganizationInfo)
-
   return useQuery({
     queryKey: userKeys.organization(),
     queryFn: async () => {
-      const response = await apiClient<{ organization: OrganizationInfo }>('/api/user/organization')
-      const data = response.organization
-      setOrganizationInfo(data)
-      return data
+      const response = await apiClient<{ data: OrganizationInfo }>('/api/user/organization')
+      return response.data
     },
+    staleTime: 5 * 60 * 1000, // 5 minutes
   })
 }
 
 export function useUpdateOrganizationInfo() {
   const queryClient = useQueryClient()
-  const setOrganizationInfo = useUserStore((state) => state.setOrganizationInfo)
   const toast = useAppToast()
 
   return useMutation({
     mutationFn: async (data: OrganizationInfo) => {
-      const response = await apiClient<{ organization: OrganizationInfo }>('/api/user/organization', {
+      const response = await apiClient<{ data: OrganizationInfo }>('/api/user/organization', {
         method: 'PATCH',
         body: JSON.stringify(data),
       })
-      return response.organization
+      return response.data
     },
     onSuccess: (data) => {
+      // TanStack Query handles state - no Zustand sync needed
+      queryClient.setQueryData(userKeys.organization(), data)
       queryClient.invalidateQueries({ queryKey: userKeys.organization() })
-      setOrganizationInfo(data)
       toast.success('Organization updated', 'Your organization details have been saved successfully')
     },
     onError: (error) => {
@@ -107,35 +136,32 @@ export function useUpdateOrganizationInfo() {
 // ============================================================================
 
 export function useNotificationPreferences() {
-  const setNotificationPreferences = useUserStore((state) => state.setNotificationPreferences)
-
   return useQuery({
     queryKey: userKeys.notifications(),
     queryFn: async () => {
-      const response = await apiClient<{ preferences: NotificationPreferences }>('/api/user/preferences')
-      const data = response.preferences
-      setNotificationPreferences(data)
-      return data
+      const response = await apiClient<{ data: NotificationPreferences }>('/api/user/preferences')
+      return response.data
     },
+    staleTime: 5 * 60 * 1000, // 5 minutes
   })
 }
 
 export function useUpdateNotificationPreferences() {
   const queryClient = useQueryClient()
-  const setNotificationPreferences = useUserStore((state) => state.setNotificationPreferences)
   const toast = useAppToast()
 
   return useMutation({
     mutationFn: async (data: NotificationPreferences) => {
-      const response = await apiClient<{ preferences: NotificationPreferences }>('/api/user/preferences', {
+      const response = await apiClient<{ data: NotificationPreferences }>('/api/user/preferences', {
         method: 'PATCH',
         body: JSON.stringify(data),
       })
-      return response.preferences
+      return response.data
     },
     onSuccess: (data) => {
+      // TanStack Query handles state
+      queryClient.setQueryData(userKeys.notifications(), data)
       queryClient.invalidateQueries({ queryKey: userKeys.notifications() })
-      setNotificationPreferences(data)
       toast.success('Preferences updated', 'Your notification preferences have been saved')
     },
     onError: (error) => {
@@ -150,7 +176,6 @@ export function useUpdateNotificationPreferences() {
 
 export function useCompleteOnboarding() {
   const queryClient = useQueryClient()
-  const { setOnboardingData, setIsOnboarded } = useUserStore()
   const toast = useAppToast()
 
   return useMutation({
@@ -166,10 +191,9 @@ export function useCompleteOnboarding() {
         body: JSON.stringify(data),
       })
     },
-    onSuccess: (_, variables) => {
+    onSuccess: () => {
+      // Invalidate all user queries to refetch
       queryClient.invalidateQueries({ queryKey: userKeys.all })
-      setOnboardingData(variables)
-      setIsOnboarded(true)
       toast.success('Welcome aboard!', 'Your account is now set up')
     },
     onError: (error) => {

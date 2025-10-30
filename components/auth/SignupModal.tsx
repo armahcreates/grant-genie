@@ -229,7 +229,7 @@ export default function SignupModal({ isOpen, onClose, onSwitchToLogin }: Signup
               </Checkbox.Root>
 
               <Button
-                colorScheme="purple"
+                colorPalette="purple"
                 w="full"
                 onClick={handleSignup}
                 loading={isLoading}

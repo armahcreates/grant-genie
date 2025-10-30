@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import { useGrantGenieStore, useDonorGenieStore } from '@/lib/store'
+import { useGrantGenieStore, useDonorGenieStore } from '@/lib/stores'
 
 // ============================================================================
 // Grant Writing Agent Hook
@@ -43,7 +43,7 @@ export function useGrantWritingAgent(options: UseGrantWritingAgentOptions = {}) 
           throw new Error('Failed to generate proposal')
         }
 
-        // Handle streaming response
+        // Handle streaming response using Vercel AI SDK format
         const reader = response.body?.getReader()
         const decoder = new TextDecoder()
         let content = ''
@@ -53,9 +53,29 @@ export function useGrantWritingAgent(options: UseGrantWritingAgentOptions = {}) 
             const { done, value } = await reader.read()
             if (done) break
 
-            const chunk = decoder.decode(value)
-            content += chunk
-            setProposalContent(content)
+            const chunk = decoder.decode(value, { stream: true })
+            // Parse SSE format from Vercel AI SDK
+            const lines = chunk.split('\n')
+            for (const line of lines) {
+              if (line.startsWith('data: ')) {
+                const data = line.slice(6)
+                if (data === '[DONE]') continue
+                try {
+                  const parsed = JSON.parse(data)
+                  if (parsed.type === 'text-delta' && parsed.textDelta) {
+                    content += parsed.textDelta
+                    // Update content incrementally for real-time display
+                    setProposalContent(content)
+                  }
+                } catch {
+                  // If not JSON, append as text
+                  if (data && data !== '[DONE]') {
+                    content += data
+                    setProposalContent(content)
+                  }
+                }
+              }
+            }
           }
         }
 
@@ -122,28 +142,51 @@ export function useDonorMeetingAgent(options: UseDonorMeetingAgentOptions = {}) 
           throw new Error('Failed to get response from donor agent')
         }
 
-        const data = await response.json()
+        // Handle streaming response using Vercel AI SDK format
+        const reader = response.body?.getReader()
+        const decoder = new TextDecoder()
+        let content = ''
+
+        if (reader) {
+          while (true) {
+            const { done, value } = await reader.read()
+            if (done) break
+
+            const chunk = decoder.decode(value, { stream: true })
+            // Parse SSE format from Vercel AI SDK
+            const lines = chunk.split('\n')
+            for (const line of lines) {
+              if (line.startsWith('data: ')) {
+                const data = line.slice(6)
+                if (data === '[DONE]') continue
+                try {
+                  const parsed = JSON.parse(data)
+                  if (parsed.type === 'text-delta' && parsed.textDelta) {
+                    content += parsed.textDelta
+                  }
+                } catch {
+                  // If not JSON, append as text
+                  if (data && data !== '[DONE]') {
+                    content += data
+                  }
+                }
+              }
+            }
+          }
+        }
 
         // Add assistant message
         const assistantMessage = {
           role: 'assistant' as const,
-          content: data.response,
+          content: content || 'No response received',
         }
         addMessage(assistantMessage)
         options.onMessage?.(assistantMessage)
 
-        // Add coaching tip if provided
-        if (data.coachingTip) {
-          addCoachingTip(data.coachingTip)
-          options.onCoachingTip?.(data.coachingTip)
-        }
+        // Note: Coaching tips and scores would need to be extracted from agent response
+        // For now, these are handled by the agent's instructions
 
-        // Update score if provided
-        if (data.score !== undefined) {
-          setScore(data.score)
-        }
-
-        return data
+        return { response: content }
       } catch (err) {
         const error = err instanceof Error ? err : new Error('Unknown error')
         setError(error.message)
@@ -153,7 +196,7 @@ export function useDonorMeetingAgent(options: UseDonorMeetingAgentOptions = {}) 
         setIsProcessing(false)
       }
     },
-    [sessionConfig, addMessage, addCoachingTip, setScore, options]
+    [sessionConfig, addMessage, options]
   )
 
   const endSession = useCallback(async () => {
@@ -226,9 +269,41 @@ export function useGeneralAssistant(options: UseGeneralAssistantOptions = {}) {
           throw new Error('Failed to get response from assistant')
         }
 
-        const data = await response.json()
-        options.onResponse?.(data.response)
-        return data.response
+        // Handle streaming response using Vercel AI SDK format
+        const reader = response.body?.getReader()
+        const decoder = new TextDecoder()
+        let content = ''
+
+        if (reader) {
+          while (true) {
+            const { done, value } = await reader.read()
+            if (done) break
+
+            const chunk = decoder.decode(value, { stream: true })
+            // Parse SSE format from Vercel AI SDK
+            const lines = chunk.split('\n')
+            for (const line of lines) {
+              if (line.startsWith('data: ')) {
+                const data = line.slice(6)
+                if (data === '[DONE]') continue
+                try {
+                  const parsed = JSON.parse(data)
+                  if (parsed.type === 'text-delta' && parsed.textDelta) {
+                    content += parsed.textDelta
+                  }
+                } catch {
+                  // If not JSON, append as text
+                  if (data && data !== '[DONE]') {
+                    content += data
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        options.onResponse?.(content)
+        return content
       } catch (err) {
         const error = err instanceof Error ? err : new Error('Unknown error')
         setError(error.message)

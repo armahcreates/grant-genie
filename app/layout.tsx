@@ -4,7 +4,7 @@ import "./globals.css";
 import "./reduced-motion.css";
 import "./animations.css";
 import { Provider } from "@/components/ui/provider";
-import { QueryProvider } from "@/lib/query/provider";
+import { QueryProvider } from "@/lib/providers/QueryProvider";
 import { ToastProvider } from "@/components/ui/toaster";
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 import { Analytics } from "@vercel/analytics/react";

@@ -16,6 +16,7 @@ import {
   Textarea,
   IconButton,
   Spinner,
+  Field,
 } from '@chakra-ui/react'
 import { useState, useRef, DragEvent, Suspense } from 'react'
 import { useRouter } from 'next/navigation'
@@ -29,11 +30,12 @@ import {
   FiAlertCircle,
 } from 'react-icons/fi'
 import MainLayout from '@/components/layout/MainLayout'
-import { useGrantGenieStore } from '@/lib/store'
+import { useGrantGenieStore } from '@/lib/stores'
 import { useAppToast } from '@/lib/utils/toast'
 import { Breadcrumb } from '@/components/ui/Breadcrumb'
 import { useCreateGrantApplication } from '@/lib/api/grants'
 import { useUser } from '@stackframe/stack'
+import { gaps, padding } from '@/lib/constants/spacing'
 
 // File type validation
 const ALLOWED_FILE_TYPES = {
@@ -247,9 +249,9 @@ function GrantGenieContent() {
 
   return (
     <MainLayout>
-      <Box minH="100vh" bg="purple.50">
-        <Container maxW="container.xl" py={8}>
-          <VStack gap={8} align="stretch">
+      <Box minH="100vh" bg="bg.subtle">
+        <Container maxW="container.xl" py={padding.page}>
+          <VStack gap={gaps.loose} align="stretch">
             {/* Breadcrumb */}
             <Breadcrumb
               items={[
@@ -272,9 +274,9 @@ function GrantGenieContent() {
               </Badge>
             </HStack>
 
-            <SimpleGrid columns={{ base: 1, lg: 2 }} gap={8}>
+            <SimpleGrid columns={{ base: 1, lg: 2 }} gap={gaps.loose}>
               {/* Left Column - Upload & Teaching */}
-              <VStack gap={6} align="stretch">
+              <VStack gap={gaps.relaxed} align="stretch">
                 {/* Upload Grant Materials */}
                 <Card.Root>
                   <Card.Header>
@@ -286,7 +288,7 @@ function GrantGenieContent() {
                     </Text>
                   </Card.Header>
                   <Card.Body>
-                    <VStack gap={4} align="stretch">
+                    <VStack gap={gaps.normal} align="stretch">
                       {/* Upload Area */}
                       <input
                         ref={rfpInputRef}
@@ -311,7 +313,7 @@ function GrantGenieContent() {
                         onDragLeave={(e) => handleDragLeave(e, 'rfp')}
                         onDrop={(e) => handleDrop(e, 'rfp')}
                       >
-                        <VStack gap={3}>
+                        <VStack gap={gaps.tight}>
                           <Icon as={FiUpload} boxSize={10} color="purple.600" />
                           <Text color="purple.900" fontWeight="medium">
                             Drop RFP or Guidelines here
@@ -324,7 +326,7 @@ function GrantGenieContent() {
 
                       {/* Error message */}
                       {errors.rfpFiles && (
-                        <HStack gap={2} color="red.600" fontSize="sm">
+                        <HStack gap={gaps.tight} color="red.600" fontSize="sm">
                           <Icon as={FiAlertCircle} />
                           <Text>{errors.rfpFiles}</Text>
                         </HStack>
@@ -332,7 +334,7 @@ function GrantGenieContent() {
 
                       {/* Uploaded files list */}
                       {rfpFiles.length > 0 && (
-                        <VStack gap={2} align="stretch">
+                        <VStack gap={gaps.tight} align="stretch">
                           {rfpFiles.map((uploadedFile) => (
                             <HStack
                               key={uploadedFile.id}
@@ -343,7 +345,7 @@ function GrantGenieContent() {
                               borderColor="purple.200"
                               justify="space-between"
                             >
-                              <HStack gap={2}>
+                              <HStack gap={gaps.tight}>
                                 <Icon as={FiFile} color="purple.600" />
                                 <Text fontSize="sm" color="purple.900">
                                   {uploadedFile.file.name}
@@ -373,15 +375,20 @@ function GrantGenieContent() {
                       )}
 
                       {/* Text Input Alternative */}
-                      <Textarea
-                        placeholder="Or paste foundation's request for proposals, guidelines, and strategic priorities..."
-                        rows={6}
-                        value={formData.rfpText}
-                        onChange={(e) => setFormData({ rfpText: e.target.value })}
-                      />
-                      <Text fontSize="xs" color="purple.600">
-                        (Paste the content or describe in text box)
-                      </Text>
+                      <Field.Root>
+                        <Field.Label fontWeight="medium">
+                          Or Paste RFP Content
+                        </Field.Label>
+                        <Textarea
+                          placeholder="Paste foundation's request for proposals, guidelines, and strategic priorities..."
+                          rows={6}
+                          value={formData.rfpText}
+                          onChange={(e) => setFormData({ rfpText: e.target.value })}
+                        />
+                        <Field.HelperText>
+                          Paste the content or describe in text box
+                        </Field.HelperText>
+                      </Field.Root>
                     </VStack>
                   </Card.Body>
                 </Card.Root>
@@ -397,7 +404,7 @@ function GrantGenieContent() {
                     </Text>
                   </Card.Header>
                   <Card.Body>
-                    <VStack gap={4} align="stretch">
+                    <VStack gap={gaps.normal} align="stretch">
                       {/* Upload Area */}
                       <input
                         ref={teachingInputRef}
@@ -422,7 +429,7 @@ function GrantGenieContent() {
                         onDragLeave={(e) => handleDragLeave(e, 'teaching')}
                         onDrop={(e) => handleDrop(e, 'teaching')}
                       >
-                        <VStack gap={3}>
+                        <VStack gap={gaps.tight}>
                           <Icon as={FiFileText} boxSize={10} color="purple.600" />
                           <Text color="purple.900" fontWeight="medium">
                             Upload grants, reports, or narratives
@@ -435,7 +442,7 @@ function GrantGenieContent() {
 
                       {/* Error message */}
                       {errors.teachingFiles && (
-                        <HStack gap={2} color="red.600" fontSize="sm">
+                        <HStack gap={gaps.tight} color="red.600" fontSize="sm">
                           <Icon as={FiAlertCircle} />
                           <Text>{errors.teachingFiles}</Text>
                         </HStack>
@@ -443,7 +450,7 @@ function GrantGenieContent() {
 
                       {/* Uploaded files list */}
                       {teachingFiles.length > 0 && (
-                        <VStack gap={2} align="stretch">
+                        <VStack gap={gaps.tight} align="stretch">
                           {teachingFiles.map((uploadedFile) => (
                             <HStack
                               key={uploadedFile.id}
@@ -454,7 +461,7 @@ function GrantGenieContent() {
                               borderColor="purple.200"
                               justify="space-between"
                             >
-                              <HStack gap={2}>
+                              <HStack gap={gaps.tight}>
                                 <Icon as={FiFile} color="purple.600" />
                                 <Text fontSize="sm" color="purple.900">
                                   {uploadedFile.file.name}
@@ -484,12 +491,20 @@ function GrantGenieContent() {
                       )}
 
                       {/* Text Input Alternative */}
-                      <Textarea
-                        placeholder="Uploaded grants, reports, or narratives that shows HOW you write. Paste here or upload above..."
-                        rows={6}
-                        value={formData.teachingMaterials}
-                        onChange={(e) => setFormData({ teachingMaterials: e.target.value })}
-                      />
+                      <Field.Root>
+                        <Field.Label fontWeight="medium">
+                          Or Paste Teaching Materials
+                        </Field.Label>
+                        <Textarea
+                          placeholder="Paste grants, reports, or narratives that show HOW you write..."
+                          rows={6}
+                          value={formData.teachingMaterials}
+                          onChange={(e) => setFormData({ teachingMaterials: e.target.value })}
+                        />
+                        <Field.HelperText>
+                          Paste here or upload files above
+                        </Field.HelperText>
+                      </Field.Root>
                     </VStack>
                   </Card.Body>
                 </Card.Root>
@@ -516,7 +531,7 @@ function GrantGenieContent() {
                     </Heading>
                   </Card.Header>
                   <Card.Body>
-                    <VStack gap={3} align="stretch">
+                    <VStack gap={gaps.tight} align="stretch">
                       <Text fontSize="sm" color="purple.700">
                         Ask one reflective or question to the Genie to customize:
                       </Text>
@@ -541,7 +556,7 @@ function GrantGenieContent() {
               </VStack>
 
               {/* Right Column - Project Context */}
-              <VStack gap={6} align="stretch">
+              <VStack gap={gaps.relaxed} align="stretch">
                 <Card.Root>
                   <Card.Header>
                     <Heading size="md" color="purple.900">
@@ -552,82 +567,64 @@ function GrantGenieContent() {
                     </Text>
                   </Card.Header>
                   <Card.Body>
-                    <VStack gap={6} align="stretch">
+                    <VStack gap={gaps.relaxed} align="stretch">
                       {/* Project/Program Name */}
-                      <VStack align="start" gap={2}>
-                        <HStack gap={1}>
-                          <Text fontWeight="semibold" color="purple.900">
-                            Project/Program Name
-                          </Text>
-                          <Text color="red.500">*</Text>
-                        </HStack>
+                      <Field.Root invalid={!!errors.projectName} required>
+                        <Field.Label fontWeight="medium">
+                          Project/Program Name
+                        </Field.Label>
                         <Input
                           placeholder="Enter project name"
                           value={formData.projectName || ''}
                           onChange={(e) => handleFieldChange('projectName', e.target.value)}
-                          borderColor={errors.projectName ? 'red.400' : undefined}
-                          _focus={{
-                            borderColor: errors.projectName ? 'red.500' : 'purple.500',
-                            boxShadow: errors.projectName ? '0 0 0 1px var(--chakra-colors-red-500)' : undefined,
-                          }}
+                          aria-invalid={!!errors.projectName}
                         />
-                        {errors.projectName && (
-                          <HStack gap={1} color="red.600" fontSize="sm">
-                            <Icon as={FiAlertCircle} boxSize={3} />
-                            <Text>{errors.projectName}</Text>
-                          </HStack>
-                        )}
-                      </VStack>
+                        <Field.ErrorText>{errors.projectName}</Field.ErrorText>
+                      </Field.Root>
 
                       {/* Funder Name */}
-                      <VStack align="start" gap={2}>
-                        <HStack gap={1}>
-                          <Text fontWeight="semibold" color="purple.900">
-                            Funder Name
-                          </Text>
-                          <Text color="red.500">*</Text>
-                        </HStack>
+                      <Field.Root invalid={!!errors.funderName} required>
+                        <Field.Label fontWeight="medium">
+                          Funder Name
+                        </Field.Label>
                         <Input
                           placeholder="Enter funder name"
                           value={formData.funderName || ''}
                           onChange={(e) => handleFieldChange('funderName', e.target.value)}
-                          borderColor={errors.funderName ? 'red.400' : undefined}
-                          _focus={{
-                            borderColor: errors.funderName ? 'red.500' : 'purple.500',
-                            boxShadow: errors.funderName ? '0 0 0 1px var(--chakra-colors-red-500)' : undefined,
-                          }}
+                          aria-invalid={!!errors.funderName}
                         />
-                        {errors.funderName && (
-                          <HStack gap={1} color="red.600" fontSize="sm">
-                            <Icon as={FiAlertCircle} boxSize={3} />
-                            <Text>{errors.funderName}</Text>
-                          </HStack>
-                        )}
-                      </VStack>
+                        <Field.ErrorText>{errors.funderName}</Field.ErrorText>
+                      </Field.Root>
 
                       {/* Funding Deadline */}
-                      <VStack align="start" gap={2}>
-                        <Text fontWeight="semibold" color="purple.900">
+                      <Field.Root>
+                        <Field.Label fontWeight="medium">
                           Funding Deadline
-                        </Text>
+                        </Field.Label>
                         <Input
                           type="date"
                           value={formData.deadline || ''}
                           onChange={(e) => handleFieldChange('deadline', e.target.value)}
                         />
-                      </VStack>
+                        <Field.HelperText>
+                          Select the deadline for this grant application
+                        </Field.HelperText>
+                      </Field.Root>
 
                       {/* Estimated Grant Amount */}
-                      <VStack align="start" gap={2}>
-                        <Text fontWeight="semibold" color="purple.900">
+                      <Field.Root>
+                        <Field.Label fontWeight="medium">
                           Estimated Grant Amount
-                        </Text>
+                        </Field.Label>
                         <Input
                           placeholder="$50,000"
                           value={formData.fundingAmount || ''}
                           onChange={(e) => handleFieldChange('fundingAmount', e.target.value)}
                         />
-                      </VStack>
+                        <Field.HelperText>
+                          Enter the amount you're requesting (optional)
+                        </Field.HelperText>
+                      </Field.Root>
                     </VStack>
                   </Card.Body>
                 </Card.Root>
@@ -640,7 +637,7 @@ function GrantGenieContent() {
                     </Heading>
                   </Card.Header>
                   <Card.Body>
-                    <VStack gap={3} align="stretch">
+                    <VStack gap={gaps.tight} align="stretch">
                       <Box>
                         <Text fontSize="xs" color="purple.600" mb={1}>
                           Grant Materials
@@ -691,7 +688,7 @@ function GrantGenieContent() {
             {errors.submit && (
               <Card.Root bg="red.50" border="1px solid" borderColor="red.300">
                 <Card.Body>
-                  <HStack gap={2}>
+                  <HStack gap={gaps.tight}>
                     <Icon as={FiAlertCircle} color="red.700" />
                     <Text color="red.700" fontWeight="medium">
                       {errors.submit}

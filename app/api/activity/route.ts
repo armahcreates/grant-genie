@@ -1,12 +1,18 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 import { db } from '@/db'
 import { activityLog } from '@/db/schema'
 import { desc, eq } from 'drizzle-orm'
 import { requireAuth } from '@/lib/middleware/auth'
+import { moderateRateLimit } from '@/lib/middleware/rate-limit'
+import { successResponse, errorResponse } from '@/lib/api/response'
 
 // GET /api/activity - Get recent activity for authenticated user
 export async function GET(request: NextRequest) {
   try {
+    // Rate limiting
+    const rateLimitError = await moderateRateLimit(request)
+    if (rateLimitError) return rateLimitError
+
     // Authenticate user
     const { error, user } = await requireAuth(request)
     if (error) return error
@@ -21,31 +27,35 @@ export async function GET(request: NextRequest) {
       .orderBy(desc(activityLog.createdAt))
       .limit(limit)
 
-    return NextResponse.json({ activities })
+    return NextResponse.json(successResponse(activities))
   } catch (error) {
     console.error('Error fetching activity:', error)
-    return NextResponse.json(
-      { error: 'An unexpected error occurred while fetching activity' },
-      { status: 500 }
-    )
+    return errorResponse('An unexpected error occurred while fetching activity', 500)
   }
 }
 
 // POST /api/activity - Log a new activity for authenticated user
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting
+    const rateLimitError = await moderateRateLimit(request)
+    if (rateLimitError) return rateLimitError
+
     // Authenticate user
     const { error, user } = await requireAuth(request)
     if (error) return error
 
-    const body = await request.json()
+    let body
+    try {
+      body = await request.json()
+    } catch {
+      return errorResponse('Invalid JSON in request body', 400)
+    }
+
     const { action, entityType, entityId, details } = body
 
     if (!action) {
-      return NextResponse.json(
-        { error: 'action is required' },
-        { status: 400 }
-      )
+      return errorResponse('action is required', 400)
     }
 
     const [newActivity] = await db
@@ -59,12 +69,9 @@ export async function POST(request: NextRequest) {
       })
       .returning()
 
-    return NextResponse.json({ activity: newActivity }, { status: 201 })
+    return NextResponse.json(successResponse(newActivity), { status: 201 })
   } catch (error) {
     console.error('Error logging activity:', error)
-    return NextResponse.json(
-      { error: 'An unexpected error occurred while logging activity' },
-      { status: 500 }
-    )
+    return errorResponse('An unexpected error occurred while logging activity', 500)
   }
 }

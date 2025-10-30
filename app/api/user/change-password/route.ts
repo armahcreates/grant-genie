@@ -1,54 +1,44 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireAuth } from '@/lib/middleware/auth'
+import { moderateRateLimit } from '@/lib/middleware/rate-limit'
+import { successResponse, errorResponse } from '@/lib/api/response'
+import { changePasswordSchema } from '@/lib/validation/zod-schemas'
 import { stackServerApp } from '@/lib/stack'
 
 // POST /api/user/change-password - Change user password
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting
+    const rateLimitError = await moderateRateLimit(request)
+    if (rateLimitError) return rateLimitError
+
     // Authenticate user
     const { error, user } = await requireAuth(request)
     if (error) return error
 
-    const body = await request.json()
-    const { currentPassword, newPassword } = body
+    // Parse and validate request body
+    let body
+    try {
+      body = await request.json()
+    } catch {
+      return errorResponse('Invalid JSON in request body', 400)
+    }
 
-    // Validate required fields
-    if (!currentPassword || !newPassword) {
-      return NextResponse.json(
-        { error: 'Current password and new password are required' },
-        { status: 400 }
+    const validationResult = changePasswordSchema.safeParse(body)
+
+    if (!validationResult.success) {
+      return errorResponse(
+        'Invalid request data',
+        400,
+        validationResult.error.issues
       )
     }
 
-    // Validate new password strength
-    if (newPassword.length < 8) {
-      return NextResponse.json(
-        { error: 'New password must be at least 8 characters long' },
-        { status: 400 }
-      )
-    }
+    const { currentPassword, newPassword } = validationResult.data
 
     // Check if new password is different from current
     if (currentPassword === newPassword) {
-      return NextResponse.json(
-        { error: 'New password must be different from current password' },
-        { status: 400 }
-      )
-    }
-
-    // Additional password strength validation
-    const hasUpperCase = /[A-Z]/.test(newPassword)
-    const hasLowerCase = /[a-z]/.test(newPassword)
-    const hasNumber = /[0-9]/.test(newPassword)
-    const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(newPassword)
-
-    if (!hasUpperCase || !hasLowerCase || !hasNumber || !hasSpecialChar) {
-      return NextResponse.json(
-        {
-          error: 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character',
-        },
-        { status: 400 }
-      )
+      return errorResponse('New password must be different from current password', 400)
     }
 
     try {
@@ -71,26 +61,19 @@ export async function POST(request: NextRequest) {
       // In production, you would integrate with Stack Auth's password change API
       // Example (hypothetical): await stackUser.updatePassword(currentPassword, newPassword)
 
-      return NextResponse.json({
-        success: true,
+      return NextResponse.json(successResponse({
         message: 'Password changed successfully. Please sign in with your new password.',
-      })
+      }))
     } catch (authError: any) {
       // Handle authentication-specific errors
       if (authError.message?.includes('Invalid password') || authError.message?.includes('incorrect')) {
-        return NextResponse.json(
-          { error: 'Current password is incorrect' },
-          { status: 401 }
-        )
+        return errorResponse('Current password is incorrect', 401)
       }
 
       throw authError // Re-throw if it's a different error
     }
   } catch (error: any) {
     console.error('Error changing password:', error)
-    return NextResponse.json(
-      { error: error.message || 'An unexpected error occurred while changing password' },
-      { status: 500 }
-    )
+    return errorResponse(error.message || 'An unexpected error occurred while changing password', 500)
   }
 }

@@ -1,19 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireAuth } from '@/lib/middleware/auth'
+import { moderateRateLimit } from '@/lib/middleware/rate-limit'
+import { successResponse, errorResponse } from '@/lib/api/response'
 import { getUserSessions, deleteSession } from '@/lib/utils/session-tracking'
+import { sessionIdSchema } from '@/lib/validation/zod-schemas'
 
 // GET /api/user/sessions - Get all active sessions for authenticated user
 export async function GET(request: NextRequest) {
   try {
+    // Rate limiting
+    const rateLimitError = await moderateRateLimit(request)
+    if (rateLimitError) return rateLimitError
+
     // Authenticate user
     const { error, user } = await requireAuth(request)
     if (error) return error
 
     if (!user?.id) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
-      )
+      return errorResponse('User not found', 404)
     }
 
     // Get sessions from database
@@ -32,28 +36,26 @@ export async function GET(request: NextRequest) {
       createdAt: session.createdAt.toISOString(),
     }))
 
-    return NextResponse.json({ sessions: formattedSessions })
+    return NextResponse.json(successResponse(formattedSessions))
   } catch (error) {
     console.error('Error fetching sessions:', error)
-    return NextResponse.json(
-      { error: 'An unexpected error occurred while fetching sessions' },
-      { status: 500 }
-    )
+    return errorResponse('An unexpected error occurred while fetching sessions', 500)
   }
 }
 
 // DELETE /api/user/sessions/:id - Delete a specific session
 export async function DELETE(request: NextRequest) {
   try {
+    // Rate limiting
+    const rateLimitError = await moderateRateLimit(request)
+    if (rateLimitError) return rateLimitError
+
     // Authenticate user
     const { error, user } = await requireAuth(request)
     if (error) return error
 
     if (!user?.id) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
-      )
+      return errorResponse('User not found', 404)
     }
 
     // Get session ID from URL
@@ -61,21 +63,25 @@ export async function DELETE(request: NextRequest) {
     const sessionId = url.searchParams.get('id')
 
     if (!sessionId) {
-      return NextResponse.json(
-        { error: 'Session ID is required' },
-        { status: 400 }
+      return errorResponse('Session ID is required', 400)
+    }
+
+    const validationResult = sessionIdSchema.safeParse({ id: sessionId })
+
+    if (!validationResult.success) {
+      return errorResponse(
+        'Invalid session ID',
+        400,
+        validationResult.error.issues
       )
     }
 
     // Delete the session
-    await deleteSession(parseInt(sessionId), user.id)
+    await deleteSession(validationResult.data.id, user!.id)
 
-    return NextResponse.json({ success: true })
+    return NextResponse.json(successResponse({ message: 'Session deleted successfully' }))
   } catch (error) {
     console.error('Error deleting session:', error)
-    return NextResponse.json(
-      { error: 'An unexpected error occurred while deleting session' },
-      { status: 500 }
-    )
+    return errorResponse('An unexpected error occurred while deleting session', 500)
   }
 }

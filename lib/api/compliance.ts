@@ -36,8 +36,9 @@ export function useCompliance(userId?: string) {
       if (!userId) {
         return { items: [] }
       }
-      const response = await apiClient<{ items: ComplianceItem[] }>(`/api/compliance?userId=${userId}`)
-      return response
+      // API automatically uses authenticated user, no need to pass userId
+      const response = await apiClient<{ data: ComplianceItem[] }>('/api/compliance')
+      return { items: response.data || [] }
     },
     enabled: !!userId,
     staleTime: 2 * 60 * 1000, // 2 minutes
@@ -79,10 +80,10 @@ export function useUpdateComplianceStatus() {
   const toast = useAppToast()
 
   return useMutation({
-    mutationFn: async ({ id, status }: { id: string; status: ComplianceItem['status'] }) => {
-      return apiClient(`/api/compliance/${id}`, {
+    mutationFn: async ({ id, status }: { id: string | number; status: ComplianceItem['status'] }) => {
+      return apiClient(`/api/compliance`, {
         method: 'PATCH',
-        body: JSON.stringify({ status }),
+        body: JSON.stringify({ id, status }),
       })
     },
     onSuccess: () => {

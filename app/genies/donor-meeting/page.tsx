@@ -20,7 +20,7 @@ import {
 import { useRouter } from 'next/navigation'
 import { FiUpload, FiX, FiArrowRight } from 'react-icons/fi'
 import { Checkbox } from '@/components/ui/checkbox'
-import { useDonorGenieStore } from '@/lib/store'
+import { useDonorGenieStore } from '@/lib/stores'
 import MainLayout from '@/components/layout/MainLayout'
 
 export default function DonorMeetingGeniePage() {

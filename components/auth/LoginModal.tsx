@@ -130,7 +130,7 @@ export default function LoginModal({ isOpen, onClose, onSwitchToSignup }: LoginM
               </HStack>
 
               <Button
-                colorScheme="purple"
+                colorPalette="purple"
                 w="full"
                 onClick={handleLogin}
                 loading={isLoading}

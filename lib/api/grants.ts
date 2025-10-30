@@ -106,8 +106,9 @@ export function useGrantApplications() {
   return useQuery({
     queryKey: grantKeys.applications(),
     queryFn: async () => {
-      const response = await apiClient<{ grants: GrantApplication[]; pagination: any }>('/api/grants')
-      return response.grants
+      // API automatically uses authenticated user and returns standardized response
+      const response = await apiClient<{ data: GrantApplication[]; pagination?: any }>('/api/grants')
+      return response.data || []
     },
   })
 }
@@ -116,8 +117,9 @@ export function useGrantApplication(applicationId: string) {
   return useQuery({
     queryKey: grantKeys.application(applicationId),
     queryFn: async () => {
-      const response = await apiClient<{ grant: GrantApplication }>(`/api/grants/${applicationId}`)
-      return response.grant
+      // API automatically uses authenticated user and returns standardized response
+      const response = await apiClient<{ data: GrantApplication }>(`/api/grants/${applicationId}`)
+      return response.data
     },
     enabled: !!applicationId,
   })
@@ -133,11 +135,11 @@ export function useCreateGrantApplication() {
 
   return useMutation({
     mutationFn: async (data: Partial<GrantApplication>) => {
-      const response = await apiClient<{ grant: GrantApplication }>('/api/grants', {
+      const response = await apiClient<{ data: GrantApplication }>('/api/grants', {
         method: 'POST',
         body: JSON.stringify(data),
       })
-      return response.grant
+      return response.data
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: grantKeys.applications() })
@@ -155,11 +157,11 @@ export function useUpdateGrantApplication() {
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<GrantApplication> }) => {
-      const response = await apiClient<{ grant: GrantApplication }>(`/api/grants/${id}`, {
+      const response = await apiClient<{ data: GrantApplication }>(`/api/grants/${id}`, {
         method: 'PUT',
         body: JSON.stringify(data),
       })
-      return response.grant
+      return response.data
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: grantKeys.application(variables.id) })
@@ -179,11 +181,11 @@ export function useSubmitGrantApplication() {
   return useMutation({
     mutationFn: async (applicationId: string) => {
       // Submit by updating status to 'submitted'
-      const response = await apiClient<{ grant: GrantApplication }>(`/api/grants/${applicationId}`, {
+      const response = await apiClient<{ data: GrantApplication }>(`/api/grants/${applicationId}`, {
         method: 'PUT',
         body: JSON.stringify({ status: 'submitted' }),
       })
-      return response.grant
+      return response.data
     },
     onSuccess: (_, applicationId) => {
       queryClient.invalidateQueries({ queryKey: grantKeys.application(applicationId) })

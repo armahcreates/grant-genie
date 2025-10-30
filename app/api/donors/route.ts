@@ -2,100 +2,101 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/db'
 import { donors, activityLog } from '@/db/schema'
 import { desc, eq } from 'drizzle-orm'
+import { requireAuth } from '@/lib/middleware/auth'
+import { moderateRateLimit } from '@/lib/middleware/rate-limit'
+import { successResponse, errorResponse } from '@/lib/api/response'
+import { createDonorSchema } from '@/lib/validation/zod-schemas'
 
-// GET /api/donors - List all donors for a user
+// GET /api/donors - List all donors for authenticated user
 export async function GET(request: NextRequest) {
   try {
-    const searchParams = request.nextUrl.searchParams
-    const userId = searchParams.get('userId')
+    // Rate limiting
+    const rateLimitError = await moderateRateLimit(request)
+    if (rateLimitError) return rateLimitError
 
-    if (!userId) {
-      return NextResponse.json({ error: 'User ID is required' }, { status: 400 })
-    }
+    // Authenticate user
+    const { error, user } = await requireAuth(request)
+    if (error) return error
 
     const donorsList = await db
       .select()
       .from(donors)
-      .where(eq(donors.userId, userId))
+      .where(eq(donors.userId, user!.id))
       .orderBy(desc(donors.createdAt))
 
-    return NextResponse.json({ donors: donorsList })
+    return NextResponse.json(successResponse(donorsList))
   } catch (error) {
     console.error('Error fetching donors:', error)
-    return NextResponse.json({ error: 'Failed to fetch donors' }, { status: 500 })
+    return errorResponse('An unexpected error occurred while fetching donors', 500)
   }
 }
 
 // POST /api/donors - Create a new donor
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-    const {
-      userId,
-      name,
-      email,
-      phone,
-      organization,
-      title,
-      address,
-      city,
-      state,
-      zipCode,
-      donorType,
-      totalContributions,
-      relationshipStatus,
-      interests,
-      notes,
-      lastContactDate,
-      nextFollowUpDate,
-      rating,
-    } = body
+    // Rate limiting
+    const rateLimitError = await moderateRateLimit(request)
+    if (rateLimitError) return rateLimitError
 
-    // Validate required fields
-    if (!userId || !name) {
-      return NextResponse.json(
-        { error: 'Missing required fields: userId, name' },
-        { status: 400 }
+    // Authenticate user
+    const { error, user } = await requireAuth(request)
+    if (error) return error
+
+    // Parse and validate request body
+    let body
+    try {
+      body = await request.json()
+    } catch {
+      return errorResponse('Invalid JSON in request body', 400)
+    }
+
+    const validationResult = createDonorSchema.safeParse(body)
+
+    if (!validationResult.success) {
+      return errorResponse(
+        'Invalid request data',
+        400,
+        validationResult.error.issues
       )
     }
 
-    // Create the donor
-    const [newDonor] = await db
-      .insert(donors)
-      .values({
-        userId,
-        name,
-        email,
-        phone,
-        organization,
-        title,
-        address,
-        city,
-        state,
-        zipCode,
-        donorType,
-        totalContributions,
-        relationshipStatus,
-        interests,
-        notes,
-        lastContactDate: lastContactDate ? new Date(lastContactDate) : null,
-        nextFollowUpDate: nextFollowUpDate ? new Date(nextFollowUpDate) : null,
-        rating,
-      })
-      .returning()
+    const validatedData = validationResult.data
 
-    // Log the activity
-    await db.insert(activityLog).values({
-      userId,
-      action: `Added new donor: ${name}`,
-      entityType: 'donor',
-      entityId: newDonor.id,
-      details: `Type: ${donorType || 'N/A'}`,
+    // Create the donor and log activity in a transaction
+    const newDonor = await db.transaction(async (tx) => {
+      const [donor] = await tx
+        .insert(donors)
+        .values({
+          userId: user!.id,
+          name: validatedData.name.trim(),
+          email: validatedData.email?.trim() || null,
+          phone: validatedData.phone?.trim() || null,
+          organization: validatedData.organization?.trim() || null,
+          title: validatedData.title?.trim() || null,
+          address: validatedData.address?.trim() || null,
+          city: validatedData.city?.trim() || null,
+          state: validatedData.state?.trim() || null,
+          zipCode: validatedData.zipCode?.trim() || null,
+          donorType: validatedData.donorType || null,
+          notes: validatedData.notes?.trim() || null,
+        })
+        .returning()
+
+      // Log the activity
+      await tx.insert(activityLog).values({
+        userId: user!.id,
+        action: `Added new donor: ${validatedData.name}`,
+        entityType: 'donor',
+        entityId: donor.id,
+        details: `Type: ${validatedData.donorType || 'N/A'}`,
+      })
+
+      return donor
     })
 
-    return NextResponse.json({ donor: newDonor }, { status: 201 })
+    return NextResponse.json(successResponse(newDonor), { status: 201 })
   } catch (error) {
     console.error('Error creating donor:', error)
-    return NextResponse.json({ error: 'Failed to create donor' }, { status: 500 })
+    return errorResponse('An unexpected error occurred while creating donor', 500)
   }
 }

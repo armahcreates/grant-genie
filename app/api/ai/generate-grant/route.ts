@@ -1,28 +1,49 @@
 import { NextRequest } from 'next/server'
 import { mastra } from '@/lib/mastra'
+import { requireAuth } from '@/lib/middleware/auth'
+import { strictRateLimit } from '@/lib/middleware/rate-limit'
+import { errorResponse } from '@/lib/api/response'
+import { z } from 'zod'
+
+const generateGrantSchema = z.object({
+  projectName: z.string().min(1).max(300),
+  funderName: z.string().min(1).max(300),
+  fundingAmount: z.string().optional(),
+  deadline: z.string().optional(),
+  rfpText: z.string().optional(),
+  teachingMaterials: z.string().optional(),
+})
 
 // POST /api/ai/generate-grant - Generate grant proposal using Grant Writing Agent
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-    const {
-      projectName,
-      funderName,
-      fundingAmount,
-      deadline,
-      rfpText,
-      teachingMaterials,
-    } = body
+    // Rate limiting (stricter for AI endpoints)
+    const rateLimitError = await strictRateLimit(request)
+    if (rateLimitError) return rateLimitError
 
-    if (!projectName || !funderName) {
-      return new Response(
-        JSON.stringify({ error: 'projectName and funderName are required' }),
-        {
-          status: 400,
-          headers: { 'Content-Type': 'application/json' },
-        }
+    // Authenticate user
+    const { error, user } = await requireAuth(request)
+    if (error) return error
+
+    // Parse and validate request body
+    let body
+    try {
+      body = await request.json()
+    } catch {
+      return errorResponse('Invalid JSON in request body', 400)
+    }
+
+    const validationResult = generateGrantSchema.safeParse(body)
+
+    if (!validationResult.success) {
+      return errorResponse(
+        'Invalid request data',
+        400,
+        validationResult.error.issues
       )
     }
+
+    const { projectName, funderName, fundingAmount, deadline, rfpText, teachingMaterials } = validationResult.data
 
     // Build the prompt for the grant writing agent
     const prompt = `Generate a comprehensive grant proposal for the following project:
@@ -48,36 +69,15 @@ Make it compelling, data-driven, and aligned with the funder's priorities.`
     // Get the grant writing agent
     const agent = mastra.getAgent('grantWriting')
 
-    // Generate the proposal
-    const result = await agent.generate(prompt)
-
-    // Create a text stream for the response
-    const encoder = new TextEncoder()
-    const stream = new ReadableStream({
-      async start(controller) {
-        // @ts-ignore - result might have text property
-        const text = result.text || result.toString()
-        controller.enqueue(encoder.encode(text))
-        controller.close()
-      },
+    // Use Vercel AI SDK streaming format
+    const stream = await agent.stream(prompt, {
+      format: 'aisdk',
     })
 
-    // Return streaming response
-    return new Response(stream, {
-      headers: {
-        'Content-Type': 'text/event-stream',
-        'Cache-Control': 'no-cache',
-        Connection: 'keep-alive',
-      },
-    })
+    // Return streaming response compatible with Vercel AI SDK
+    return stream.toUIMessageStreamResponse()
   } catch (error) {
     console.error('Error generating grant proposal:', error)
-    return new Response(
-      JSON.stringify({ error: 'Failed to generate grant proposal' }),
-      {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      }
-    )
+    return errorResponse('Failed to generate grant proposal', 500)
   }
 }

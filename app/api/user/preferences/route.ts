@@ -1,12 +1,18 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 import { db } from '@/db'
 import { userPreferences } from '@/db/schema'
 import { eq } from 'drizzle-orm'
 import { requireAuth } from '@/lib/middleware/auth'
+import { moderateRateLimit } from '@/lib/middleware/rate-limit'
+import { successResponse, errorResponse } from '@/lib/api/response'
 
 // GET /api/user/preferences - Get user preferences for authenticated user
 export async function GET(request: NextRequest) {
   try {
+    // Rate limiting
+    const rateLimitError = await moderateRateLimit(request)
+    if (rateLimitError) return rateLimitError
+
     // Authenticate user
     const { error, user } = await requireAuth(request)
     if (error) return error
@@ -32,65 +38,76 @@ export async function GET(request: NextRequest) {
         })
         .returning()
 
-      return NextResponse.json({ preferences: newPreferences })
+      // Transform to match NotificationPreferences interface
+      const notificationPrefs = {
+        emailNotifications: newPreferences.emailNotifications || false,
+        pushNotifications: newPreferences.inAppNotifications || false,
+        smsNotifications: false,
+        deadlineReminders: true,
+        complianceAlerts: true,
+        grantMatches: true,
+        weeklyDigest: newPreferences.notificationDigest === 'weekly',
+      }
+
+      return NextResponse.json(successResponse(notificationPrefs))
     }
 
-    return NextResponse.json({ preferences })
+    // Transform to match NotificationPreferences interface
+    const notificationPrefs = {
+      emailNotifications: preferences.emailNotifications || false,
+      pushNotifications: preferences.inAppNotifications || false,
+      smsNotifications: false,
+      deadlineReminders: true,
+      complianceAlerts: true,
+      grantMatches: true,
+      weeklyDigest: preferences.notificationDigest === 'weekly',
+    }
+
+    return NextResponse.json(successResponse(notificationPrefs))
   } catch (error) {
     console.error('Error fetching user preferences:', error)
-    return NextResponse.json(
-      { error: 'An unexpected error occurred while fetching preferences' },
-      { status: 500 }
-    )
+    return errorResponse('An unexpected error occurred while fetching preferences', 500)
   }
 }
 
 // PATCH /api/user/preferences - Update user preferences for authenticated user
 export async function PATCH(request: NextRequest) {
   try {
+    // Rate limiting
+    const rateLimitError = await moderateRateLimit(request)
+    if (rateLimitError) return rateLimitError
+
     // Authenticate user
     const { error, user } = await requireAuth(request)
     if (error) return error
 
-    const body = await request.json()
+    let body
+    try {
+      body = await request.json()
+    } catch {
+      return errorResponse('Invalid JSON in request body', 400)
+    }
+
     const {
       emailNotifications,
-      inAppNotifications,
-      notificationDigest,
-      theme,
-      timezone,
-      language,
-      dashboardLayout,
+      pushNotifications,
+      smsNotifications,
+      deadlineReminders,
+      complianceAlerts,
+      grantMatches,
+      weeklyDigest,
     } = body
 
-    // Validate notification digest if provided
-    if (notificationDigest && !['realtime', 'daily', 'weekly'].includes(notificationDigest)) {
-      return NextResponse.json(
-        { error: 'Invalid notification digest. Must be one of: realtime, daily, weekly' },
-        { status: 400 }
-      )
-    }
-
-    // Validate theme if provided
-    if (theme && !['light', 'dark', 'auto'].includes(theme)) {
-      return NextResponse.json(
-        { error: 'Invalid theme. Must be one of: light, dark, auto' },
-        { status: 400 }
-      )
-    }
-
-    // Build update object with only provided fields
+    // Build update object
     const updateData: any = {
       updatedAt: new Date(),
     }
 
     if (emailNotifications !== undefined) updateData.emailNotifications = emailNotifications
-    if (inAppNotifications !== undefined) updateData.inAppNotifications = inAppNotifications
-    if (notificationDigest !== undefined) updateData.notificationDigest = notificationDigest
-    if (theme !== undefined) updateData.theme = theme
-    if (timezone !== undefined) updateData.timezone = timezone
-    if (language !== undefined) updateData.language = language
-    if (dashboardLayout !== undefined) updateData.dashboardLayout = dashboardLayout
+    if (pushNotifications !== undefined) updateData.inAppNotifications = pushNotifications
+    if (weeklyDigest !== undefined) {
+      updateData.notificationDigest = weeklyDigest ? 'weekly' : 'daily'
+    }
 
     // Check if preferences exist
     const [existing] = await db
@@ -116,6 +133,12 @@ export async function PATCH(request: NextRequest) {
         .insert(userPreferences)
         .values({
           userId: user!.id,
+          emailNotifications: emailNotifications ?? true,
+          inAppNotifications: pushNotifications ?? true,
+          notificationDigest: weeklyDigest ? 'weekly' : 'daily',
+          theme: 'light',
+          timezone: 'America/New_York',
+          language: 'en',
           ...updateData,
         })
         .returning()
@@ -124,18 +147,23 @@ export async function PATCH(request: NextRequest) {
     }
 
     if (!updatedPreferences) {
-      return NextResponse.json(
-        { error: 'Failed to update preferences' },
-        { status: 500 }
-      )
+      return errorResponse('Failed to update preferences', 500)
     }
 
-    return NextResponse.json({ preferences: updatedPreferences })
+    // Transform to match NotificationPreferences interface
+    const notificationPrefs = {
+      emailNotifications: updatedPreferences.emailNotifications || false,
+      pushNotifications: updatedPreferences.inAppNotifications || false,
+      smsNotifications: false,
+      deadlineReminders: true,
+      complianceAlerts: true,
+      grantMatches: true,
+      weeklyDigest: updatedPreferences.notificationDigest === 'weekly',
+    }
+
+    return NextResponse.json(successResponse(notificationPrefs))
   } catch (error) {
     console.error('Error updating user preferences:', error)
-    return NextResponse.json(
-      { error: 'An unexpected error occurred while updating preferences' },
-      { status: 500 }
-    )
+    return errorResponse('An unexpected error occurred while updating preferences', 500)
   }
 }

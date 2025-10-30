@@ -142,7 +142,7 @@ export default function SupportGenie() {
             onClick={() => setIsOpen(!isOpen)}
             size="lg"
             borderRadius="full"
-            colorScheme="purple"
+            colorPalette="purple"
             boxShadow="2xl"
             w="64px"
             h="64px"
@@ -330,7 +330,7 @@ export default function SupportGenie() {
                     />
                     <Button
                       onClick={handleSendMessage}
-                      colorScheme="purple"
+                      colorPalette="purple"
                       disabled={!inputMessage.trim() || isLoading}
                       loading={isLoading}
                     >

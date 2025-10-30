@@ -1,41 +1,59 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireAuth } from '@/lib/middleware/auth'
+import { moderateRateLimit } from '@/lib/middleware/rate-limit'
+import { successResponse, errorResponse } from '@/lib/api/response'
+import { z } from 'zod'
+
+const supportMessageSchema = z.object({
+  message: z.string().min(1, 'Message is required').max(5000, 'Message must be 5000 characters or less'),
+  history: z.array(z.object({
+    role: z.enum(['user', 'assistant']),
+    content: z.string(),
+  })).optional(),
+})
 
 // POST /api/ai/support - Support Genie AI chat
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting
+    const rateLimitError = await moderateRateLimit(request)
+    if (rateLimitError) return rateLimitError
+
     // Authenticate user
     const { error, user } = await requireAuth(request)
     if (error) return error
 
-    const body = await request.json()
-    const { message, history } = body
+    // Parse and validate request body
+    let body
+    try {
+      body = await request.json()
+    } catch {
+      return errorResponse('Invalid JSON in request body', 400)
+    }
 
-    if (!message || typeof message !== 'string') {
-      return NextResponse.json(
-        { error: 'Message is required and must be a string' },
-        { status: 400 }
+    const validationResult = supportMessageSchema.safeParse(body)
+
+    if (!validationResult.success) {
+      return errorResponse(
+        'Invalid request data',
+        400,
+        validationResult.error.issues
       )
     }
 
-    if (message.length > 5000) {
-      return NextResponse.json(
-        { error: 'Message must be 5000 characters or less' },
-        { status: 400 }
-      )
-    }
+    const { message } = validationResult.data
 
     // Generate contextual response based on user question
     const response = generateSupportResponse(message)
 
-    return NextResponse.json({ response })
+    return NextResponse.json(successResponse({ response }))
   } catch (error) {
     console.error('Error processing support chat:', error)
 
     // Return a helpful fallback message instead of an error
-    return NextResponse.json({
+    return NextResponse.json(successResponse({
       response: "I apologize, but I'm having trouble processing your request right now. Here are some quick navigation tips:\n\n• Grant Search: Find funding opportunities in the sidebar\n• Donor Meeting Genie: Practice conversations under 'Genies'\n• Compliance Tracker: Manage deadlines in the sidebar\n• Profile: Update your information in the top menu\n\nFor immediate assistance, please contact support@headspacegenie.com",
-    })
+    }))
   }
 }
 
